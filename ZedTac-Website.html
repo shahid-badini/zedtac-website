@@ -5220,38 +5220,9 @@
     .cap-track .cap-group{ flex:0 0 82vw; }
   }
 
-  /* --- About on the landing page ----------------------------------------- */
-  #about-home .about-grid{
-    display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; align-items:center;
-  }
-  @media (max-width:920px){
-    #about-home .about-grid{ grid-template-columns:1fr; gap:34px; }
-  }
-  #about-home .about-visual{
-    border-radius:var(--r-2xl); overflow:hidden; background:var(--zt-card);
-    border:1px solid var(--zt-line);
-  }
-  #about-home .about-visual img{ width:100%; height:100%; display:block; object-fit:cover; }
-  #about-home .about-copy p{
-    color:var(--zt-ink-soft); font-size:16px; line-height:1.72; margin-bottom:16px;
-  }
-  #about-home .about-stats{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:28px;
-  }
-  @media (max-width:760px){ #about-home .about-stats{ grid-template-columns:repeat(2,1fr); } }
-  #about-home .about-stat{
-    background:var(--zt-card); border:1px solid var(--zt-line);
-    border-radius:var(--r-md); padding:16px 14px;
-    transition:transform var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
-  }
-  #about-home .about-stat:hover{ transform:translateY(-4px); box-shadow:var(--sh-2); }
-  #about-home .about-stat strong{
-    display:block; font-family:'Space Grotesk',sans-serif; font-size:24px;
-    color:var(--zt-primary); line-height:1.1;
-  }
-  #about-home .about-stat span{
-    display:block; font-size:12.5px; color:var(--zt-ink-soft); margin-top:5px;
-  }
+  /* The 30 lines that styled #about-home came out with the section. The About
+     page has always carried its own #about.about treatment, so nothing here
+     was shared. */
 
 
   /* Header ground, restated with !important: several later .nav rules paint
@@ -6533,6 +6504,20 @@
     }
   }
 
+  /* Tablets get two columns rather than one. Three portrait cards stacked in a
+     single column made this the only landing section badly out of step with
+     the rest -- 2055px against a 1024px screen, where every other section sat
+     at 99-103%. Two columns puts the same three cards in two rows and takes it
+     to roughly 130%, without narrowing the cards enough to hurt them (341px
+     here against 359px on desktop). Phones stay single-column: two columns at
+     390px would leave each card about 165px wide. */
+  @media (min-width:620px) and (max-width:860px){
+    .arch-nodes{
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      justify-content:stretch;
+    }
+  }
+
   /* Short viewports opt out for the same reason the sections do above: there
      is not enough height to give a portrait card without pushing its own
      content off the screen. */
@@ -6541,6 +6526,145 @@
     .deployed-slider-track .industry-card,
     .blog-track .blog-card,
     #architecture .arch-node{ aspect-ratio:auto; }
+  }
+
+
+  /* ==========================================================================
+     "DEPTH WHERE IT MATTERS" -- DARK BAND
+
+     #carousel-industries joins #architecture and #case-studies on the shared
+     band. Nothing new is introduced: it opts into the same ::before breakout,
+     reads the same --zt-band-black / --zt-band-brand tokens, and takes the
+     same 165deg ramp, so if those tokens are ever retuned all three move
+     together. Content, layout and card geometry are untouched.
+     ========================================================================== */
+
+  /* 1. Opt into the full-bleed mechanism. The gradient is painted by a
+        pseudo-element that breaks out to 100vw, so the band spans corner to
+        corner while the content keeps the container's max-width. */
+  #carousel-industries{ position:relative; }
+  #carousel-industries::before{
+    content:'';
+    position:absolute; top:0; bottom:0;
+    left:50%; width:100vw; margin-left:-50vw;
+    z-index:-1; pointer-events:none;
+    background:var(--zt-bleed, transparent);
+  }
+
+  /* 2. The same ramp as the other two bands, from the same tokens. Black leads
+        and holds through the first 45% because the white heading and intro sit
+        at the top -- running brand up there would drop that copy to about 2:1. */
+  :root #carousel-industries{
+    --zt-bleed:linear-gradient(165deg,
+      var(--zt-band-black) 0%,
+      var(--zt-band-black) 45%,
+      var(--zt-band-brand) 100%);
+  }
+
+  /* 3. Heading and intro sit on the band itself, not inside a card, so they
+        take the same light treatment #architecture and #case-studies use. */
+  #carousel-industries .sec-head h2{ color:#FFFFFF; }
+  #carousel-industries .sec-head p{ color:rgba(255,255,255,.78); }
+
+  /* 4. Cards follow #architecture rather than #case-studies: both card
+        treatments exist on the band, and these are .auto-card, which already
+        paints var(--zt-card), so keeping the cream ground and taking the copy
+        to black is the match that changes nothing about the card itself.
+        Black on cream measures ~16:1. */
+  #carousel-industries .auto-card h3,
+  #carousel-industries .auto-card p{ color:#000000; }
+
+  /* 5. Arrows take the treatment #case-studies already gives them on this same
+        ground -- the only other band that carries slider controls. */
+  #carousel-industries .slider-arrow{
+    background:rgba(255,255,255,0.08);
+    border-color:rgba(255,255,255,0.18);
+    color:#fff;
+  }
+  #carousel-industries .slider-arrow:hover{
+    background:var(--grad); border-color:transparent; color:#fff;
+  }
+
+
+  /* ==========================================================================
+     LANDING PAGE -- EVEN SECTION HEIGHTS
+
+     Every landing section was already min-height:100svh, but three overshot it
+     and read as taller than the rest. Measured at 1440x900, against a 722px
+     content budget (900 - 133 top - 45 bottom):
+
+       case studies  1016px   content 838  -- .case-studies-section adds 69px
+                                              of its own padding on top of the
+                                              section's, and the card is 482
+       blog           944px   content 766  -- .blog-section adds 128px
+       industries     907px   content 729  -- over by a single slider-nav margin
+
+     The cause in each case is a padded plate nested inside an already-padded
+     section, which is exactly the "excessive vertical spacing" to remove --
+     not the content itself. Card copy is never shrunk and nothing is clipped;
+     where content genuinely needs the room the section still grows.
+     ========================================================================== */
+
+  /* .case-studies-section paints no plate of its own -- the band comes from the
+     wrap's ::before -- so its vertical padding was pure duplication of the
+     section's. Horizontal padding was already zero. */
+  .case-studies-section{ padding-block:0; }
+
+  /* .blog-section IS a visible rounded plate, so it keeps padding -- just
+     enough to hold its own edge rather than a second full section rhythm.
+     Horizontal is untouched. */
+  .blog-section{ padding-block:clamp(26px, 3.4vh, 52px); }
+
+  /* The case-study card is the one card still over budget after the padding
+     comes out. Its thumbnail is the flexible part: the copy underneath is
+     untouched, so nothing clips -- the image just stops being a fixed 170px on
+     every screen and scales with the viewport like everything else. */
+  #case-studies .portfolio-thumb{ height:clamp(118px, 14vh, 190px); }
+
+  /* Shared by all four slider sections. 16px was a fixed value under a row of
+     controls that already carry their own whitespace. */
+  .slider-nav{ margin-top:clamp(8px, 1vh, 16px); }
+
+  /* ---- responsive --------------------------------------------------------
+     Everything above is already viewport-relative, so it tracks from phone to
+     4K on its own. Phones are the exception worth naming: the grids stack to
+     one column there, so a section holding six cards is legitimately taller
+     than a screen and the plate padding should not be squeezed further. */
+  @media (max-width:720px){
+    .blog-section{ padding-block:clamp(28px, 4vh, 44px); }
+    #case-studies .portfolio-thumb{ height:clamp(150px, 18vh, 190px); }
+  }
+
+  /* Short-but-wide screens -- the common 1366x768 laptop. Card widths come from
+     vw and their heights from the 3:4 ratio, so a wide viewport that is also
+     short produces cards that are tall relative to the screen holding them:
+     the sections ran 99-112% here while 1440x900 sat flat at 100%. Pulling the
+     width ceilings in (and with them the derived heights) plus a tighter
+     heading rhythm closes that spread. Keyed on height, so 1440x900 and every
+     taller screen are untouched. */
+  @media (max-height:820px) and (min-width:861px){
+    :root{ --sp-head:clamp(18px, 2vw, 28px); }
+
+    /* Width moves height in OPPOSITE directions depending on what sets the
+       card's height, which is why a single "make everything narrower" pass
+       made three of these worse rather than better:
+
+       - Ratio-bound cards (3:4) derive height from width, so narrower is
+         shorter.
+       - Content-bound cards take their height from the copy, so narrower
+         reflows the text into more lines and makes them TALLER. These want
+         to be wider on a short screen, not narrower. */
+
+    .industry-slider-track .auto-card{ flex:0 0 clamp(240px, 20vw, 300px); }
+    .deployed-slider-track .industry-card{ flex:0 0 clamp(230px, 18.5vw, 285px); }
+
+    .blog-track .blog-card{ flex:0 0 clamp(300px, 26vw, 390px); }
+    #case-studies .portfolio-card{ flex:0 0 clamp(320px, 29vw, 420px); }
+    #case-studies .portfolio-thumb{ height:clamp(105px, 13vh, 140px); }
+
+    /* .arch-road keeps its full desktop width for the same reason: squeezing
+       it pushed the layer copy into extra lines and made that section taller,
+       not shorter. */
   }
 
 </style>
@@ -6698,7 +6822,7 @@
           </div>
         </div>
 
-        <a href="#about-home" @click.prevent="goSection('#about-home')" :class="{'nav-active': page === 'home' && activeSection === 'about-home'}">About</a>
+        <a href="#" @click.prevent="goAbout" :class="{'nav-active': page === 'about'}">About</a>
         <a href="#" @click.prevent="goConsult" :class="{'nav-active': page === 'consult'}">Contact</a>
 
         <div class="nav-auth">
@@ -7008,35 +7132,11 @@
       </section>
     </div>
 
-    <!-- ABOUT — on the landing page. The nav's About link calls
-         goSection('#about-home'), which forces page='home' and then looks for the
-         target, so before this existed the link resolved to nothing. The copy
-         is the condensed version of the About page rather than a second draft,
-         so the two never drift. -->
-    <div class="wrap" id="about-home">
-      <section>
-        <div class="sec-head">
-          <h2>An <span class="text-grad">ERP partner</span> built around your operations</h2>
-          <p>ZedTac is an enterprise resource planning consultancy and software company, helping organizations replace disconnected tools with a single, governed system of record.</p>
-        </div>
-        <div class="about-grid reveal">
-          <div class="about-visual">
-            <img src="images/AI_image.svg" alt="Abstract representation of ZedTac's ERP implementation process" width="400" height="400" loading="lazy" decoding="async">
-          </div>
-          <div class="about-copy">
-            <p>We help mid-market and enterprise organizations retire disconnected spreadsheets and aging legacy tools, replacing them with one <span class="text-grad">governed system of record</span> across finance, inventory, supply chain, manufacturing, HR and customer operations.</p>
-            <p>Our work starts with process, not licenses. We audit how your business genuinely runs, design a blueprint your leadership signs off, and implement in fixed phases under a named project lead — so <span class="text-grad">digital transformation</span> stays measurable instead of open-ended.</p>
-            <p>Everything we deliver is engineered to scale: multi-entity, multi-currency, cloud-native and API-first. We stay engaged well beyond go-live with training, SLA-backed support and quarterly optimization reviews.</p>
-            <div class="about-stats">
-              <div class="about-stat"><strong>12+ yrs</strong><span>Enterprise ERP delivery</span></div>
-              <div class="about-stat"><strong>120+</strong><span>Implementations delivered</span></div>
-              <div class="about-stat"><strong>98%</strong><span>Client retention</span></div>
-              <div class="about-stat"><strong>8</strong><span>Industries served</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    <!-- The condensed About section that used to close the landing page has
+         moved to the dedicated About page (page === 'about'), which already
+         carried the full version. Keeping both meant maintaining the same copy
+         twice; the nav's About link now routes to that page rather than
+         scrolling to a section here. -->
 
   </div>
 
@@ -8566,7 +8666,7 @@
         <div class="ft-col">
           <h4>Company</h4>
           <ul>
-            <li><a href="#about-home" @click.prevent="goSection('#about-home')">About Us</a></li>
+            <li><a href="#" @click.prevent="goAbout">About Us</a></li>
             <li><a href="#" @click.prevent="goSection('#case-studies')">Case Studies</a></li>
             <li><a href="#" @click.prevent="goSection('#blog')">Insights</a></li>
             <li><a href="#" @click.prevent="goConsult">Contact</a></li>
@@ -9766,7 +9866,9 @@ createApp({
     },
     bindSectionSpy(){
       this.unbindSectionSpy();
-      const ids = ['services','automation','showcase','case-studies','about-home','blog'];
+      /* 'about-home' left this list with the section itself -- About is its own
+         page now, so the spy has nothing to scroll past. */
+      const ids = ['services','automation','showcase','case-studies','blog'];
       const check = () => {
         if (this.page !== 'home'){ this.activeSection = ''; return; }
         const line = 140;                       // just below the sticky navbar
@@ -9856,6 +9958,12 @@ createApp({
     goIndustries(){ this.goPage('industries'); },
     goDocs(){ this.goPage('docs'); },
     goFaqs(){ this.goPage('faqs'); },
+    /* About is a page now, not a section on the landing page. Routing through
+       goPage() is what matters here: it calls queueReveal(), and .reveal starts
+       at opacity:0 -- the old goSection('#about-home') path rebuilt the subtree
+       without rebinding the observer, which is exactly how a route lands
+       looking like a blank page. */
+    goAbout(){ this.goPage('about'); },
     // Opens one automation module on its own page.
     openModule(i){
       this.activeModule = i;
