@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#26170B"/>
+      <stop offset="100%" stop-color="#4A2E13"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#g)"/>
+  <circle cx="58" cy="42" r="92" fill="#FF7A1A" opacity="0.12"/>
+  <circle cx="432" cy="262" r="100" fill="#FF7A1A" opacity="0.10"/>
+<rect x="36" y="46" width="408" height="208" rx="14" fill="#FFFFFF" fill-opacity="0.06" stroke="#FF9A3D" stroke-opacity="0.4"/>
+  <g transform="translate(64,86)">
+    <rect x="0" y="30" width="98" height="58" rx="8" fill="#FF7A1A" fill-opacity="0.85"/>
+    <path d="M98 48 H136 L162 74 V88 H98 Z" fill="#FF9A3D" fill-opacity="0.55"/>
+    <g fill="#26170B" stroke="#FFCB94" stroke-width="5">
+      <circle cx="34" cy="94" r="13"/><circle cx="132" cy="94" r="13"/>
+    </g>
+    <g transform="translate(214,-12)">
+      <path d="M8 104 C 44 104, 40 44, 76 44 S 108 92, 140 24"
+            stroke="#FF7A1A" stroke-width="5" fill="none"
+            stroke-linecap="round" stroke-dasharray="12 9"/>
+      <g fill="#FF9A3D">
+        <circle cx="8" cy="104" r="9"/><circle cx="76" cy="44" r="9"/>
+      </g>
+      <path d="M140 6 c9 0 16 7 16 16 0 12-16 26-16 26s-16-14-16-26c0-9 7-16 16-16z"
+            fill="#D9480F"/>
+      <circle cx="140" cy="22" r="6" fill="#FFE3CC"/>
+    </g>
+  </g>
+</svg>

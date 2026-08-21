@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Editor / tooling
+.claude/settings.local.json
+
+# Local scratch
+*.log
+node_modules/
+
+# The ERP application is a separate project with its own repository:
+# https://github.com/zedtac/erp
+erp/

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D9480F"/>
+      <stop offset="55%" stop-color="#FF7A1A"/>
+      <stop offset="100%" stop-color="#FF9A3D"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#g)"/>
+  <circle cx="440" cy="46" r="88" fill="#FFFFFF" opacity="0.08"/>
+  <circle cx="36" cy="268" r="72" fill="#FFFFFF" opacity="0.08"/>
+<rect x="46" y="52" width="388" height="196" rx="14" fill="#FFFFFF" fill-opacity="0.94"/>
+  <g transform="translate(84,80)">
+    <rect width="196" height="112" rx="10" fill="#FFE3CC"/>
+    <rect x="16" y="18" width="96" height="9" rx="4.5" fill="#FF9A3D"/>
+    <g fill="#FFFFFF">
+      <rect x="16" y="42" width="164" height="8" rx="4"/>
+      <rect x="16" y="62" width="132" height="8" rx="4"/>
+      <rect x="16" y="82" width="150" height="8" rx="4"/>
+    </g>
+    <rect x="70" y="120" width="56" height="9" rx="4.5" fill="#FFD8B0"/>
+    <g transform="translate(232,26)" fill="#FF7A1A">
+      <circle cx="26" cy="20" r="18"/>
+      <path d="M0 88c0-20 11.6-32 26-32s26 12 26 32z"/>
+    </g>
+    <g transform="translate(292,52)" fill="#FFCB94">
+      <circle cx="22" cy="17" r="15"/>
+      <path d="M0 62c0-16 9.8-26 22-26s22 10 22 26z"/>
+    </g>
+  </g>
+</svg>
