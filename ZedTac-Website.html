@@ -6422,6 +6422,127 @@
     .outcome-card{ min-height:240px; }
   }
 
+
+  /* ==========================================================================
+     LANDING PAGE -- PORTRAIT CARDS
+
+     Four of the home page's five card families were still landscape or square
+     inside sections that are a screen tall. Measured at 1440x900:
+
+       architecture   426x387  aspect 1.10   room for 561
+       industries     420x261  aspect 1.61   room for 488
+       deployed       380x261  aspect 1.46   room for 516
+       blog           360x380  aspect 0.95   room for 380
+       case studies   360x482  aspect 0.75   already portrait -- untouched
+
+     Shape comes from aspect-ratio rather than another stack of vh clamps.
+     Height is then derived from the card's own width, so the portrait
+     proportion holds at every breakpoint without a per-viewport table, and
+     because aspect-ratio only sets a PREFERRED size, a card whose content
+     needs more room still grows instead of clipping. That is what keeps the
+     narrow-and-tall phone case honest: at 390px the blog card's copy needs
+     ~447px and simply takes it.
+
+     3/4 matches the case-study card that was already portrait, so all five
+     families now share one proportion.
+
+     Scoping is by track and section id -- .auto-card and .industry-card are
+     shared with the grids on ERP Services, Automation and Client Outcomes,
+     which keep the sizing from the previous pass.
+     ========================================================================== */
+
+  .industry-slider-track .auto-card,
+  .deployed-slider-track .industry-card,
+  #architecture .arch-node{
+    aspect-ratio:3 / 4;
+    /* The previous pass gave .arch-node an explicit min-height token. An
+       explicit value REPLACES min-height:auto, which is what lets a grid or
+       flex item grow to fit its own content -- so the ratio stopped being a
+       preferred height and became a hard ceiling, and at 390px the card's copy
+       rendered outside its own border. Restoring auto makes the used height
+       max(ratio, content): portrait when there is room, honest when there
+       isn't. */
+    min-height:auto;
+  }
+
+  /* The blog card is deliberately NOT given a ratio. It carries overflow:hidden
+     to clip the thumbnail into its rounded corner, and that cancels a flex
+     item's automatic minimum size -- so a fixed aspect height became a hard
+     ceiling and the longest three cards had their "Read article" link cut off
+     (43px over at 1440x900). Its portrait shape comes from the narrower width
+     plus a thumbnail that scales with the viewport, leaving the height free to
+     follow the copy. */
+
+  /* Widths narrow as the counterpart to the added height -- a portrait card
+     that only grew taller would have read as a column, not a card. Ceilings
+     rise with the viewport so 1440p and 4K keep the same 3:4 rather than
+     stretching a capped width against an uncapped height. */
+  .industry-slider-track .auto-card{ flex:0 0 clamp(250px, 23vw, 420px); }
+  .deployed-slider-track .industry-card{ flex:0 0 clamp(240px, 21vw, 395px); }
+  .blog-track .blog-card{ flex:0 0 clamp(260px, 20vw, 370px); }
+
+  /* The architecture cards sit in a 3-up grid, so their width is the
+     container's. Narrowing the road narrows the rail and the cards together,
+     which keeps every rail dot aligned over its own card. */
+  .arch-road{ max-width:clamp(760px, 78vw, 1180px); margin-inline:auto; }
+
+  /* ---- content inside the taller cards ----------------------------------- */
+  /* The blog card was a block: thumbnail on top, body beneath, and the extra
+     height of a portrait card would have collected under the last line. As a
+     column the image scales with the card and the copy centres in what is
+     left, so the card fills out instead of growing a gap at its foot. */
+  .blog-track .blog-card{ display:flex; flex-direction:column; }
+  /* The thumbnail is what drives the portrait proportion here: it grows with
+     the viewport, so the card gets taller on a big screen instead of staying
+     the same height and going square. */
+  .blog-track .blog-thumb{ flex:0 0 auto; height:clamp(138px, 16vh, 280px); }
+  .blog-track .blog-body{ flex:1 1 auto; display:flex; flex-direction:column; }
+  /* Cards in a row stretch to the tallest, so without this the link sat
+     directly under copy of differing lengths and the row read as ragged. */
+  .blog-track .blog-link{ margin-top:auto; padding-top:16px; }
+
+  /* The two carousel cards carry no image -- Industry Solutions is a heading
+     and a paragraph, Deployed adds a category label and a result badge. Centred
+     in a 3:4 box that copy floated in the middle with a void above and below,
+     so it is anchored to the foot instead. That is also what the case-study and
+     blog cards do (image on top, copy at the bottom), so the whole landing page
+     now reads on one rhythm rather than three. */
+  .industry-slider-track .auto-card{ justify-content:flex-end; }
+
+  /* Deployed keeps its category label at the top edge as the counterweight,
+     with the title, copy and result badge grouped at the foot -- an auto
+     margin on the heading splits the two, so the label does not travel down
+     with the rest. */
+  .deployed-slider-track .industry-card{ justify-content:flex-start; }
+  .deployed-slider-track .industry-card > h3{ margin-top:auto; }
+
+  /* .arch-node keeps its own arrangement: the chip row is after a flex-grow
+     paragraph, so the added height pins the chips to the bottom edge, which is
+     what that card was designed to do. */
+
+  /* ---- responsive -------------------------------------------------------- */
+  /* Below 860px the architecture grid drops to a single column (a pre-existing
+     rule), which made each card the full width of the container -- 707x440 on
+     a tablet, more landscape than what it replaced. Capping the column and
+     centring it keeps the card portrait at those widths while the three layers
+     still read top to bottom. */
+  @media (max-width:860px){
+    .arch-nodes{
+      grid-template-columns:minmax(0, min(100%, clamp(300px, 62vw, 430px)));
+      justify-content:center;
+    }
+  }
+
+  /* Short viewports opt out for the same reason the sections do above: there
+     is not enough height to give a portrait card without pushing its own
+     content off the screen. */
+  @media (max-height:560px){
+    .industry-slider-track .auto-card,
+    .deployed-slider-track .industry-card,
+    .blog-track .blog-card,
+    #architecture .arch-node{ aspect-ratio:auto; }
+  }
+
 </style>
 </head>
 <body>
