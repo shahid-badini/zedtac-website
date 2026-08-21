@@ -6303,6 +6303,125 @@
     }
   }
 
+
+  /* ==========================================================================
+     CARD SCALE FOR FULL-SCREEN SECTIONS
+
+     Every section is a screen tall now, which left the smaller card families
+     stranded: measured at 1440x900, the two home carousels sat at 202px and
+     194px tall inside 900px sections (286px and 321px of unused height), and
+     the doc / add-on / erp-feature grids were 149-169px against ~210-233px of
+     slack. The big families (pricing 516px, consult 518px, portfolio 479px,
+     cap-group 462px) already filled their sections and are deliberately left
+     alone -- growing those is what would look inflated.
+
+     Heights are viewport-relative rather than fixed, so a card stays the same
+     FRACTION of the section at every size, with a floor for phones and a
+     ceiling so 4K cannot stretch a three-line card into a poster. Row-equal
+     heights come from the grids' default align-items:stretch and are
+     untouched; min-height only raises the floor, so the taller card in a row
+     still sets the height for the rest.
+     ========================================================================== */
+
+  :root{
+    --zt-card-xs:clamp(104px, 13vh, 150px);   /* stat strips           */
+    --zt-card-sm:clamp(190px, 25vh, 290px);   /* compact text cards    */
+    --zt-card-md:clamp(225px, 29vh, 340px);   /* standard cards        */
+    --zt-card-lg:clamp(320px, 43vh, 500px);   /* feature cards         */
+
+    /* Internal padding scales on width, not height -- a card gets wider on a
+       big screen, and padding that tracked vh would go slack on a short one. */
+    --zt-card-pad:clamp(22px, 1.9vw, 38px);
+    --zt-card-pad-lg:clamp(26px, 2.2vw, 44px);
+  }
+
+  /* ---- heights ----------------------------------------------------------- */
+  .doc-card, .erp-feature, .addon-card{ min-height:var(--zt-card-sm); }
+  .auto-card, .industry-card{ min-height:var(--zt-card-md); }
+  .arch-node{ min-height:var(--zt-card-lg); }
+  .about-stat{ min-height:var(--zt-card-xs); }
+  /* Already close to filling its section; a small lift only. */
+  .outcome-card{ min-height:clamp(300px, 38vh, 440px); }
+
+  /* ---- internal padding -------------------------------------------------- */
+  .doc-card, .erp-feature, .addon-card, .industry-card{ padding:var(--zt-card-pad); }
+  .auto-card, .arch-node{ padding:var(--zt-card-pad-lg); }
+
+  /* ---- vertical alignment of card content -------------------------------- */
+  /* .erp-feature is the one family still laid out as a block, so it cannot
+     centre anything until it becomes a column. */
+  .erp-feature{ display:flex; flex-direction:column; }
+
+  /* These end in a paragraph carrying flex-grow:1, which was there to push a
+     footer down when a row equalised. With the card now taller than its own
+     content that same rule dumps every spare pixel below the text instead of
+     balancing it, so the growth reads as a hole rather than as breathing room.
+     Neutralising the grow and centring the stack keeps the card optically
+     balanced at any height. */
+  .industry-card, .auto-card, .doc-card, .addon-card, .erp-feature{
+    justify-content:center;
+  }
+  /* A flex child that can grow absorbs the free space before justify-content
+     ever sees it, so the paragraph silently stretched to the full card height
+     and rendered its text against the top edge -- the card looked taller but
+     emptier. Only the trailing paragraphs are neutralised. */
+  .industry-card > p,
+  .industry-slider-track .auto-card > p{ flex-grow:0; }
+
+  /* .auto-grid's version of the same card is left alone: it ends in .auto-foot
+     carrying margin-top:auto, which pins that row to the bottom edge on
+     purpose. Auto margins also absorb free space ahead of justify-content, so
+     the centring rule above is inert there and the footer keeps its position. */
+
+  /* .arch-node is deliberately excluded from the centring above: its chip row
+     sits after the flex-grow paragraph, so extra height pins the chips to the
+     bottom edge -- a deliberate part of that card's design, and the reason it
+     grows gracefully on its own. */
+
+  /* Icon, heading and copy get a floor on the space between them, so a taller
+     card spaces its parts out instead of leaving one tight clump. Only applied
+     where the family has no internal margins of its own to double up with. */
+  .doc-card, .addon-card, .erp-feature{ row-gap:clamp(6px, 0.6vw, 12px); }
+
+  /* ---- carousel card widths ---------------------------------------------- */
+  /* The two home carousels held the most unused height on the page, and height
+     alone would have made them narrow and tall. Widening the ceiling fills the
+     row at desktop and above while the floor keeps phones at today's size.
+     The carousel script measures the card at runtime
+     (first.getBoundingClientRect().width + gap), so the slide step follows
+     these values without any change to the JS. */
+  .industry-slider-track .auto-card{ flex:0 0 clamp(280px, 30vw, 420px); }
+  .deployed-slider-track .industry-card{ flex:0 0 clamp(260px, 27vw, 380px); }
+
+  /* ---- responsive -------------------------------------------------------- */
+  /* Phones stack these grids to one column, where a full-height card per row
+     turns a six-card grid into six screens of scrolling. Same system, lower
+     numbers -- not a fixed size, and not the desktop size either. */
+  @media (max-width:720px){
+    :root{
+      --zt-card-xs:clamp(88px, 11vh, 120px);
+      --zt-card-sm:clamp(150px, 18vh, 200px);
+      --zt-card-md:clamp(180px, 22vh, 240px);
+      --zt-card-lg:clamp(240px, 32vh, 340px);
+      --zt-card-pad:clamp(20px, 4.5vw, 26px);
+      --zt-card-pad-lg:clamp(22px, 5vw, 30px);
+    }
+    .outcome-card{ min-height:clamp(240px, 28vh, 300px); }
+  }
+
+  /* Short viewports: the sections themselves already fall back to natural flow
+     above, so the cards must stop tracking vh here too or they would be taller
+     than the screen holding them. */
+  @media (max-height:560px){
+    :root{
+      --zt-card-xs:110px;
+      --zt-card-sm:170px;
+      --zt-card-md:200px;
+      --zt-card-lg:260px;
+    }
+    .outcome-card{ min-height:240px; }
+  }
+
 </style>
 </head>
 <body>
