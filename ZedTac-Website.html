@@ -6667,6 +6667,115 @@
        not shorter. */
   }
 
+
+  /* ==========================================================================
+     INDUSTRY SOLUTIONS CARDS -- "Depth where it matters"
+
+     Every rule here is scoped to #carousel-industries. .auto-card is shared
+     with the ERP Services and Automation Modules grids and with the Industries
+     page, none of which render .ind-top or .ind-points, and none of which are
+     touched by anything below.
+
+     The card was a heading and a paragraph inside a 3:4 box: about 100px of
+     content in a 442px card, which is what left the top two thirds empty. It
+     now carries a head (icon + delivery model), a body (name + description)
+     and a foot (three capabilities), using the icon language the ERP Services
+     cards already use -- a 48px gradient square with a white stroke glyph --
+     rather than introducing photography that would not match anything else on
+     the site.
+
+     Colours, border, radius, shadow, hover and typography are all inherited
+     from .auto-card exactly as before.
+     ========================================================================== */
+
+  /* The portrait pass anchored this card's copy to its foot, which was the
+     right answer when there was nothing above it. With a full head and foot the
+     card reads top-down again, and the capability list does the anchoring. */
+  #carousel-industries .auto-card{
+    justify-content:flex-start;
+    gap:clamp(9px, 1vh, 15px);
+    /* .auto-card carries overflow:hidden purely to clip its 2px hover rail
+       into the rounded corners. On a flex item that also cancels
+       min-height:auto, which would turn the 3:4 ratio into a hard ceiling and
+       clip the new content on narrow cards -- at 390px the copy needs more
+       room than the ratio gives. Overflow goes visible so content always wins,
+       and the rail is clipped by its own radius instead. */
+    overflow:visible;
+    min-height:auto;
+  }
+  #carousel-industries .auto-card::before{
+    border-radius:var(--radius) var(--radius) 0 0;
+  }
+
+  /* ---- head -------------------------------------------------------------- */
+  #carousel-industries .ind-top{
+    display:flex; align-items:center; gap:clamp(10px, 1vw, 14px);
+  }
+  #carousel-industries .ind-icon{
+    flex:0 0 auto;
+    width:clamp(40px, 4.6vh, 52px); height:clamp(40px, 4.6vh, 52px);
+    border-radius:var(--r-sm);
+    background:var(--grad);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #carousel-industries .ind-icon svg{ width:54%; height:54%; display:block; }
+  #carousel-industries .ind-kind{
+    font-size:clamp(9.5px, 0.72vw, 11px);
+    letter-spacing:.08em;
+    color:var(--zt-orange-deep);
+    line-height:1.3;
+  }
+
+  /* ---- body -------------------------------------------------------------- */
+  /* .auto-card h3 reserves 60px on the right for the number badge that the
+     grid version carries. This card has no badge, so the reservation only
+     forced early wrapping. */
+  #carousel-industries .auto-card h3{ max-width:100%; margin-bottom:0; }
+  #carousel-industries .auto-card p{ margin:0; }
+
+  /* Two auto margins rather than one. A single auto margin on the foot pushed
+     every spare pixel into the gap above the capability list, which just moved
+     the hole from the top of the card to its middle. Splitting it between the
+     head and the foot distributes the same slack evenly, so the card reads as
+     three deliberate zones -- icon and model at the top, name and description
+     in the middle, capabilities on the bottom edge. */
+  #carousel-industries .auto-card h3{ margin-top:auto; }
+
+  /* ---- foot -------------------------------------------------------------- */
+  /* margin-top:auto is what balances the card: head at the top, body under it,
+     capabilities pinned to the bottom edge, and the slack distributed between
+     rather than collected in one block. */
+  #carousel-industries .ind-points{
+    margin-top:auto;
+    padding-top:clamp(8px, 1vh, 14px);
+    display:flex; flex-direction:column;
+    gap:clamp(6px, 0.7vh, 10px);
+    border-top:1px solid var(--zt-line);
+  }
+  #carousel-industries .ind-points li{
+    display:flex; align-items:flex-start; gap:9px;
+    font-size:clamp(12px, 0.92vw, 13.5px);
+    line-height:1.4;
+    color:#000000;
+  }
+  #carousel-industries .ind-points svg{
+    flex:0 0 auto;
+    width:14px; height:14px; margin-top:2px;
+    color:var(--zt-primary);
+  }
+
+  /* ---- responsive --------------------------------------------------------
+     Everything above is already viewport-relative. The one place that needs a
+     hand is the narrowest card: at 390px the description and three
+     capabilities genuinely need more than a 3:4 box, and since content wins
+     over the ratio the card simply grows -- the track equalises the rest to
+     match, so the row stays level. */
+  @media (max-width:720px){
+    #carousel-industries .ind-points{ gap:6px; }
+    #carousel-industries .auto-card{ gap:9px; }
+  }
+
 </style>
 </head>
 <body>
@@ -6991,9 +7100,25 @@
             class="slider-track industry-slider-track carousel-track"
             ref="industryTrack"
           >
+            <!-- The card used to be a heading and a paragraph, which left the
+                 top two thirds of a 3:4 card empty. It now runs top / middle /
+                 bottom: the icon and model label anchor the head, the name and
+                 description sit in the middle, and the capability list is
+                 pushed to the foot by margin-top:auto. The Industries page
+                 renders this same array from its own template and is untouched. -->
             <article class="auto-card reveal" v-for="(m,i) in industryModel" :key="m.name" :style="{'--d': (i*70)+'ms'}" style="cursor:default;">
+              <div class="ind-top">
+                <span class="ind-icon" v-html="m.icon" aria-hidden="true"></span>
+                <span class="ind-kind mono">{{ m.kind }}</span>
+              </div>
               <h3>{{ m.name }}</h3>
               <p>{{ m.desc }}</p>
+              <ul class="ind-points">
+                <li v-for="pt in m.points" :key="pt">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+                  <span v-html="pt"></span>
+                </li>
+              </ul>
             </article>
           </div>
         </div>
@@ -8971,18 +9096,35 @@ createApp({
       ],
 
       // ---- Industries (verticals + served sectors) -------------------------
+      /* `icon` and `points` are read only by the Industry Solutions carousel on
+         the landing page. The Industries page renders the same array and shows
+         neither, so it is unaffected. Every point restates something the card's
+         own desc already claims -- these are the specifics of that sentence,
+         not additional marketing. */
       industryModel: [
-        { kind:'Deep vertical', name:'Real Estate', desc:'The hand-built vertical: projects, blocks and plots, bookings, instalment plans, allocation and the collections automation built around them.' },
-        { kind:'Deep vertical', name:'Education', desc:'Students, teachers, attendance and fee schedules — the second hand-built vertical, already emitting events into the automation engine.' },
+        { kind:'Deep vertical', name:'Real Estate', desc:'The hand-built vertical: projects, blocks and plots, bookings, instalment plans, allocation and the collections automation built around them.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M10 21v-6h4v6"/></svg>',
+          points:['Projects, blocks &amp; plots','Bookings &amp; instalment plans','Collections automation'] },
+        { kind:'Deep vertical', name:'Education', desc:'Students, teachers, attendance and fee schedules — the second hand-built vertical, already emitting events into the automation engine.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11.5V17c0 1.6 2.9 3 6 3s6-1.4 6-3v-5.5"/></svg>',
+          points:['Students &amp; enrolment','Attendance &amp; timetables','Fee schedules &amp; reminders'] },
         // The single "Everything else" bucket is broken out into the sectors it
         // already named, so the grid fills a clean 3x2 instead of leaving one
         // orphan on the second row. These stay explicitly labelled "Generic
         // engine": Real Estate and Education remain the only two hand-built
         // verticals, which is the claim the rest of the site makes.
-        { kind:'Generic engine', name:'Construction & Contracting', desc:'Runs on the shared item-and-sale engine — procurement, stock and job costing posting to the same ledger, with no separate codebase behind it.' },
-        { kind:'Generic engine', name:'Distribution & Retail', desc:'Stock movement, purchase orders and customer invoicing on the generic engine, reconciling against the same books as every other module.' },
-        { kind:'Generic engine', name:'Healthcare & Professional Services', desc:'Appointments, service delivery and billing modelled on the shared engine, with the automation layer handling reminders and approvals.' },
-        { kind:'No-code', name:'Build your own vertical', desc:'Define a new record type with its own fields and pipeline — vehicle, patient, case — without a migration. It plugs into the event bus automatically.' },
+        { kind:'Generic engine', name:'Construction & Contracting', desc:'Runs on the shared item-and-sale engine — procurement, stock and job costing posting to the same ledger, with no separate codebase behind it.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 18h20"/><path d="M5 18v-1.6a7 7 0 0 1 14 0V18"/><path d="M9.6 4.3h4.8V9"/></svg>',
+          points:['Procurement &amp; subcontractors','Job costing to the ledger','Stock across sites'] },
+        { kind:'Generic engine', name:'Distribution & Retail', desc:'Stock movement, purchase orders and customer invoicing on the generic engine, reconciling against the same books as every other module.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 7.2l9-4.2 9 4.2-9 4.2-9-4.2z"/><path d="M3 7.2v9.6l9 4.2 9-4.2V7.2"/></svg>',
+          points:['Stock movement &amp; reorder points','Purchase orders &amp; receipts','Customer invoicing'] },
+        { kind:'Generic engine', name:'Healthcare & Professional Services', desc:'Appointments, service delivery and billing modelled on the shared engine, with the automation layer handling reminders and approvals.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 12.2h2.6L11 9.4l2 5.4 1.3-2.6H17"/></svg>',
+          points:['Appointments &amp; scheduling','Service delivery records','Billing, reminders &amp; approvals'] },
+        { kind:'No-code', name:'Build your own vertical', desc:'Define a new record type with its own fields and pipeline — vehicle, patient, case — without a migration. It plugs into the event bus automatically.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14.2v6.6M14.2 17.5h6.6"/></svg>',
+          points:['Custom record types &amp; fields','Your own pipeline stages','Joins the event bus automatically'] },
       ],
 
       // ---- Documentation hub ----------------------------------------------
