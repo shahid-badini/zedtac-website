@@ -6776,6 +6776,91 @@
     #carousel-industries .auto-card{ gap:9px; }
   }
 
+
+  /* ==========================================================================
+     EIGHT SECTORS CARDS -- "Eight sectors running on the same platform"
+
+     Every rule here is scoped to #carousel-deployed. .industry-card is shared
+     with the Results by Industry grid on Client Outcomes, and the caseStudies
+     array behind it also feeds the Case Studies slider further down this page;
+     neither renders .dep-top or .dep-points, and neither is touched.
+
+     The empty top came from the portrait pass: with only a category label, a
+     title and a paragraph, the card anchored its copy to the foot and left the
+     label stranded at the top with a gap beneath it. The card now has a real
+     head, so that anchor comes off and the order reads
+     icon -> sector -> deployment -> problem -> modules -> outcome.
+
+     Colours, border, radius, shadow, hover and typography all stay inherited
+     from .industry-card.
+     ========================================================================== */
+
+  #carousel-deployed .industry-card{
+    justify-content:flex-start;
+    /* .industry-card takes overflow:hidden from the shared surface rule, and on
+       a flex item that cancels min-height:auto -- which would make the 3:4
+       ratio a ceiling and clip the added content on narrow cards. It has no
+       pseudo-element to clip (unlike .auto-card's hover rail), so visible
+       costs nothing here. */
+    overflow:visible;
+    min-height:auto;
+  }
+
+  /* ---- head -------------------------------------------------------------- */
+  #carousel-deployed .dep-top{
+    display:flex; align-items:center; gap:clamp(9px, 0.9vw, 13px);
+  }
+  #carousel-deployed .dep-icon{
+    flex:0 0 auto;
+    width:clamp(36px, 4.2vh, 48px); height:clamp(36px, 4.2vh, 48px);
+    border-radius:var(--r-sm);
+    background:var(--grad);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #carousel-deployed .dep-icon svg{ width:54%; height:54%; display:block; }
+
+  /* The label was a block on its own line; beside the icon it needs to stop
+     stretching and sit on the icon's centre line. */
+  #carousel-deployed .industry-cat{ line-height:1.3; }
+
+  /* ---- body + foot -------------------------------------------------------
+     Two auto margins split the spare height evenly instead of letting it
+     collect in one gap -- the same balance the Industry Solutions cards use.
+     They sit on the heading and on the module list, which keeps the two pairs
+     together: title with its description, modules with their result badge.
+     (Putting the first one on the paragraph instead stranded it between two
+     55px gaps with its own heading floated away above it.)
+
+     The heading's margin-top:auto is inherited from the portrait pass and is
+     doing the right job here, so it is deliberately left alone. */
+  #carousel-deployed .dep-points{
+    margin-top:auto;
+    padding-top:clamp(7px, 0.9vh, 12px);
+    display:flex; flex-direction:column;
+    gap:clamp(5px, 0.6vh, 8px);
+    border-top:1px solid var(--zt-line);
+  }
+  #carousel-deployed .dep-points li{
+    display:flex; align-items:flex-start; gap:8px;
+    font-size:clamp(11.5px, 0.86vw, 12.5px);
+    line-height:1.4;
+    color:var(--zt-ink);
+  }
+  #carousel-deployed .dep-points svg{
+    flex:0 0 auto;
+    width:13px; height:13px; margin-top:2px;
+    color:var(--zt-primary);
+  }
+
+  /* ---- responsive --------------------------------------------------------
+     All viewport-relative already. On phones the card is at its narrowest and
+     the copy plus two modules genuinely need more than a 3:4 box -- content
+     wins over the ratio and the track equalises the row to match. */
+  @media (max-width:720px){
+    #carousel-deployed .dep-points{ gap:5px; }
+  }
+
 </style>
 </head>
 <body>
@@ -7149,10 +7234,25 @@
             class="slider-track deployed-slider-track carousel-track"
             ref="deployedTrack"
           >
+            <!-- Sector icon and name lead, then the deployment, the problem it
+                 solved, the modules that did it and the measured outcome. The
+                 modules come from each entry's own `solution` sentence, which
+                 this card was dropping entirely. The Case Studies slider below
+                 renders the same array from its own template and still shows
+                 `solution` as prose -- it is untouched. -->
             <article class="industry-card reveal" v-for="(c,i) in caseStudies" :key="c.title" :style="{'--d': (i*60)+'ms'}">
-              <span class="industry-cat">{{ c.category }}</span>
+              <div class="dep-top">
+                <span class="dep-icon" v-html="c.icon" aria-hidden="true"></span>
+                <span class="industry-cat">{{ c.category }}</span>
+              </div>
               <h3>{{ c.title }}</h3>
               <p>{{ c.challenge }}</p>
+              <ul class="dep-points">
+                <li v-for="m in c.modules" :key="m">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+                  <span v-html="m"></span>
+                </li>
+              </ul>
               <span class="portfolio-result">{{ c.result }}</span>
             </article>
           </div>
@@ -9388,35 +9488,51 @@ createApp({
         { title:'Multi-Plant Production Control', category:'Manufacturing', image:'images/case-manufacturing.svg',
           challenge:'Three plants planned production in separate spreadsheets, so material shortages only surfaced on the shop floor.',
           solution:'BOM, routing and work-order modules with MRP-driven purchase planning unified across all three sites.',
-          result:'Production downtime down 41%' },
+          result:'Production downtime down 41%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 21h20"/><path d="M4 21V11l5 3.2V11l5 3.2V8.5l5 3V21"/></svg>',
+          modules:['BOM, routing &amp; work orders', 'MRP-driven purchase planning'] },
         { title:'Omnichannel Inventory Consolidation', category:'Retail', image:'images/case-retail.svg',
           challenge:'Store and online stock were tracked in different systems, causing repeated oversells during promotions.',
           solution:'Single inventory ledger with POS integration and automated replenishment across 28 outlets.',
-          result:'Stock accuracy at 99.2%' },
+          result:'Stock accuracy at 99.2%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4.5 8h15l-1.2 12.5H5.7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+          modules:['Single inventory ledger + POS', 'Automated replenishment'] },
         { title:'Hospital Group Resource Planning', category:'Healthcare', image:'images/case-healthcare.svg',
           challenge:'Pharmacy stock, procurement and patient billing sat in disconnected systems, delaying every invoice.',
           solution:'Integrated procurement, inventory and revenue-cycle modules with role-based clinical access controls.',
-          result:'Billing cycle cut from 9 days to 2' },
+          result:'Billing cycle cut from 9 days to 2',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+          modules:['Procurement, stock &amp; revenue cycle', 'Role-based clinical access'] },
         { title:'Live Project Cost Control', category:'Construction', image:'images/case-construction.svg',
           challenge:'Site costs were reconciled monthly, so budget overruns were discovered far too late to correct.',
           solution:'Project costing, subcontractor billing and procurement tied to live budget-versus-actual dashboards.',
-          result:'Cost overruns reduced 27%' },
+          result:'Cost overruns reduced 27%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 18h20"/><path d="M5 18v-1.6a7 7 0 0 1 14 0V18"/><path d="M9.6 4.3h4.8V9"/></svg>',
+          modules:['Project costing &amp; subcontractor billing', 'Live budget versus actual'] },
         { title:'Campus Administration Platform', category:'Education', image:'images/case-education.svg',
           challenge:'Admissions, fee collection and payroll ran on three tools nobody could reconcile at year end.',
           solution:'Student lifecycle, fee scheduling and HR/payroll modules on one tenant with full audit trails.',
-          result:'Fee reconciliation 6x faster' },
+          result:'Fee reconciliation 6x faster',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11.5V17c0 1.6 2.9 3 6 3s6-1.4 6-3v-5.5"/></svg>',
+          modules:['Student lifecycle &amp; fee scheduling', 'HR, payroll &amp; audit trails'] },
         { title:'Warehouse & Order Fulfillment ERP', category:'Distribution', image:'images/case-distribution.svg',
           challenge:'Manual pick lists and paper goods-receipt notes made order accuracy dependent on individual staff memory.',
           solution:'Barcode-driven receiving, directed picking and automated three-way matching against purchase orders.',
-          result:'Order accuracy up to 99.6%' },
+          result:'Order accuracy up to 99.6%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="8" y="3.5" width="8" height="6" rx="1"/><rect x="3" y="12" width="8" height="6.5" rx="1"/><rect x="13" y="12" width="8" height="6.5" rx="1"/></svg>',
+          modules:['Barcode receiving &amp; directed picking', 'Automated three-way matching'] },
         { title:'Fleet & Freight Operations Suite', category:'Logistics', image:'images/case-logistics.svg',
           challenge:'Fleet running costs, trip billing and driver payroll stayed invisible until the month-end close.',
           solution:'Trip costing with fuel and maintenance tracking, integrated with automated freight invoicing.',
-          result:'Invoice disputes down 63%' },
+          result:'Invoice disputes down 63%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2.5 6.5h10.5v9H2.5z"/><path d="M13 9.5h3.8l3.2 3.2v2.8H13z"/><circle cx="6.8" cy="18" r="1.7"/><circle cx="16.4" cy="18" r="1.7"/></svg>',
+          modules:['Trip costing, fuel &amp; maintenance', 'Automated freight invoicing'] },
         { title:'Multi-Entity Financial Consolidation', category:'Finance', image:'images/case-finance.svg',
           challenge:'Consolidating eight subsidiaries across four currencies took two weeks of manual work every quarter.',
           solution:'Multi-entity general ledger with automated FX revaluation and intercompany eliminations.',
-          result:'Quarterly close in 3 days' },
+          result:'Quarterly close in 3 days',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 20.5h18"/><rect x="5" y="11" width="3.4" height="9.5" rx="1"/><rect x="10.3" y="6.5" width="3.4" height="14" rx="1"/><rect x="15.6" y="14" width="3.4" height="6.5" rx="1"/></svg>',
+          modules:['Multi-entity GL with FX revaluation', 'Intercompany eliminations'] },
       ],
 
       pricingPlans: [
