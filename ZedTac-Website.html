@@ -6187,8 +6187,13 @@
      .hero is excluded deliberately: it is the one full-bleed section, it
      already pulls itself up under the bar by -(--nav-h) and re-pads by
      +(--nav-h), and it lays its copy and dashboard out on a two-column grid
-     that display:flex would collapse into a stack. */
-  #main section:not(.hero){
+     that display:flex would collapse into a stack.
+
+     Scoped to .zt-home. The landing page keeps one-screen sections; every
+     other route falls through to the site's own `section{ padding:var(
+     --sp-section) 0 }` and sizes to its content exactly as it did before this
+     system existed. */
+  .zt-home section:not(.hero){
     min-height:var(--zt-vh);
     box-sizing:border-box;
     display:flex;
@@ -6196,16 +6201,18 @@
     justify-content:center;
     padding-top:var(--zt-sec-top);
     padding-bottom:var(--zt-sec-pad);
-    /* Anchor jumps and goSection() land the section's top below the bar
-       rather than behind it. */
-    scroll-margin-top:var(--nav-h, 74px);
   }
+
+  /* Anchor jumps and goSection() land a section's top below the bar rather
+     than behind it. This is header clearance, not full-screen layout, so it
+     stays on every route. */
+  #main section{ scroll-margin-top:var(--nav-h, 74px); }
 
   /* A column flex container shrinks its items along the main axis by default,
      so a section with more content than the viewport would squash it rather
      than grow. Opting every direct child out of shrinking is what lets a
      section expand naturally past one screen instead of clipping. */
-  #main section:not(.hero) > *{ flex:0 0 auto; }
+  .zt-home section:not(.hero) > *{ flex:0 0 auto; }
 
   /* Back to Home used to sit in a spacer <div> ABOVE the section, which meant
      it was outside the box being centred and it pushed the first screen past
@@ -6214,16 +6221,12 @@
      does not stretch into a full-width click target. */
   #main section:not(.hero) > .back-link{ align-self:flex-start; }
 
-  /* ---- first section on a route ------------------------------------------
-     The bar is position:sticky, so at the top of the document it still takes
-     its own height out of normal flow -- only the first section lives in that
-     reduced space. Subtracting --nav-h here is what makes the first screen end
-     exactly at the fold, and dropping back to the plain pad avoids clearing a
-     bar that is already sitting above the section rather than over it. */
-  #main > div > .wrap:first-of-type > section:not(.hero):first-of-type{
-    min-height:calc(var(--zt-vh) - var(--nav-h, 74px));
-    padding-top:var(--zt-sec-pad);
-  }
+  /* The "first section on a route" rule that used to sit here sized the first
+     section to calc(100svh - --nav-h), because the sticky bar takes its own
+     height out of flow at the top of the document. On the landing page that
+     first section is .hero, which was always excluded and handles its own
+     offset -- so the rule only ever applied to the other routes. Those size to
+     their content now, and it has gone with them. */
 
   /* Superseded. Collapsing the top padding after the two full-bleed bands was
      right when sections were 88px apart and the seam read as a dead zone; now
@@ -6235,7 +6238,7 @@
      .wrap already owns the gutter (clamp(20px,4vw,64px)) and the max-width
      cap, and every section now sits inside one, so the left/right inset is
      identical on every screen. Sections contribute vertical space only. */
-  #main section:not(.hero){
+  .zt-home section:not(.hero){
     padding-left:0;
     padding-right:0;
     max-width:100%;
@@ -6268,10 +6271,7 @@
      section is not enough room to hold a heading and its content at once, so
      the sections drop back to natural flow and the site simply scrolls. */
   @media (max-height:560px){
-    #main section:not(.hero),
-    #main > div > .wrap:first-of-type > section:not(.hero):first-of-type{
-      min-height:0;
-    }
+    .zt-home section:not(.hero){ min-height:0; }
   }
 
 
@@ -6623,7 +6623,7 @@
 
   /* Shared by all four slider sections. 16px was a fixed value under a row of
      controls that already carry their own whitespace. */
-  .slider-nav{ margin-top:clamp(8px, 1vh, 16px); }
+  .zt-home .slider-nav{ margin-top:clamp(8px, 1vh, 16px); }
 
   /* ---- responsive --------------------------------------------------------
      Everything above is already viewport-relative, so it tracks from phone to
@@ -6643,7 +6643,11 @@
      heading rhythm closes that spread. Keyed on height, so 1440x900 and every
      taller screen are untouched. */
   @media (max-height:820px) and (min-width:861px){
-    :root{ --sp-head:clamp(18px, 2vw, 28px); }
+    /* Set on .zt-home rather than :root -- this tightens the heading rhythm to
+       help sections hold one screen, which is only a landing-page concern. On
+       :root it would have quietly reduced heading spacing on every other page
+       too, where nothing is being fitted to a fold. */
+    .zt-home{ --sp-head:clamp(18px, 2vw, 28px); }
 
     /* Width moves height in OPPOSITE directions depending on what sets the
        card's height, which is why a single "make everything narrower" pass
@@ -7037,7 +7041,11 @@
 
   <!-- ================= HOME PAGE ================= -->
   <main id="main">
-  <div v-if="page === 'home'">
+  <!-- .zt-home is the scoping hook for the full-screen section system. Every
+       min-height:100svh rule hangs off this class, so the landing page keeps
+       one-screen sections while every other route falls back to the site's
+       original content-based sizing. -->
+  <div v-if="page === 'home'" class="zt-home">
 
     <!-- HERO -->
     <div class="wrap">
