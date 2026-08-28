@@ -6,9 +6,61 @@
 <title>ZedTac — Enterprise ERP &amp; Business Automation Platform</title>
 <meta name="description" content="ZedTac is an enterprise ERP and business automation platform: a governed ledger across finance, inventory, supply chain, manufacturing and HR, plus 11 automation modules for collections, approvals, payroll, CRM and scheduled reporting.">
 <meta name="keywords" content="ERP solutions, business automation platform, ERP implementation, workflow automation, event-driven automation, accounts payable automation, receivables collections automation, expense approval automation, CRM automation, HR and payroll automation, cloud ERP, supply chain management">
+<!-- ┌───────────────────────────────────────────────────────────────────────┐
+     │ SITE ORIGIN — change in all four places below if the live domain      │
+     │ differs. It is inferred from the contact address (admin@zedtac.com);  │
+     │ nothing else in this file states the production URL. A canonical or   │
+     │ og:url pointing at the wrong origin is worse than none at all, so     │
+     │ confirm this before the site goes live.                               │
+     └───────────────────────────────────────────────────────────────────────┘ -->
+<link rel="canonical" href="https://zedtac.com/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="ZedTac">
+<meta property="og:url" content="https://zedtac.com/">
 <meta property="og:title" content="ZedTac — Enterprise ERP &amp; Business Automation Platform">
 <meta property="og:description" content="One platform, two pillars: an ERP system of record and an event-driven automation engine with 11 modules — collections, approvals, payroll, CRM, commissions and scheduled reporting.">
+<!-- Facebook, LinkedIn and WhatsApp will not render an SVG share preview, so
+     this one card is a raster at the 1.91:1 the crawlers expect. -->
+<meta property="og:image" content="https://zedtac.com/images/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ZedTac — enterprise ERP and business automation platform">
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ZedTac — Enterprise ERP &amp; Business Automation Platform">
+<meta name="twitter:description" content="An ERP system of record and an event-driven automation engine on one governed ledger — finance, inventory, supply chain, manufacturing and HR.">
+<meta name="twitter:image" content="https://zedtac.com/images/og-cover.png">
+<meta name="twitter:image:alt" content="ZedTac — enterprise ERP and business automation platform">
+
+<!-- Organization schema: gives search engines the name, logo, contact channel
+     and social profiles as structured data rather than leaving them to be
+     inferred from the page copy. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ZedTac",
+  "alternateName": "ZedTac Software Company",
+  "url": "https://zedtac.com/",
+  "logo": "https://zedtac.com/images/og-cover.png",
+  "description": "Enterprise ERP and business automation platform: a governed ledger across finance, inventory, supply chain, manufacturing and HR, with an event-driven automation engine.",
+  "email": "admin@zedtac.com",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "sales",
+    "email": "admin@zedtac.com",
+    "availableLanguage": ["en"]
+  },
+  "sameAs": [
+    "https://linkedin.com/company/zedtacsoftware",
+    "https://instagram.com/zedtacsoftware",
+    "https://facebook.com/zedtacsoftware"
+  ]
+}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <!-- The stylesheet comes from googleapis.com but every actual font file comes
@@ -29,7 +81,15 @@
      even paint. Deferred it downloads in parallel and executes after parsing,
      still before DOMContentLoaded -- which is what the app boot at the end of
      <body> now waits for. -->
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+<!-- integrity pins this to the exact 3.4.21 build (sha384 of the 144,109-byte
+     file served by cdnjs). The whole site is one script-driven page, so an
+     unpinned third-party bundle means a CDN compromise executes with full
+     access to the consultation form's contents. crossorigin is required for
+     the browser to check the hash on a cross-origin fetch. -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"
+        integrity="sha384-wdamyDHEiblYHsu/XTokGtIeFekZu7xN37Yvkl0NZ7PnhwRB+nwE1ByT7VlwiypE"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
 <script>
 (function(){
   /* ---- loader ------------------------------------------------------------
@@ -127,10 +187,28 @@
 
 <style>
   :root{
-    --zt-orange-deep:#FF9447;
+    /* ---- BRAND ORANGE -------------------------------------------------------
+       #FF9447 is the brand colour and is used as-is on every surface the eye
+       reads as "the orange": buttons, display headings, gradients, glows, chip
+       fills, the rail and the logo mark.
+
+       Kept on record, since it was measured rather than assumed: at this value
+       white-on-orange buttons sit at 2.19:1 and orange-on-cream text at 1.83:1,
+       against the 4.5:1 (small text) / 3:1 (large text) WCAG AA asks for. That
+       is a deliberate brand decision, not an oversight.
+
+       The one exception is --zt-orange-deep below, which is not a brand surface
+       at all: it is the foreground colour for 11-13px mono labels, where the
+       bright orange was not merely off-spec but genuinely hard to read. */
     --zt-orange:#FF9447;
     --zt-orange-mid:#FF9447;
     --zt-orange-light:#FFCB94;
+    /* Buttons: the brand orange, unchanged. */
+    --zt-orange-btn:#FF9447;
+    /* Display headings (.text-grad): the brand orange, unchanged. */
+    --zt-orange-display:#FF9447;
+    /* Small mono labels only -- see the note above. 5.34:1 on cream. */
+    --zt-orange-deep:#B24600;
     --zt-cream:#FFF9F4;
     --zt-white:#FFFFFF;
     --zt-ink:#26170B;
@@ -183,18 +261,27 @@
      same clipping without creating a scroll container. `hidden` is kept first
      as a fallback for engines that predate `clip`. */
   html{scroll-behavior:smooth; overflow-x:hidden; overflow-x:clip; width:100%;}
+  /* The webfonts load with display=swap, so every visitor renders a fallback
+     first and swaps. With a bare `sans-serif` fallback that swap was a visible
+     reflow -- the system default's metrics are nothing like Jakarta's, so text
+     changed width and line count mid-load and read as "broken" for a moment.
+     Naming the platform UI faces explicitly puts a much closer face in that
+     first paint, and font-synthesis-weight:none stops the browser inventing a
+     weight it was never given (see the 650 note below). */
   body{
     margin:0;
-    font-family:'Plus Jakarta Sans', sans-serif;
+    font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color:var(--zt-ink);
     background:var(--zt-cream);
     -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    font-synthesis-weight:none;
     overflow-x:hidden; overflow-x:clip;
     width:100%;
   }
   img, svg, video{ max-width:100%; height:auto; }
   h1,h2,h3,h4{
-    font-family:'Space Grotesk', sans-serif;
+    font-family:'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     margin:0;
     letter-spacing:-0.02em;
     line-height:1.08;
@@ -206,7 +293,7 @@
   ul{ margin:0; padding:0; list-style:none; }
 
   .mono{
-    font-family:'JetBrains Mono', monospace;
+    font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     letter-spacing:0.04em;
     text-transform:uppercase;
   }
@@ -254,7 +341,7 @@
     transition:transform .18s var(--ease), box-shadow .18s var(--ease), opacity .18s var(--ease);
   }
   .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     color:var(--zt-white);
     box-shadow:var(--zt-shadow);
   }
@@ -360,7 +447,7 @@
   }
   .nav-item:hover .nav-dropdown{ opacity:1; visibility:visible; transform:translateY(0); }
   .nav-dropdown-label{
-    font-size:10.5px; color:var(--zt-ink-soft); padding:4px 10px 8px; letter-spacing:0.08em;
+    font-size:11px; color:var(--zt-ink-soft); padding:4px 10px 8px; letter-spacing:0.08em;
     text-transform:uppercase;
   }
   /* General dropdown styles for other dropdowns (Case Studies, Blog) */
@@ -742,7 +829,7 @@
   }
   .portfolio-card:hover .portfolio-thumb img{ transform:scale(1.09) rotate(0.5deg); }
   .portfolio-cat{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#fff;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff;
     background:rgba(0,0,0,0.35); padding:5px 10px; border-radius:var(--r-pill);
     position:absolute; left:14px; bottom:14px; z-index:1; transition:transform .3s var(--ease);
   }
@@ -932,7 +1019,7 @@
   }
   .blog-card:hover .blog-thumb img{ transform:scale(1.09) rotate(0.5deg); }
   .blog-cat{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#fff;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff;
     background:rgba(0,0,0,0.35); padding:5px 10px; border-radius:var(--r-pill); position:relative; z-index:1;
     transition:transform .3s var(--ease);
   }
@@ -1122,7 +1209,7 @@
     padding:10px 20px; font-size:14px;
   }
   .cookie-banner .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     box-shadow:none;
   }
   .cookie-banner .btn-primary:hover{
@@ -1381,7 +1468,7 @@
   /* ---------- CASE STUDY CARD ---------- */
   .case-meta{ display:flex; flex-direction:column; gap:14px; margin-bottom:18px; }
   .case-label{
-    display:block; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+    display:block; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
     color:var(--zt-orange-deep); margin-bottom:5px;
   }
   .case-row p{ margin:0; font-size:13.5px; color:var(--zt-ink-soft); line-height:1.6; }
@@ -1495,7 +1582,7 @@
   .consult-price{ font-family:'Space Grotesk',sans-serif; font-size:30px; font-weight:700; color:var(--zt-orange-light); }
   .consult-meta{ display:flex; flex-wrap:wrap; gap:8px; }
   .consult-tag{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.05em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.05em;
     color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.08);
     border:1px solid rgba(255,255,255,0.14); padding:5px 10px; border-radius:var(--r-pill); white-space:nowrap;
   }
@@ -1604,6 +1691,10 @@
   .review-grid .review-card:hover::before{ opacity:0.08; }
   .review-grid .review-card > *{ position:relative; z-index:1; }
   .review-grid .review-quote{ color:var(--zt-ink-soft); }
+  /* The base .q-mark colour is --zt-orange-light, which is tuned for the dark
+     review card. This grid puts the same quote on a light card, where that
+     pale orange fell to 1.51:1 and the quotation marks all but disappeared. */
+  .review-grid .q-mark{ color:var(--zt-orange-deep); }
   .review-grid .review-person strong{ color:var(--zt-ink); }
   .review-grid .review-person span{ color:var(--zt-ink-soft); }
   .review-grid .stars{ color:var(--zt-orange); }
@@ -1620,7 +1711,7 @@
   }
   .industry-card:hover{ transform:translateY(-4px); box-shadow:var(--zt-shadow); border-color:transparent; }
   .industry-cat{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.1em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em;
     text-transform:uppercase; color:var(--zt-orange-deep);
   }
   .industry-card h3{ font-size:15.5px; line-height:1.35; }
@@ -1643,7 +1734,7 @@
   .pillar-icon svg{ width:24px; height:24px; }
   .pillar-card h3{ font-size:20px; }
   .pillar-tag{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
     text-transform:uppercase; color:var(--zt-orange-deep); display:block; margin-top:3px;
   }
   .pillar-card > p{ font-size:14.5px; color:var(--zt-ink-soft); line-height:1.65; }
@@ -1689,7 +1780,7 @@
   .auto-foot{ /* Adjust auto-foot to integrate auto-area and auto-more */
     display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:10px;
   }
-  .auto-area{ font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--zt-ink-soft); }
+  .auto-area{ font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--zt-ink-soft); }
   .auto-more{ font-size:12.5px; font-weight:700; color:var(--zt-orange-deep); }
 
   .service-card{
@@ -1764,7 +1855,14 @@
     0%,100%{ box-shadow:0 0 0 0 rgba(232,96,15,.35), var(--sh-2); }
     50%{ box-shadow:0 0 0 8px rgba(232,96,15,0), var(--sh-2); }
   }
-  .arch-nodes{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
+  /* minmax(0,1fr) rather than a bare 1fr: 1fr is minmax(AUTO,1fr), and that auto
+     floor is the card's min-content width, which aspect-ratio inflates from the
+     content height. The tracks were overrunning the road they sit in -- 396px
+     each inside an 799px road at 1024 -- so the three columns spilled past the
+     section instead of sharing it. A zero floor lets them divide the road as
+     intended, which is also what puts the desktop card back at the 359px the
+     portrait pass documents below. */
+  .arch-nodes{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; align-items:stretch; }
   .arch-node{
     background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r-2xl);
     -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
@@ -1774,11 +1872,28 @@
   .arch-node:hover{ transform:translateY(-6px); box-shadow:var(--sh-3); border-color:var(--ai-soft); }
   .arch-node-num{ color:var(--ai-deep); margin-bottom:10px; display:block; }
   .arch-node-tag{
-    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px;
     letter-spacing:.08em; text-transform:uppercase; color:var(--zt-ink-soft); margin-bottom:8px;
   }
   .arch-node h3{ font-size:19px; margin-bottom:10px; }
   .arch-node > p{ font-size:14px; color:var(--zt-ink-soft); line-height:1.65; flex-grow:1; }
+  /* Supporting points between the paragraph and the chip row. Same dot-bullet
+     device as .solution-points, one step smaller, so the two card families read
+     as the same system rather than two takes on a list. The paragraph gives up
+     flex-grow to the gap ABOVE the chips: left on the paragraph, the slack the
+     3:4 card carries would open between the copy and these points instead of
+     collecting once at the foot. */
+  .arch-node-points{ display:grid; gap:6px; margin-top:13px; }
+  .arch-node-points li{
+    font-size:12.5px; color:var(--zt-ink-soft);
+    padding-left:16px; position:relative; line-height:1.45;
+  }
+  .arch-node-points li::before{
+    content:''; position:absolute; left:0; top:6px;
+    width:5px; height:5px; border-radius:50%; background:var(--grad-ai);
+  }
+  .arch-node:has(.arch-node-points) > p{ flex-grow:0; }
+  .arch-node:has(.arch-node-points) .arch-node-items{ margin-top:auto; padding-top:16px; }
   .arch-node-items{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
   .arch-node-items span{
     font-size:12px; background:var(--surface-2); border:1px solid var(--zt-line);
@@ -1804,6 +1919,9 @@
   #architecture .arch-node-tag{ color:rgba(255,255,255,.55); }
   #architecture .arch-node h3{ color:#fff; }
   #architecture .arch-node > p{ color:rgba(255,255,255,.68); }
+  /* A step below the paragraph on the dark band, so the points read as support
+     under the copy rather than competing with it. */
+  #architecture .arch-node-points li{ color:rgba(255,255,255,.6); }
   #architecture .arch-node-items span{
     background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.16);
     color:rgba(255,255,255,.85);
@@ -1833,7 +1951,7 @@
   .int-block{ margin-top:52px; }
   .int-block:first-of-type{ margin-top:0; }
   .int-head{ margin-bottom:22px; }
-  .int-head h3{ font-size:20px; }
+  .int-head h2{ font-size:20px; }
   .int-head p{ font-size:14px; color:var(--zt-ink-soft); margin-top:6px; }
   .int-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
   @media (max-width:920px){ .int-grid{ grid-template-columns:repeat(2,1fr); } }
@@ -1844,7 +1962,7 @@
     transition:transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s var(--ease);
   }
   .int-card:hover{ transform:translateY(-4px); box-shadow:var(--zt-shadow); border-color:transparent; }
-  .int-card h4{ font-size:15.5px; font-family:'Space Grotesk',sans-serif; }
+  .int-card h3{ font-size:15.5px; font-family:'Space Grotesk',sans-serif; }
   .int-card p{ font-size:13px; color:var(--zt-ink-soft); line-height:1.6; flex-grow:1; }
 
   .doc-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
@@ -1857,7 +1975,7 @@
   }
   .doc-card:hover{ transform:translateY(-4px); box-shadow:var(--zt-shadow); border-color:transparent; }
   .doc-tag{
-    align-self:flex-start; font-family:'JetBrains Mono',monospace; font-size:10px;
+    align-self:flex-start; font-family:'JetBrains Mono',monospace; font-size:11px;
     letter-spacing:.08em; text-transform:uppercase; color:var(--zt-orange-deep);
     background:rgba(255,148,71,.1); padding:4px 10px; border-radius:var(--r-pill);
   }
@@ -2044,7 +2162,7 @@
      now share a single tab with three labelled columns. */
   .nav-mega-col-title{
     display:flex; align-items:center; gap:8px;
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
     text-transform:uppercase; color:var(--zt-orange-deep);
     padding:0 12px 10px; margin-bottom:4px; border-bottom:1px solid var(--zt-line);
   }
@@ -2089,11 +2207,11 @@
   }
   .int-card:last-child{ border-bottom:0 !important; }
   .int-card:hover{ transform:none !important; background:var(--surface-2); padding-left:14px; }
-  .int-card h4{ grid-column:1; min-width:clamp(140px,15vw,210px); }
+  .int-card h3{ grid-column:1; min-width:clamp(140px,15vw,210px); }
   .int-card p{ grid-column:2; grid-row:1; margin:0; }
   @media (max-width:700px){
     .int-card{ grid-template-columns:1fr; }
-    .int-card h4, .int-card p{ grid-column:1; }
+    .int-card h3, .int-card p{ grid-column:1; }
   }
 
   /* Cards that remain get the new elevation + hairline so the ones that ARE
@@ -2421,7 +2539,7 @@
   }
 
   .ztl-status{
-    margin:0; font-size:10.5px; letter-spacing:.18em;
+    margin:0; font-size:11px; letter-spacing:.18em;
     color:rgba(255,255,255,.5);
     opacity:0; animation:ztlFadeIn .6s var(--ease) .78s forwards;
   }
@@ -2727,7 +2845,7 @@
     position:relative; overflow:hidden; isolation:isolate;
   }
   .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     background-size:180% 100%; background-position:0% 50%;
     color:#fff; border:none;
     box-shadow:0 10px 30px -12px rgba(233,93,12,.6), 0 0 0 1px rgba(255,255,255,.08) inset;
@@ -2918,7 +3036,11 @@
     white-space:nowrap;
     animation:chip-float 6s var(--ease-in-out) infinite alternate;
   }
-  .holo-chip strong{ display:block; font-size:12.5px; font-weight:650; color:var(--zt-ink); }
+  /* 650 is not one of the weights fetched for this family (500/600/700), so the
+     browser was synthesising it -- smearing the 600 face rather than using a
+     real one, which is what made this text look torn. Snapped to the nearest
+     weight that actually ships. */
+  .holo-chip strong{ display:block; font-size:12.5px; font-weight:600; color:var(--zt-ink); }
   .holo-chip em{ display:block; font-style:normal; font-size:11px; color:var(--zt-ink-soft); margin-top:2px; }
   .holo-chip .hc-dot{
     width:8px; height:8px; border-radius:50%; flex:none;
@@ -3034,7 +3156,7 @@
     100%{ top:94%; opacity:0; }
   }
   .ps-label{
-    position:relative; z-index:2; font-size:9px; letter-spacing:.18em;
+    position:relative; z-index:2; font-size:11px; letter-spacing:.18em;
     color:var(--ai); font-weight:600;
     background:var(--surface); border:1px solid var(--surface-line);
     border-radius:var(--r-pill); padding:9px 4px;
@@ -3536,7 +3658,7 @@
   .sb-pip:nth-child(2){ animation-delay:-1.5s; }
   .sb-pip:nth-child(3){ animation-delay:-3s; }
   .sb-label{
-    position:relative; z-index:2; font-size:9px; letter-spacing:.18em;
+    position:relative; z-index:2; font-size:11px; letter-spacing:.18em;
     color:var(--ai); font-weight:600;
     background:var(--surface); border:1px solid var(--surface-line);
     border-radius:var(--r-pill); padding:9px 4px;
@@ -4061,7 +4183,7 @@
     margin-bottom:clamp(22px,2.6vw,34px);
   }
   .ft-tagline p{ font-size:14.5px; color:rgba(255,255,255,.76); line-height:1.6; }
-  .ft-tagline strong{ color:#FFFFFF; font-weight:650; }
+  .ft-tagline strong{ color:#FFFFFF; font-weight:700; }
   .ft-tag-mark{
     width:9px; height:9px; flex:none; border-radius:50%;
     background:var(--grad-ai); box-shadow:0 0 18px rgba(255,138,43,.7);
@@ -4110,7 +4232,7 @@
   .btn-primary,
   .nav-cta .btn-primary,
   .hero .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     background-size:180% 100%;
     color:#FFFFFF;
   }
@@ -4121,7 +4243,7 @@
                0 0 0 1px rgba(255,176,103,.28) inset;
   }
   /* Cookie bar and any always-dark panel share the same button. */
-  .cookie-banner .btn-primary{ background:#FF9447; }
+  .cookie-banner .btn-primary{ background:var(--zt-orange-btn); }
 
   /* ======================================================================
      HEADER ↔ HERO BLEND
@@ -4257,7 +4379,7 @@
     --zt-ink-soft:#55514C;          /* 7.4:1 on --zt-cream */
 
     /* Accent text that has to pass AA against white. */
-    --zt-orange-deep:#FF9447;
+    --zt-orange-deep:#B24600;  /* foreground token: must clear AA on the light ground these scopes now use */
     --ai:#FF9447; --ai-deep:#FF9447; --ai-soft:#FF9447;
 
     --glass:rgba(255,255,255,.80);
@@ -4380,7 +4502,7 @@
     --ai:#FF9447; --ai-deep:#FF9447; --ai-soft:#FF9447;
     --grad-ai:linear-gradient(120deg,#FF9447 0%,#FF9447 52%,#FF9447 100%);
     --grad-brand-ai:linear-gradient(112deg,#FF9447 0%,#FF9447 32%,#FF9447 68%,#FFD1A6 100%);
-    --zt-orange-deep:#FF9447;
+    --zt-orange-deep:#B24600;  /* foreground token: must clear AA on the light ground these scopes now use */
     --glow-ai:0 0 40px -12px rgba(255,138,43,.5);
   }
 
@@ -4727,7 +4849,7 @@
     --ai:#FF9447; --ai-deep:#FF9447; --ai-soft:#FF9447;
     --grad-ai:linear-gradient(120deg,#FF9447 0%,#FF9447 52%,#FF9447 100%);
     --grad-brand-ai:linear-gradient(112deg,#FF9447 0%,#FF9447 34%,#FF9447 70%,#FF9447 100%);
-    --zt-orange-deep:#FF9447;
+    --zt-orange-deep:#B24600;  /* foreground token: must clear AA on the light ground these scopes now use */
   }
 
   /* The header pins its contents white while over the hero, which was correct
@@ -5041,6 +5163,7 @@
   #case-studies .case-row p,
   #architecture .arch-node > p,
   #architecture .arch-node-tag,
+  #architecture .arch-node-points li,
   .blog-section .blog-body p{ color:var(--zt-ink-soft); }
 
   #case-studies .case-label,
@@ -5060,11 +5183,26 @@
   #case-studies .portfolio-card:hover,
   #architecture .arch-node:hover{ border-color:var(--zt-primary); }
 
-  .ztl-track i, .sc-streams i, .hc-spark, .hp-key, .arch-rail-line{
+  .ztl-track i, .sc-streams i, .hc-spark, .arch-rail-line{
     background-image:none !important;
     background-color:var(--zt-primary) !important;
   }
-  .hp-key{ -webkit-text-fill-color:#FFFFFF; color:#FFFFFF; }
+  /* .hp-key used to ride along with those decorative bars, but it is TEXT, not
+     a painted bar, and it is drawn with background-clip:text. Giving it a solid
+     background-color left that clip in force -- the fill painted only inside the
+     glyph shapes -- and the white text-fill above then covered the glyphs, so
+     the AI / ERP / Automation keys rendered white on cream and were effectively
+     invisible. Dropped from the sweep and given a plain foreground colour: the
+     clip is released, and #B24600 puts an 11px bold label at 5.34:1. */
+  .hp-key{
+    background:none !important;
+    background-image:none !important;
+    background-color:transparent !important;
+    -webkit-background-clip:border-box !important;
+    background-clip:border-box !important;
+    -webkit-text-fill-color:var(--zt-orange-deep) !important;
+    color:var(--zt-orange-deep) !important;
+  }
 
   /* The result badge was primary-on-a-12%-primary-tint, which lands at 1.1:1 --
      effectively invisible. Ink on white keeps it legible; the primary stays as
@@ -5138,7 +5276,11 @@
      ========================================================================== */
   :root{
     --zt-orange:var(--zt-primary);
-    --zt-orange-deep:var(--zt-primary);
+    /* NOT aliased to --zt-primary. Every other name here is a brand surface and
+       follows the brand orange; --zt-orange-deep is the foreground colour for
+       the 11-13px mono labels, where the bright orange is genuinely hard to
+       read rather than just off-spec. Held at the deep value on purpose. */
+    --zt-orange-deep:#B24600;
     --zt-orange-mid:var(--zt-primary);
     --grad:var(--zt-primary);
     --grad-ai:var(--zt-primary);
@@ -5153,8 +5295,8 @@
   .text-grad{
     background:none !important;
     background-image:none !important;
-    -webkit-text-fill-color:var(--zt-primary) !important;
-    color:var(--zt-primary) !important;
+    -webkit-text-fill-color:var(--zt-orange-display) !important;
+    color:var(--zt-orange-display) !important;
   }
   .dash-card, .service-card, .showcase-card, .portfolio-card, .pricing-card,
   .review-card, .blog-card, .erp-feature, .consult-card, .consult-aside-card,
@@ -5167,7 +5309,9 @@
   .d3-core, .holo-glow, .ft-tagline, .ft-tag-mark, .blog-thumb{
     background-image:none !important;
   }
-  .ztl-track i, .sc-streams i, .hc-spark, .hp-key, .arch-rail-line,
+  /* .hp-key excluded here for the same reason as the earlier sweep: it is
+     clipped text, and a background-color on it paints inside the glyphs. */
+  .ztl-track i, .sc-streams i, .hc-spark, .arch-rail-line,
   .arch-rail-dot, .sb-pip, .zt-progress{
     background-image:none !important;
     background-color:var(--zt-primary) !important;
@@ -5467,7 +5611,7 @@
     padding:clamp(24px, 2.6vw, 38px) 0;
     border-bottom:1px solid rgba(255,255,255,.10);
   }
-  .ft-col h4{
+  .ft-col h2{
     font-size:16px; font-weight:600; color:rgba(255,255,255,.55);
     margin:0 0 18px; font-family:'Space Grotesk',sans-serif;
   }
@@ -6436,6 +6580,18 @@
     min-height:auto;
   }
 
+  /* .arch-node is the only one of these that is a GRID item with an auto width
+     -- the carousel cards each carry an explicit flex basis. With width auto and
+     the height driven by content (which is what min-height:auto above allows),
+     aspect-ratio resolves the other way round and derives the WIDTH from that
+     height, so a taller card also became a wider one and burst its column: at
+     390px the track is 300px and the cards laid out at 319-448px. Giving the
+     card a definite width makes the ratio a one-way street -- width comes from
+     the column, height is the ratio's preferred value, and content may still
+     grow it. Where a track is already definite this changes nothing; it is the
+     narrow single-column widths that were bursting. */
+  #architecture .arch-node{ width:100%; }
+
   /* The blog card is deliberately NOT given a ratio. It carries overflow:hidden
      to clip the thumbnail into its rounded corner, and that cancels a flex
      item's automatic minimum size -- so a fixed aspect height became a hard
@@ -6455,7 +6611,16 @@
   /* The architecture cards sit in a 3-up grid, so their width is the
      container's. Narrowing the road narrows the rail and the cards together,
      which keeps every rail dot aligned over its own card. */
-  .arch-road{ max-width:clamp(760px, 78vw, 1180px); margin-inline:auto; }
+  /* 78vw was sized against tracks that were overrunning this road anyway (see
+     the minmax(0,1fr) note above), so it was never the width actually holding
+     the cards. With the tracks corrected it is, and at 1024 it divided into
+     three 255px columns -- the "reads as a column, not a card" shape this pass
+     set out to avoid. 92vw gives the three-up its room back in the middle
+     range; the 1180px ceiling still governs from ~1280 up, so wide screens are
+     where they were. Staying three-up matters here beyond proportion: the rail
+     runs one dot per card, and dropping to two columns would break both that
+     alignment and the left-to-right reading the section is built on. */
+  .arch-road{ max-width:clamp(760px, 92vw, 1180px); margin-inline:auto; }
 
   /* ---- content inside the taller cards ----------------------------------- */
   /* The blog card was a block: thumbnail on top, body beneath, and the extra
@@ -6725,7 +6890,10 @@
   }
   #carousel-industries .ind-icon svg{ width:54%; height:54%; display:block; }
   #carousel-industries .ind-kind{
-    font-size:clamp(9.5px, 0.72vw, 11px);
+    /* Floor raised from 9.5px to 11px to match the rest of the mono labels --
+       uppercase at .08em tracking already reads a size smaller than nominal,
+       and below 11px it stopped being legible at arm's length. */
+    font-size:clamp(11px, 0.72vw, 11.5px);
     letter-spacing:.08em;
     color:var(--zt-orange-deep);
     line-height:1.3;
@@ -6865,6 +7033,144 @@
     #carousel-deployed .dep-points{ gap:5px; }
   }
 
+
+  /* ==========================================================================
+     TOUCH TARGET FLOOR
+
+     On a 390px phone 42 interactive elements measured under the 44x44 CSS px
+     WCAG 2.5.5 asks for -- nav rows and footer links sat at 39px, the submenu
+     chevrons at 42px. Most were only a few pixels short, so this raises them
+     with padding and min-height rather than by restyling anything: the type,
+     colour and spacing rhythm are untouched, the hit area just reaches the
+     edges of the row it already occupies.
+
+     Width-only, deliberately. An earlier draft added `and (pointer:coarse)` to
+     limit this to touch, but that makes the rule untestable in any desktop
+     browser (they report pointer:fine at every width) and it silently does
+     nothing on hybrid devices that report fine while being used by hand. A
+     44px row in a narrow desktop window costs nothing and is easy to verify.
+     ========================================================================== */
+  @media (max-width:860px){
+    .nav-links > a,
+    .nav-item > a,
+    .nav-dropdown-grid > a,
+    .ft-col a,
+    .ft-social a,
+    .ft-legal a{
+      min-height:44px;
+      display:flex;
+      align-items:center;
+    }
+    /* The chevron is a square control, so it needs both axes, not just height. */
+    .nav-sub-toggle{ min-width:44px; min-height:44px; }
+    .nav-burger{ min-width:44px; min-height:44px; }
+    /* Footer link lists lose their own gap once each row is 44px tall, or the
+       columns would grow by ~40% for no visual gain. */
+    .ft-col li + li{ margin-top:2px; }
+
+    /* Standalone controls: buttons, form fields and the hero's text CTA. These
+       are targets a finger aims at on their own, unlike a link sitting inside a
+       running sentence. */
+    .btn,
+    .ft-news-form input,
+    .ft-news-form button,
+    .field input, .field select, .field textarea,
+    .hero-link{
+      min-height:44px;
+    }
+    .hero-link{ display:inline-flex; align-items:center; }
+    .logo{ min-height:44px; display:inline-flex; align-items:center; }
+    /* Keyboard affordance rather than a pointer target, so 2.5.5 does not
+       strictly cover it -- but it is a real control once focused and costs one
+       line to bring up to the same floor. */
+    .skip-link{ min-height:44px; display:inline-flex; align-items:center; }
+
+    /* NOT raised: .text-link and the consent sentence's Privacy Policy button.
+       Both sit inline inside a paragraph, which WCAG 2.5.5 exempts, and padding
+       them to 44px would break the line box they live in. */
+  }
+
+
+  /* ==========================================================================
+     FOOTER NEWSLETTER FIELD -- cross-axis fix on phones
+
+     .ft-news-field stacks to a column under 440px (a rule set far earlier), but
+     a later block restated the component with align-items:center. In the desktop
+     row that is harmless; in the phone's column it switches the CROSS axis from
+     stretch to center, so the email input collapsed to its content width -- a
+     158px field floating inside a 350px pill, with the full-width Subscribe
+     button beneath it. The input's own flex:1 cannot correct this: in a column
+     that governs height, not width.
+
+     Restated here, after both, so the stacked field gets its stretch back.
+     ========================================================================== */
+  @media (max-width:440px){
+    .ft-news-field{ align-items:stretch; }
+    .ft-news-field input{ width:100%; }
+  }
+
+
+  /* ==========================================================================
+     WORDMARK -- BRAND-TO-BLACK GRADIENT (header + footer)
+
+     The wordmark was three colours fighting each other: .z took
+     --zt-orange-deep, .t took --zt-orange-mid, and the remaining letters took
+     whatever --zt-ink rule won last, so "ZEDTAC" read as Z-orange, T-orange and
+     four dark letters with no relationship between them.
+
+     Replaced with one ramp across the whole word: brand orange on the Z falling
+     to near-black by the time it reaches "AC". Declared last so it beats the
+     `color:var(--zt-ink) !important` set earlier in the cascade -- and it does
+     so without needing !important itself, because -webkit-text-fill-color
+     outranks `color` for the glyph fill regardless of importance.
+
+     ---------------------------------------------------------------------------
+     The two lockups share the ramp's START (the brand orange) but not its END,
+     because they sit on opposite grounds:
+
+       header  on the light nav plate  -> ends at --zt-ink   (near-black)
+       footer  on the #0A0A0C plate    -> ends at --zt-bg    (the site background)
+
+     Ending the footer at the page background rather than at black is what keeps
+     the whole word legible there: black-on-black dissolved the "TAC" tail, while
+     #F5F5F5 lands 18.9:1 against the plate. Same gradient language in both
+     places, each resolved against the surface it actually sits on.
+     ========================================================================== */
+  @supports ((-webkit-background-clip:text) or (background-clip:text)){
+    .nav .logo-text,
+    footer .logo-text{
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .nav .logo-text{
+      background-image:linear-gradient(96deg,
+        var(--zt-primary) 0%,
+        var(--zt-primary) 14%,
+        var(--zt-ink) 68%,
+        var(--zt-ink) 100%);
+    }
+    footer .logo-text{
+      background-image:linear-gradient(96deg,
+        var(--zt-primary) 0%,
+        var(--zt-primary) 14%,
+        var(--zt-bg) 68%,
+        var(--zt-bg) 100%);
+    }
+    /* The two letter spans carry their own colour from the original lockup. A
+       descendant's fill paints OVER the parent's clipped background, so they
+       have to go transparent too or the Z and T would punch solid holes in the
+       ramp -- the same interaction that made .hp-key disappear earlier. The
+       footer pair are set separately because they have their own colours
+       (--zt-orange / --zt-orange-light) from the dark-plate lockup. */
+    .nav .logo-text .z,
+    .nav .logo-text .t,
+    footer .logo-text .z,
+    footer .logo-text .t{
+      -webkit-text-fill-color:transparent;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -6951,7 +7257,7 @@
           <a href="#" role="button" aria-haspopup="true"
              :aria-expanded="mobileSub === 0 ? 'true' : 'false'"
              @click.prevent="toggleSub(0)"
-             :class="{'nav-active': ['platform','features','integrations','automation','module','erpservices'].includes(page) || (page === 'home' && ['services','automation'].includes(activeSection))}">Services</a>
+             :class="{'nav-active': ['platform','features','integrations','automation','module','erpservices','industries'].includes(page) || (page === 'home' && ['services','automation'].includes(activeSection))}">Services</a>
           <button class="nav-sub-toggle" type="button" aria-label="Toggle Services submenu"
                   :aria-expanded="mobileSub === 0 ? 'true' : 'false'"
                   @click="toggleSub(0)">
@@ -6971,15 +7277,21 @@
                 </span>
                 <span class="nav-dropdown-title">Automation Services</span>
               </a>
+              <a href="#" @click.prevent="goIndustries" :class="{'nav-active': page === 'industries'}">
+                <span class="nav-dropdown-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18"/><path d="M5 21V7l6-3v17"/><path d="M11 11h8v10"/><path d="M8 10h.01M8 14h.01M15 15h.01"/></svg>
+                </span>
+                <span class="nav-dropdown-title">Industries</span>
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- The Solutions tab is gone. Case Studies and Industries We Serve
-             were removed from the nav (both sections still exist on the site,
-             reachable from the landing page and the Industries page), and
-             Client Outcomes moved into Resources, which is where the rest of
-             the proof/reference material already lives. -->
+        <!-- Case Studies stays out of the nav (the section lives on the landing
+             page) and Client Outcomes sits under Resources with the rest of the
+             proof material. Industries is listed above: the page was fully built
+             but goIndustries() had no caller anywhere in the file, so it could
+             not be reached by any route a visitor has. -->
 
         <a href="#" @click.prevent="goPricing" :class="{'nav-active': page === 'pricing'}">Pricing</a>
 
@@ -7126,6 +7438,7 @@
               <span class="arch-node-tag">{{ l.tag }}</span>
               <h3>{{ l.name }}</h3>
               <p>{{ l.desc }}</p>
+              <ul class="arch-node-points" v-if="l.points"><li v-for="pt in l.points" :key="pt">{{ pt }}</li></ul>
               <div class="arch-node-items"><span v-for="it in l.items" :key="it">{{ it }}</span></div>
             </article>
           </div>
@@ -7336,7 +7649,12 @@
             @mouseenter="stopBlogInterval"
             @mouseleave="startBlogInterval"
           >
-            <a href="#" class="blog-card" v-for="b in blogPosts" :key="b.title" @click.prevent>
+            <!-- article, not <a>: there are no article pages in this build, so
+                 the card was an href="#" with a bare @click.prevent and no
+                 handler -- it looked clickable, announced itself as a link, and
+                 did nothing. Kept as a summary card until the posts exist; the
+                 "Read article" affordance below went with it. -->
+            <article class="blog-card" v-for="b in blogPosts" :key="b.title">
               <div class="blog-thumb">
                 <div class="blog-card-3d" aria-hidden="true">
                   <span class="hero-shape bc1"></span>
@@ -7349,9 +7667,8 @@
                 <span class="blog-date">{{ b.date }}</span>
                 <h3>{{ b.title }}</h3>
                 <p>{{ b.excerpt }}</p>
-                <span class="blog-link">Read article →</span>
               </div>
-            </a>
+            </article>
           </div>
           <div class="slider-nav">
             <button class="slider-arrow" @click="scrollSlider('blogTrack', -1)" aria-label="Previous articles">
@@ -7601,12 +7918,12 @@
       <section>
         <div class="int-block" v-for="(g,gi) in integrationGroups" :key="g.group">
           <div class="int-head reveal">
-            <h3>{{ g.group }}</h3>
+            <h2>{{ g.group }}</h2>
             <p>{{ g.desc }}</p>
           </div>
           <div class="int-grid">
             <article class="int-card reveal" v-for="(it,i) in g.items" :key="it.name" :style="{'--d': (i*60)+'ms'}">
-              <h4>{{ it.name }}</h4>
+              <h3>{{ it.name }}</h3>
               <p>{{ it.desc }}</p>
             </article>
           </div>
@@ -8888,7 +9205,7 @@
 
       <div class="ft-cols reveal">
         <div class="ft-col">
-          <h4>Product</h4>
+          <h2>Product</h2>
           <ul>
             <li><a href="#" @click.prevent="goPricing">Pricing</a></li>
             <li><a href="#" @click.prevent="goErpServices">ERP</a></li>
@@ -8897,7 +9214,7 @@
         </div>
 
         <div class="ft-col">
-          <h4>Company</h4>
+          <h2>Company</h2>
           <ul>
             <li><a href="#" @click.prevent="goAbout">About Us</a></li>
             <li><a href="#" @click.prevent="goSection('#case-studies')">Case Studies</a></li>
@@ -8906,16 +9223,14 @@
           </ul>
         </div>
 
-        <div class="ft-col">
-          <h4>Download</h4>
-          <ul>
-            <li><a href="#" @click.prevent="goConsult">App Store</a></li>
-            <li><a href="#" @click.prevent="goConsult">Play Store</a></li>
-          </ul>
-        </div>
+        <!-- The Download column is removed rather than relinked. Both entries
+             pointed at goConsult, so a visitor who clicked "App Store" expecting
+             a store listing landed on a consultation form; advertising store
+             presence the product does not have is worse than not listing it.
+             Restore this block when real store URLs exist. -->
 
         <div class="ft-col">
-          <h4>Connect</h4>
+          <h2>Connect</h2>
           <ul class="ft-social">
             <li><a href="https://linkedin.com/company/zedtacsoftware" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM3 9h4v12H3zM9.5 9h3.8v1.7h.05c.53-1 1.83-2 3.77-2 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V21h-4z"/></svg>LinkedIn</a></li>
@@ -8929,7 +9244,7 @@
         </div>
 
         <div class="ft-col">
-          <h4>Legal</h4>
+          <h2>Legal</h2>
           <ul>
             <li><a href="#" @click.prevent="showPrivacy = true">Privacy Policy</a></li>
             <li><a href="#" @click.prevent="showTerms = true">Terms of Service</a></li>
@@ -9115,14 +9430,17 @@ createApp({
       platformLayers: [
         { name:'Vertical modules', tag:'Deep, hand-built',
           desc:'Industry depth where it earns its keep. Real Estate carries plots, bookings and instalment plans; Education carries students and attendance. Everything else runs on a generic item-and-sale engine that posts to the very same ledger.',
+          points:['Domain records, not renamed generic fields','New verticals added without forking the core','Every vertical posts to the shared ledger'],
           items:['Real Estate — plots, bookings, instalments','Education — students, attendance','Generic engine — item + sale'] },
         { name:'Shared kernel', tag:'Built once, used by every business',
           desc:'The parts no vertical should reinvent. Tenancy, users and permissions, the customer record, payments and the ledger are built once and shared, which is why a customer in one division is the same customer in another.',
+          points:['One customer across every business unit','Append-only ledger, reversing corrections','Multi-entity and multi-currency as standard'],
           items:['Tenancy & business units','Users & role-based access','Customers','Ledger — the source of truth','Payments','REST API'] },
         { name:'Automation platform',
           tag:'Where every new capability plugs in',
           desc:'Events, rules, actions and audited runs sitting on top of everything below. Adding an automation is a new module against this engine — never a rewrite of the layers beneath it.',
-          items:['Events','Rules','Actions','Audited runs'] },
+          points:['Rules configured by admins, not coded','Actions reused from a shared registry','Every run recorded with its outcome'],
+          items:['Events','Rules','Actions','Audited runs','Scheduled jobs','Approval routing','Action registry','Ledger postings'] },
       ],
       moneyFlow: [
         { step:'Booking', desc:'One database transaction creates the booking, flips the plot to booked, opens the instalment plan and posts the receivable. Either all of it happens or none of it does.' },
