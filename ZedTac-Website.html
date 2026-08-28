@@ -6,9 +6,61 @@
 <title>ZedTac — Enterprise ERP &amp; Business Automation Platform</title>
 <meta name="description" content="ZedTac is an enterprise ERP and business automation platform: a governed ledger across finance, inventory, supply chain, manufacturing and HR, plus 11 automation modules for collections, approvals, payroll, CRM and scheduled reporting.">
 <meta name="keywords" content="ERP solutions, business automation platform, ERP implementation, workflow automation, event-driven automation, accounts payable automation, receivables collections automation, expense approval automation, CRM automation, HR and payroll automation, cloud ERP, supply chain management">
+<!-- ┌───────────────────────────────────────────────────────────────────────┐
+     │ SITE ORIGIN — change in all four places below if the live domain      │
+     │ differs. It is inferred from the contact address (admin@zedtac.com);  │
+     │ nothing else in this file states the production URL. A canonical or   │
+     │ og:url pointing at the wrong origin is worse than none at all, so     │
+     │ confirm this before the site goes live.                               │
+     └───────────────────────────────────────────────────────────────────────┘ -->
+<link rel="canonical" href="https://zedtac.com/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="ZedTac">
+<meta property="og:url" content="https://zedtac.com/">
 <meta property="og:title" content="ZedTac — Enterprise ERP &amp; Business Automation Platform">
 <meta property="og:description" content="One platform, two pillars: an ERP system of record and an event-driven automation engine with 11 modules — collections, approvals, payroll, CRM, commissions and scheduled reporting.">
+<!-- Facebook, LinkedIn and WhatsApp will not render an SVG share preview, so
+     this one card is a raster at the 1.91:1 the crawlers expect. -->
+<meta property="og:image" content="https://zedtac.com/images/og-cover.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ZedTac — enterprise ERP and business automation platform">
+<meta property="og:locale" content="en_US">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ZedTac — Enterprise ERP &amp; Business Automation Platform">
+<meta name="twitter:description" content="An ERP system of record and an event-driven automation engine on one governed ledger — finance, inventory, supply chain, manufacturing and HR.">
+<meta name="twitter:image" content="https://zedtac.com/images/og-cover.png">
+<meta name="twitter:image:alt" content="ZedTac — enterprise ERP and business automation platform">
+
+<!-- Organization schema: gives search engines the name, logo, contact channel
+     and social profiles as structured data rather than leaving them to be
+     inferred from the page copy. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ZedTac",
+  "alternateName": "ZedTac Software Company",
+  "url": "https://zedtac.com/",
+  "logo": "https://zedtac.com/images/og-cover.png",
+  "description": "Enterprise ERP and business automation platform: a governed ledger across finance, inventory, supply chain, manufacturing and HR, with an event-driven automation engine.",
+  "email": "admin@zedtac.com",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "sales",
+    "email": "admin@zedtac.com",
+    "availableLanguage": ["en"]
+  },
+  "sameAs": [
+    "https://linkedin.com/company/zedtacsoftware",
+    "https://instagram.com/zedtacsoftware",
+    "https://facebook.com/zedtacsoftware"
+  ]
+}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <!-- The stylesheet comes from googleapis.com but every actual font file comes
@@ -29,7 +81,15 @@
      even paint. Deferred it downloads in parallel and executes after parsing,
      still before DOMContentLoaded -- which is what the app boot at the end of
      <body> now waits for. -->
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"></script>
+<!-- integrity pins this to the exact 3.4.21 build (sha384 of the 144,109-byte
+     file served by cdnjs). The whole site is one script-driven page, so an
+     unpinned third-party bundle means a CDN compromise executes with full
+     access to the consultation form's contents. crossorigin is required for
+     the browser to check the hash on a cross-origin fetch. -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.21/vue.global.prod.min.js"
+        integrity="sha384-wdamyDHEiblYHsu/XTokGtIeFekZu7xN37Yvkl0NZ7PnhwRB+nwE1ByT7VlwiypE"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
 <script>
 (function(){
   /* ---- loader ------------------------------------------------------------
@@ -127,10 +187,28 @@
 
 <style>
   :root{
-    --zt-orange-deep:#FF9447;
+    /* ---- BRAND ORANGE -------------------------------------------------------
+       #FF9447 is the brand colour and is used as-is on every surface the eye
+       reads as "the orange": buttons, display headings, gradients, glows, chip
+       fills, the rail and the logo mark.
+
+       Kept on record, since it was measured rather than assumed: at this value
+       white-on-orange buttons sit at 2.19:1 and orange-on-cream text at 1.83:1,
+       against the 4.5:1 (small text) / 3:1 (large text) WCAG AA asks for. That
+       is a deliberate brand decision, not an oversight.
+
+       The one exception is --zt-orange-deep below, which is not a brand surface
+       at all: it is the foreground colour for 11-13px mono labels, where the
+       bright orange was not merely off-spec but genuinely hard to read. */
     --zt-orange:#FF9447;
     --zt-orange-mid:#FF9447;
     --zt-orange-light:#FFCB94;
+    /* Buttons: the brand orange, unchanged. */
+    --zt-orange-btn:#FF9447;
+    /* Display headings (.text-grad): the brand orange, unchanged. */
+    --zt-orange-display:#FF9447;
+    /* Small mono labels only -- see the note above. 5.34:1 on cream. */
+    --zt-orange-deep:#B24600;
     --zt-cream:#FFF9F4;
     --zt-white:#FFFFFF;
     --zt-ink:#26170B;
@@ -183,18 +261,27 @@
      same clipping without creating a scroll container. `hidden` is kept first
      as a fallback for engines that predate `clip`. */
   html{scroll-behavior:smooth; overflow-x:hidden; overflow-x:clip; width:100%;}
+  /* The webfonts load with display=swap, so every visitor renders a fallback
+     first and swaps. With a bare `sans-serif` fallback that swap was a visible
+     reflow -- the system default's metrics are nothing like Jakarta's, so text
+     changed width and line count mid-load and read as "broken" for a moment.
+     Naming the platform UI faces explicitly puts a much closer face in that
+     first paint, and font-synthesis-weight:none stops the browser inventing a
+     weight it was never given (see the 650 note below). */
   body{
     margin:0;
-    font-family:'Plus Jakarta Sans', sans-serif;
+    font-family:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     color:var(--zt-ink);
     background:var(--zt-cream);
     -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    font-synthesis-weight:none;
     overflow-x:hidden; overflow-x:clip;
     width:100%;
   }
   img, svg, video{ max-width:100%; height:auto; }
   h1,h2,h3,h4{
-    font-family:'Space Grotesk', sans-serif;
+    font-family:'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     margin:0;
     letter-spacing:-0.02em;
     line-height:1.08;
@@ -206,7 +293,7 @@
   ul{ margin:0; padding:0; list-style:none; }
 
   .mono{
-    font-family:'JetBrains Mono', monospace;
+    font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     letter-spacing:0.04em;
     text-transform:uppercase;
   }
@@ -254,7 +341,7 @@
     transition:transform .18s var(--ease), box-shadow .18s var(--ease), opacity .18s var(--ease);
   }
   .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     color:var(--zt-white);
     box-shadow:var(--zt-shadow);
   }
@@ -360,7 +447,7 @@
   }
   .nav-item:hover .nav-dropdown{ opacity:1; visibility:visible; transform:translateY(0); }
   .nav-dropdown-label{
-    font-size:10.5px; color:var(--zt-ink-soft); padding:4px 10px 8px; letter-spacing:0.08em;
+    font-size:11px; color:var(--zt-ink-soft); padding:4px 10px 8px; letter-spacing:0.08em;
     text-transform:uppercase;
   }
   /* General dropdown styles for other dropdowns (Case Studies, Blog) */
@@ -742,7 +829,7 @@
   }
   .portfolio-card:hover .portfolio-thumb img{ transform:scale(1.09) rotate(0.5deg); }
   .portfolio-cat{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#fff;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff;
     background:rgba(0,0,0,0.35); padding:5px 10px; border-radius:var(--r-pill);
     position:absolute; left:14px; bottom:14px; z-index:1; transition:transform .3s var(--ease);
   }
@@ -932,7 +1019,7 @@
   }
   .blog-card:hover .blog-thumb img{ transform:scale(1.09) rotate(0.5deg); }
   .blog-cat{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#fff;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff;
     background:rgba(0,0,0,0.35); padding:5px 10px; border-radius:var(--r-pill); position:relative; z-index:1;
     transition:transform .3s var(--ease);
   }
@@ -1122,7 +1209,7 @@
     padding:10px 20px; font-size:14px;
   }
   .cookie-banner .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     box-shadow:none;
   }
   .cookie-banner .btn-primary:hover{
@@ -1381,7 +1468,7 @@
   /* ---------- CASE STUDY CARD ---------- */
   .case-meta{ display:flex; flex-direction:column; gap:14px; margin-bottom:18px; }
   .case-label{
-    display:block; font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+    display:block; font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
     color:var(--zt-orange-deep); margin-bottom:5px;
   }
   .case-row p{ margin:0; font-size:13.5px; color:var(--zt-ink-soft); line-height:1.6; }
@@ -1495,7 +1582,7 @@
   .consult-price{ font-family:'Space Grotesk',sans-serif; font-size:30px; font-weight:700; color:var(--zt-orange-light); }
   .consult-meta{ display:flex; flex-wrap:wrap; gap:8px; }
   .consult-tag{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.05em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.05em;
     color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.08);
     border:1px solid rgba(255,255,255,0.14); padding:5px 10px; border-radius:var(--r-pill); white-space:nowrap;
   }
@@ -1604,6 +1691,10 @@
   .review-grid .review-card:hover::before{ opacity:0.08; }
   .review-grid .review-card > *{ position:relative; z-index:1; }
   .review-grid .review-quote{ color:var(--zt-ink-soft); }
+  /* The base .q-mark colour is --zt-orange-light, which is tuned for the dark
+     review card. This grid puts the same quote on a light card, where that
+     pale orange fell to 1.51:1 and the quotation marks all but disappeared. */
+  .review-grid .q-mark{ color:var(--zt-orange-deep); }
   .review-grid .review-person strong{ color:var(--zt-ink); }
   .review-grid .review-person span{ color:var(--zt-ink-soft); }
   .review-grid .stars{ color:var(--zt-orange); }
@@ -1620,7 +1711,7 @@
   }
   .industry-card:hover{ transform:translateY(-4px); box-shadow:var(--zt-shadow); border-color:transparent; }
   .industry-cat{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.1em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em;
     text-transform:uppercase; color:var(--zt-orange-deep);
   }
   .industry-card h3{ font-size:15.5px; line-height:1.35; }
@@ -1643,7 +1734,7 @@
   .pillar-icon svg{ width:24px; height:24px; }
   .pillar-card h3{ font-size:20px; }
   .pillar-tag{
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
     text-transform:uppercase; color:var(--zt-orange-deep); display:block; margin-top:3px;
   }
   .pillar-card > p{ font-size:14.5px; color:var(--zt-ink-soft); line-height:1.65; }
@@ -1689,7 +1780,7 @@
   .auto-foot{ /* Adjust auto-foot to integrate auto-area and auto-more */
     display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:10px;
   }
-  .auto-area{ font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--zt-ink-soft); }
+  .auto-area{ font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--zt-ink-soft); }
   .auto-more{ font-size:12.5px; font-weight:700; color:var(--zt-orange-deep); }
 
   .service-card{
@@ -1764,7 +1855,14 @@
     0%,100%{ box-shadow:0 0 0 0 rgba(232,96,15,.35), var(--sh-2); }
     50%{ box-shadow:0 0 0 8px rgba(232,96,15,0), var(--sh-2); }
   }
-  .arch-nodes{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; align-items:stretch; }
+  /* minmax(0,1fr) rather than a bare 1fr: 1fr is minmax(AUTO,1fr), and that auto
+     floor is the card's min-content width, which aspect-ratio inflates from the
+     content height. The tracks were overrunning the road they sit in -- 396px
+     each inside an 799px road at 1024 -- so the three columns spilled past the
+     section instead of sharing it. A zero floor lets them divide the road as
+     intended, which is also what puts the desktop card back at the 359px the
+     portrait pass documents below. */
+  .arch-nodes{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; align-items:stretch; }
   .arch-node{
     background:var(--glass); border:1px solid var(--glass-line); border-radius:var(--r-2xl);
     -webkit-backdrop-filter:var(--glass-blur); backdrop-filter:var(--glass-blur);
@@ -1774,16 +1872,32 @@
   .arch-node:hover{ transform:translateY(-6px); box-shadow:var(--sh-3); border-color:var(--ai-soft); }
   .arch-node-num{ color:var(--ai-deep); margin-bottom:10px; display:block; }
   .arch-node-tag{
-    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10.5px;
+    display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px;
     letter-spacing:.08em; text-transform:uppercase; color:var(--zt-ink-soft); margin-bottom:8px;
   }
   .arch-node h3{ font-size:19px; margin-bottom:10px; }
   .arch-node > p{ font-size:14px; color:var(--zt-ink-soft); line-height:1.65; flex-grow:1; }
-  .arch-node-items{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
-  .arch-node-items span{
-    font-size:12px; background:var(--surface-2); border:1px solid var(--zt-line);
-    color:var(--zt-ink); padding:6px 11px; border-radius:var(--r-pill);
+  /* Supporting points between the paragraph and the chip row. Same dot-bullet
+     device as .solution-points, one step smaller, so the two card families read
+     as the same system rather than two takes on a list. The paragraph gives up
+     flex-grow to the gap ABOVE the chips: left on the paragraph, the slack the
+     3:4 card carries would open between the copy and these points instead of
+     collecting once at the foot. */
+  .arch-node-points{ display:grid; gap:6px; margin-top:13px; }
+  .arch-node-points li{
+    font-size:12.5px; color:var(--zt-ink-soft);
+    padding-left:16px; position:relative; line-height:1.45;
   }
+  .arch-node-points li::before{
+    content:''; position:absolute; left:0; top:6px;
+    width:5px; height:5px; border-radius:50%; background:var(--grad-ai);
+  }
+  .arch-node:has(.arch-node-points) > p{ flex-grow:0; }
+  /* The chip row that used to close this card was retired when the cards
+     gained their dark visual: it repeated what the points above it already
+     said, and a card carrying an image, a title, a paragraph, three points
+     AND eight chips was the opposite of the concise hierarchy intended. The
+     points now take the auto margin that pinned the chips to the foot. */
   @media (max-width:860px){
     .arch-rail{ display:none; }
     .arch-nodes{ grid-template-columns:1fr; gap:18px; }
@@ -1804,11 +1918,103 @@
   #architecture .arch-node-tag{ color:rgba(255,255,255,.55); }
   #architecture .arch-node h3{ color:#fff; }
   #architecture .arch-node > p{ color:rgba(255,255,255,.68); }
-  #architecture .arch-node-items span{
-    background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.16);
-    color:rgba(255,255,255,.85);
-  }
+  /* A step below the paragraph on the dark band, so the points read as support
+     under the copy rather than competing with it. */
+  #architecture .arch-node-points li{ color:rgba(255,255,255,.6); }
   #architecture .arch-rail-line{ opacity:.75; }
+
+  /* ---------- THREE LAYERS -- card visual redesign ----------------------
+     Each layer card now opens with a dark, abstract scene (a fixed band at
+     the top of the card), then title / one line / three supporting points.
+     The scene is an inline SVG carried on each platformLayers entry --
+     columns rising from a shared base, a kernel and its satellites, an
+     event-to-action flow -- all on one near-black palette with a single
+     orange accent, so the three read as a set rather than three pictures.
+
+     Everything here is scoped to #architecture: the .arch-* roadmap classes
+     stay reusable on light ground elsewhere, and no other card family is
+     touched. The scene is pulled to the card edges with negative margins
+     (matched to --zt-card-pad-lg) rather than a body wrapper, so every
+     existing colour rule for .arch-node-tag / h3 / > p / points keeps
+     working in both themes -- only the layout moves.
+
+     Note what is deliberately NOT here: overflow:hidden on .arch-node itself.
+     The card is a grid item whose portrait shape comes from aspect-ratio, and
+     that shape is only a PREFERRED height because the card keeps
+     min-height:auto. Automatic minimum size applies only while overflow is
+     visible, so clipping the card would turn its 3:4 into a hard ceiling and
+     cut the copy off on narrow screens -- the same trap documented on the
+     blog card further down. The visual clips itself instead, and rounds its
+     own top corners to sit inside the card's border. */
+  #architecture .arch-node-visual{
+    position:relative;
+    margin:calc(-1 * var(--zt-card-pad-lg)) calc(-1 * var(--zt-card-pad-lg)) 18px;
+    aspect-ratio:16 / 10;
+    background:#0b0b0d;
+    border-bottom:1px solid rgba(255,255,255,.10);
+    border-radius:calc(var(--r-2xl) - 1px) calc(var(--r-2xl) - 1px) 0 0;
+    overflow:hidden;
+  }
+  #architecture .arch-node-scene{ position:absolute; inset:0; }
+  #architecture .arch-node-scene svg{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    transform-origin:center 45%;
+    transition:transform .5s var(--ease);
+  }
+  /* Bottom fade: the scene melts into the card body on the dark band, and
+     reads as a deliberate dark thumbnail on the light-mode cream card. */
+  #architecture .arch-node-veil{
+    position:absolute; inset:0; pointer-events:none; opacity:.55;
+    background:linear-gradient(180deg, rgba(8,8,10,0) 42%, rgba(8,8,10,.62) 100%);
+    transition:opacity .4s var(--ease);
+  }
+  /* Layer label rides on the scene as a chip. The extra class in the
+     selector clears the light-mode rule that would otherwise paint this
+     text black on the dark scene. */
+  #architecture .arch-node-visual .arch-node-num{
+    position:absolute; left:14px; top:13px; z-index:2; margin:0;
+    padding:5px 9px; border-radius:var(--r-pill);
+    font-size:10px; letter-spacing:.14em;
+    color:rgba(255,255,255,.86);
+    background:rgba(0,0,0,.4);
+    border:1px solid rgba(255,255,255,.16);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  }
+  #architecture .arch-node h3{ margin-bottom:7px; }
+  /* Spare height on a shorter card collects between the copy and the points,
+     pinning the points to the foot -- the same behaviour the retired chip
+     row had, so the card still grows gracefully across a row. The auto margin
+     replaces the base margin-top, which leaves no gap at all once the card is
+     full (a phone, where content drives the height), so the separation is
+     restated as padding that the auto margin cannot eat. */
+  #architecture .arch-node:has(.arch-node-points) .arch-node-points{
+    margin-top:auto; padding-top:13px;
+  }
+
+  /* Hover: the scene eases in, the veil deepens, the copy lifts a touch --
+     on top of the card's own translateY and border-colour shift. Kept
+     restrained on purpose. */
+  #architecture .arch-node-tag,
+  #architecture .arch-node h3,
+  #architecture .arch-node > p,
+  #architecture .arch-node-points{ transition:transform .3s var(--ease); }
+  #architecture .arch-node:hover .arch-node-scene svg{ transform:scale(1.06); }
+  /* .55 -> .78, not higher: the veil is bottom-weighted, and past about .8 it
+     stops reading as a deepening gradient and starts erasing the drawing it
+     sits on. */
+  #architecture .arch-node:hover .arch-node-veil{ opacity:.78; }
+  #architecture .arch-node:hover .arch-node-tag,
+  #architecture .arch-node:hover h3,
+  #architecture .arch-node:hover > p,
+  #architecture .arch-node:hover .arch-node-points{ transform:translateY(-2px); }
+
+  @media (prefers-reduced-motion: reduce){
+    #architecture .arch-node:hover .arch-node-scene svg,
+    #architecture .arch-node:hover .arch-node-tag,
+    #architecture .arch-node:hover h3,
+    #architecture .arch-node:hover > p,
+    #architecture .arch-node:hover .arch-node-points{ transform:none; }
+  }
 
   .flow-chain{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
   @media (max-width:920px){ .flow-chain{ grid-template-columns:repeat(2,1fr); } }
@@ -1833,7 +2039,7 @@
   .int-block{ margin-top:52px; }
   .int-block:first-of-type{ margin-top:0; }
   .int-head{ margin-bottom:22px; }
-  .int-head h3{ font-size:20px; }
+  .int-head h2{ font-size:20px; }
   .int-head p{ font-size:14px; color:var(--zt-ink-soft); margin-top:6px; }
   .int-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
   @media (max-width:920px){ .int-grid{ grid-template-columns:repeat(2,1fr); } }
@@ -1844,7 +2050,7 @@
     transition:transform .22s var(--ease), box-shadow .22s var(--ease), border-color .22s var(--ease);
   }
   .int-card:hover{ transform:translateY(-4px); box-shadow:var(--zt-shadow); border-color:transparent; }
-  .int-card h4{ font-size:15.5px; font-family:'Space Grotesk',sans-serif; }
+  .int-card h3{ font-size:15.5px; font-family:'Space Grotesk',sans-serif; }
   .int-card p{ font-size:13px; color:var(--zt-ink-soft); line-height:1.6; flex-grow:1; }
 
   .doc-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
@@ -1857,7 +2063,7 @@
   }
   .doc-card:hover{ transform:translateY(-4px); box-shadow:var(--zt-shadow); border-color:transparent; }
   .doc-tag{
-    align-self:flex-start; font-family:'JetBrains Mono',monospace; font-size:10px;
+    align-self:flex-start; font-family:'JetBrains Mono',monospace; font-size:11px;
     letter-spacing:.08em; text-transform:uppercase; color:var(--zt-orange-deep);
     background:rgba(255,148,71,.1); padding:4px 10px; border-radius:var(--r-pill);
   }
@@ -2044,7 +2250,7 @@
      now share a single tab with three labelled columns. */
   .nav-mega-col-title{
     display:flex; align-items:center; gap:8px;
-    font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em;
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
     text-transform:uppercase; color:var(--zt-orange-deep);
     padding:0 12px 10px; margin-bottom:4px; border-bottom:1px solid var(--zt-line);
   }
@@ -2089,11 +2295,11 @@
   }
   .int-card:last-child{ border-bottom:0 !important; }
   .int-card:hover{ transform:none !important; background:var(--surface-2); padding-left:14px; }
-  .int-card h4{ grid-column:1; min-width:clamp(140px,15vw,210px); }
+  .int-card h3{ grid-column:1; min-width:clamp(140px,15vw,210px); }
   .int-card p{ grid-column:2; grid-row:1; margin:0; }
   @media (max-width:700px){
     .int-card{ grid-template-columns:1fr; }
-    .int-card h4, .int-card p{ grid-column:1; }
+    .int-card h3, .int-card p{ grid-column:1; }
   }
 
   /* Cards that remain get the new elevation + hairline so the ones that ARE
@@ -2421,7 +2627,7 @@
   }
 
   .ztl-status{
-    margin:0; font-size:10.5px; letter-spacing:.18em;
+    margin:0; font-size:11px; letter-spacing:.18em;
     color:rgba(255,255,255,.5);
     opacity:0; animation:ztlFadeIn .6s var(--ease) .78s forwards;
   }
@@ -2727,7 +2933,7 @@
     position:relative; overflow:hidden; isolation:isolate;
   }
   .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     background-size:180% 100%; background-position:0% 50%;
     color:#fff; border:none;
     box-shadow:0 10px 30px -12px rgba(233,93,12,.6), 0 0 0 1px rgba(255,255,255,.08) inset;
@@ -2918,7 +3124,11 @@
     white-space:nowrap;
     animation:chip-float 6s var(--ease-in-out) infinite alternate;
   }
-  .holo-chip strong{ display:block; font-size:12.5px; font-weight:650; color:var(--zt-ink); }
+  /* 650 is not one of the weights fetched for this family (500/600/700), so the
+     browser was synthesising it -- smearing the 600 face rather than using a
+     real one, which is what made this text look torn. Snapped to the nearest
+     weight that actually ships. */
+  .holo-chip strong{ display:block; font-size:12.5px; font-weight:600; color:var(--zt-ink); }
   .holo-chip em{ display:block; font-style:normal; font-size:11px; color:var(--zt-ink-soft); margin-top:2px; }
   .holo-chip .hc-dot{
     width:8px; height:8px; border-radius:50%; flex:none;
@@ -3034,7 +3244,7 @@
     100%{ top:94%; opacity:0; }
   }
   .ps-label{
-    position:relative; z-index:2; font-size:9px; letter-spacing:.18em;
+    position:relative; z-index:2; font-size:11px; letter-spacing:.18em;
     color:var(--ai); font-weight:600;
     background:var(--surface); border:1px solid var(--surface-line);
     border-radius:var(--r-pill); padding:9px 4px;
@@ -3536,7 +3746,7 @@
   .sb-pip:nth-child(2){ animation-delay:-1.5s; }
   .sb-pip:nth-child(3){ animation-delay:-3s; }
   .sb-label{
-    position:relative; z-index:2; font-size:9px; letter-spacing:.18em;
+    position:relative; z-index:2; font-size:11px; letter-spacing:.18em;
     color:var(--ai); font-weight:600;
     background:var(--surface); border:1px solid var(--surface-line);
     border-radius:var(--r-pill); padding:9px 4px;
@@ -4061,7 +4271,7 @@
     margin-bottom:clamp(22px,2.6vw,34px);
   }
   .ft-tagline p{ font-size:14.5px; color:rgba(255,255,255,.76); line-height:1.6; }
-  .ft-tagline strong{ color:#FFFFFF; font-weight:650; }
+  .ft-tagline strong{ color:#FFFFFF; font-weight:700; }
   .ft-tag-mark{
     width:9px; height:9px; flex:none; border-radius:50%;
     background:var(--grad-ai); box-shadow:0 0 18px rgba(255,138,43,.7);
@@ -4110,7 +4320,7 @@
   .btn-primary,
   .nav-cta .btn-primary,
   .hero .btn-primary{
-    background:#FF9447;
+    background:var(--zt-orange-btn);
     background-size:180% 100%;
     color:#FFFFFF;
   }
@@ -4121,7 +4331,7 @@
                0 0 0 1px rgba(255,176,103,.28) inset;
   }
   /* Cookie bar and any always-dark panel share the same button. */
-  .cookie-banner .btn-primary{ background:#FF9447; }
+  .cookie-banner .btn-primary{ background:var(--zt-orange-btn); }
 
   /* ======================================================================
      HEADER ↔ HERO BLEND
@@ -4257,7 +4467,7 @@
     --zt-ink-soft:#55514C;          /* 7.4:1 on --zt-cream */
 
     /* Accent text that has to pass AA against white. */
-    --zt-orange-deep:#FF9447;
+    --zt-orange-deep:#B24600;  /* foreground token: must clear AA on the light ground these scopes now use */
     --ai:#FF9447; --ai-deep:#FF9447; --ai-soft:#FF9447;
 
     --glass:rgba(255,255,255,.80);
@@ -4380,7 +4590,7 @@
     --ai:#FF9447; --ai-deep:#FF9447; --ai-soft:#FF9447;
     --grad-ai:linear-gradient(120deg,#FF9447 0%,#FF9447 52%,#FF9447 100%);
     --grad-brand-ai:linear-gradient(112deg,#FF9447 0%,#FF9447 32%,#FF9447 68%,#FFD1A6 100%);
-    --zt-orange-deep:#FF9447;
+    --zt-orange-deep:#B24600;  /* foreground token: must clear AA on the light ground these scopes now use */
     --glow-ai:0 0 40px -12px rgba(255,138,43,.5);
   }
 
@@ -4727,7 +4937,7 @@
     --ai:#FF9447; --ai-deep:#FF9447; --ai-soft:#FF9447;
     --grad-ai:linear-gradient(120deg,#FF9447 0%,#FF9447 52%,#FF9447 100%);
     --grad-brand-ai:linear-gradient(112deg,#FF9447 0%,#FF9447 34%,#FF9447 70%,#FF9447 100%);
-    --zt-orange-deep:#FF9447;
+    --zt-orange-deep:#B24600;  /* foreground token: must clear AA on the light ground these scopes now use */
   }
 
   /* The header pins its contents white while over the hero, which was correct
@@ -5041,12 +5251,12 @@
   #case-studies .case-row p,
   #architecture .arch-node > p,
   #architecture .arch-node-tag,
+  #architecture .arch-node-points li,
   .blog-section .blog-body p{ color:var(--zt-ink-soft); }
 
   #case-studies .case-label,
   #architecture .arch-node-num{ color:var(--zt-primary); }
 
-  #architecture .arch-node-items span,
   #case-studies .portfolio-result{
     background:#FFFFFF;
     border-color:var(--zt-line);
@@ -5060,11 +5270,26 @@
   #case-studies .portfolio-card:hover,
   #architecture .arch-node:hover{ border-color:var(--zt-primary); }
 
-  .ztl-track i, .sc-streams i, .hc-spark, .hp-key, .arch-rail-line{
+  .ztl-track i, .sc-streams i, .hc-spark, .arch-rail-line{
     background-image:none !important;
     background-color:var(--zt-primary) !important;
   }
-  .hp-key{ -webkit-text-fill-color:#FFFFFF; color:#FFFFFF; }
+  /* .hp-key used to ride along with those decorative bars, but it is TEXT, not
+     a painted bar, and it is drawn with background-clip:text. Giving it a solid
+     background-color left that clip in force -- the fill painted only inside the
+     glyph shapes -- and the white text-fill above then covered the glyphs, so
+     the AI / ERP / Automation keys rendered white on cream and were effectively
+     invisible. Dropped from the sweep and given a plain foreground colour: the
+     clip is released, and #B24600 puts an 11px bold label at 5.34:1. */
+  .hp-key{
+    background:none !important;
+    background-image:none !important;
+    background-color:transparent !important;
+    -webkit-background-clip:border-box !important;
+    background-clip:border-box !important;
+    -webkit-text-fill-color:var(--zt-orange-deep) !important;
+    color:var(--zt-orange-deep) !important;
+  }
 
   /* The result badge was primary-on-a-12%-primary-tint, which lands at 1.1:1 --
      effectively invisible. Ink on white keeps it legible; the primary stays as
@@ -5138,7 +5363,11 @@
      ========================================================================== */
   :root{
     --zt-orange:var(--zt-primary);
-    --zt-orange-deep:var(--zt-primary);
+    /* NOT aliased to --zt-primary. Every other name here is a brand surface and
+       follows the brand orange; --zt-orange-deep is the foreground colour for
+       the 11-13px mono labels, where the bright orange is genuinely hard to
+       read rather than just off-spec. Held at the deep value on purpose. */
+    --zt-orange-deep:#B24600;
     --zt-orange-mid:var(--zt-primary);
     --grad:var(--zt-primary);
     --grad-ai:var(--zt-primary);
@@ -5153,8 +5382,8 @@
   .text-grad{
     background:none !important;
     background-image:none !important;
-    -webkit-text-fill-color:var(--zt-primary) !important;
-    color:var(--zt-primary) !important;
+    -webkit-text-fill-color:var(--zt-orange-display) !important;
+    color:var(--zt-orange-display) !important;
   }
   .dash-card, .service-card, .showcase-card, .portfolio-card, .pricing-card,
   .review-card, .blog-card, .erp-feature, .consult-card, .consult-aside-card,
@@ -5167,7 +5396,9 @@
   .d3-core, .holo-glow, .ft-tagline, .ft-tag-mark, .blog-thumb{
     background-image:none !important;
   }
-  .ztl-track i, .sc-streams i, .hc-spark, .hp-key, .arch-rail-line,
+  /* .hp-key excluded here for the same reason as the earlier sweep: it is
+     clipped text, and a background-color on it paints inside the glyphs. */
+  .ztl-track i, .sc-streams i, .hc-spark, .arch-rail-line,
   .arch-rail-dot, .sb-pip, .zt-progress{
     background-image:none !important;
     background-color:var(--zt-primary) !important;
@@ -5195,8 +5426,10 @@
   #architecture .arch-node,
   #architecture .arch-node h3,
   #architecture .arch-node > p,
-  #architecture .arch-node-tag,
-  #architecture .arch-node-items span{ color:#000000; }
+  #architecture .arch-node-tag{ color:#000000; }
+  /* The layer label now sits on the card's dark visual, not on the cream
+     ground, so it keeps the light chip treatment set with that visual --
+     black here would put it at ~1.2:1 on a near-black scene. */
   #architecture .arch-node-num{ color:#000000; font-weight:700; }
   /* Section heading/intro sit on the dark gray, not in a card, so they stay
      light for contrast. */
@@ -5220,38 +5453,9 @@
     .cap-track .cap-group{ flex:0 0 82vw; }
   }
 
-  /* --- About on the landing page ----------------------------------------- */
-  #about-home .about-grid{
-    display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; align-items:center;
-  }
-  @media (max-width:920px){
-    #about-home .about-grid{ grid-template-columns:1fr; gap:34px; }
-  }
-  #about-home .about-visual{
-    border-radius:var(--r-2xl); overflow:hidden; background:var(--zt-card);
-    border:1px solid var(--zt-line);
-  }
-  #about-home .about-visual img{ width:100%; height:100%; display:block; object-fit:cover; }
-  #about-home .about-copy p{
-    color:var(--zt-ink-soft); font-size:16px; line-height:1.72; margin-bottom:16px;
-  }
-  #about-home .about-stats{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:28px;
-  }
-  @media (max-width:760px){ #about-home .about-stats{ grid-template-columns:repeat(2,1fr); } }
-  #about-home .about-stat{
-    background:var(--zt-card); border:1px solid var(--zt-line);
-    border-radius:var(--r-md); padding:16px 14px;
-    transition:transform var(--dur-3) var(--ease), box-shadow var(--dur-3) var(--ease);
-  }
-  #about-home .about-stat:hover{ transform:translateY(-4px); box-shadow:var(--sh-2); }
-  #about-home .about-stat strong{
-    display:block; font-family:'Space Grotesk',sans-serif; font-size:24px;
-    color:var(--zt-primary); line-height:1.1;
-  }
-  #about-home .about-stat span{
-    display:block; font-size:12.5px; color:var(--zt-ink-soft); margin-top:5px;
-  }
+  /* The 30 lines that styled #about-home came out with the section. The About
+     page has always carried its own #about.about treatment, so nothing here
+     was shared. */
 
 
   /* Header ground, restated with !important: several later .nav rules paint
@@ -5496,7 +5700,7 @@
     padding:clamp(24px, 2.6vw, 38px) 0;
     border-bottom:1px solid rgba(255,255,255,.10);
   }
-  .ft-col h4{
+  .ft-col h2{
     font-size:16px; font-weight:600; color:rgba(255,255,255,.55);
     margin:0 0 18px; font-family:'Space Grotesk',sans-serif;
   }
@@ -5943,7 +6147,8 @@
      times inside #case-studies and eight more times in the Portfolio section,
      and "consistently across the cards" means both sets, not just the ones on
      the gradient. */
-  #architecture .arch-node-items span,
+  /* The #architecture layer chips this rule also covered are gone -- that row
+     was retired when the Three Layers cards gained their dark visual. */
   .portfolio-result{
     background:var(--zt-primary) !important;
     border-color:var(--zt-primary) !important;
@@ -5992,7 +6197,6 @@
 
      Geometry is untouched: size, shape, padding, radius, position and
      font-size are all exactly as they were. */
-  #architecture .arch-node-items span,
   .portfolio-result{
     background:var(--zt-tag-fill) !important;
     border-color:var(--zt-tag-fill) !important;
@@ -6216,8 +6420,13 @@
      .hero is excluded deliberately: it is the one full-bleed section, it
      already pulls itself up under the bar by -(--nav-h) and re-pads by
      +(--nav-h), and it lays its copy and dashboard out on a two-column grid
-     that display:flex would collapse into a stack. */
-  #main section:not(.hero){
+     that display:flex would collapse into a stack.
+
+     Scoped to .zt-home. The landing page keeps one-screen sections; every
+     other route falls through to the site's own `section{ padding:var(
+     --sp-section) 0 }` and sizes to its content exactly as it did before this
+     system existed. */
+  .zt-home section:not(.hero){
     min-height:var(--zt-vh);
     box-sizing:border-box;
     display:flex;
@@ -6225,16 +6434,18 @@
     justify-content:center;
     padding-top:var(--zt-sec-top);
     padding-bottom:var(--zt-sec-pad);
-    /* Anchor jumps and goSection() land the section's top below the bar
-       rather than behind it. */
-    scroll-margin-top:var(--nav-h, 74px);
   }
+
+  /* Anchor jumps and goSection() land a section's top below the bar rather
+     than behind it. This is header clearance, not full-screen layout, so it
+     stays on every route. */
+  #main section{ scroll-margin-top:var(--nav-h, 74px); }
 
   /* A column flex container shrinks its items along the main axis by default,
      so a section with more content than the viewport would squash it rather
      than grow. Opting every direct child out of shrinking is what lets a
      section expand naturally past one screen instead of clipping. */
-  #main section:not(.hero) > *{ flex:0 0 auto; }
+  .zt-home section:not(.hero) > *{ flex:0 0 auto; }
 
   /* Back to Home used to sit in a spacer <div> ABOVE the section, which meant
      it was outside the box being centred and it pushed the first screen past
@@ -6243,16 +6454,12 @@
      does not stretch into a full-width click target. */
   #main section:not(.hero) > .back-link{ align-self:flex-start; }
 
-  /* ---- first section on a route ------------------------------------------
-     The bar is position:sticky, so at the top of the document it still takes
-     its own height out of normal flow -- only the first section lives in that
-     reduced space. Subtracting --nav-h here is what makes the first screen end
-     exactly at the fold, and dropping back to the plain pad avoids clearing a
-     bar that is already sitting above the section rather than over it. */
-  #main > div > .wrap:first-of-type > section:not(.hero):first-of-type{
-    min-height:calc(var(--zt-vh) - var(--nav-h, 74px));
-    padding-top:var(--zt-sec-pad);
-  }
+  /* The "first section on a route" rule that used to sit here sized the first
+     section to calc(100svh - --nav-h), because the sticky bar takes its own
+     height out of flow at the top of the document. On the landing page that
+     first section is .hero, which was always excluded and handles its own
+     offset -- so the rule only ever applied to the other routes. Those size to
+     their content now, and it has gone with them. */
 
   /* Superseded. Collapsing the top padding after the two full-bleed bands was
      right when sections were 88px apart and the seam read as a dead zone; now
@@ -6264,7 +6471,7 @@
      .wrap already owns the gutter (clamp(20px,4vw,64px)) and the max-width
      cap, and every section now sits inside one, so the left/right inset is
      identical on every screen. Sections contribute vertical space only. */
-  #main section:not(.hero){
+  .zt-home section:not(.hero){
     padding-left:0;
     padding-right:0;
     max-width:100%;
@@ -6297,9 +6504,759 @@
      section is not enough room to hold a heading and its content at once, so
      the sections drop back to natural flow and the site simply scrolls. */
   @media (max-height:560px){
-    #main section:not(.hero),
-    #main > div > .wrap:first-of-type > section:not(.hero):first-of-type{
-      min-height:0;
+    .zt-home section:not(.hero){ min-height:0; }
+  }
+
+
+  /* ==========================================================================
+     CARD SCALE FOR FULL-SCREEN SECTIONS
+
+     Every section is a screen tall now, which left the smaller card families
+     stranded: measured at 1440x900, the two home carousels sat at 202px and
+     194px tall inside 900px sections (286px and 321px of unused height), and
+     the doc / add-on / erp-feature grids were 149-169px against ~210-233px of
+     slack. The big families (pricing 516px, consult 518px, portfolio 479px,
+     cap-group 462px) already filled their sections and are deliberately left
+     alone -- growing those is what would look inflated.
+
+     Heights are viewport-relative rather than fixed, so a card stays the same
+     FRACTION of the section at every size, with a floor for phones and a
+     ceiling so 4K cannot stretch a three-line card into a poster. Row-equal
+     heights come from the grids' default align-items:stretch and are
+     untouched; min-height only raises the floor, so the taller card in a row
+     still sets the height for the rest.
+     ========================================================================== */
+
+  :root{
+    --zt-card-xs:clamp(104px, 13vh, 150px);   /* stat strips           */
+    --zt-card-sm:clamp(190px, 25vh, 290px);   /* compact text cards    */
+    --zt-card-md:clamp(225px, 29vh, 340px);   /* standard cards        */
+    --zt-card-lg:clamp(320px, 43vh, 500px);   /* feature cards         */
+
+    /* Internal padding scales on width, not height -- a card gets wider on a
+       big screen, and padding that tracked vh would go slack on a short one. */
+    --zt-card-pad:clamp(22px, 1.9vw, 38px);
+    --zt-card-pad-lg:clamp(26px, 2.2vw, 44px);
+  }
+
+  /* ---- heights ----------------------------------------------------------- */
+  .doc-card, .erp-feature, .addon-card{ min-height:var(--zt-card-sm); }
+  .auto-card, .industry-card{ min-height:var(--zt-card-md); }
+  .arch-node{ min-height:var(--zt-card-lg); }
+  .about-stat{ min-height:var(--zt-card-xs); }
+  /* Already close to filling its section; a small lift only. */
+  .outcome-card{ min-height:clamp(300px, 38vh, 440px); }
+
+  /* ---- internal padding -------------------------------------------------- */
+  .doc-card, .erp-feature, .addon-card, .industry-card{ padding:var(--zt-card-pad); }
+  .auto-card, .arch-node{ padding:var(--zt-card-pad-lg); }
+
+  /* ---- vertical alignment of card content -------------------------------- */
+  /* .erp-feature is the one family still laid out as a block, so it cannot
+     centre anything until it becomes a column. */
+  .erp-feature{ display:flex; flex-direction:column; }
+
+  /* These end in a paragraph carrying flex-grow:1, which was there to push a
+     footer down when a row equalised. With the card now taller than its own
+     content that same rule dumps every spare pixel below the text instead of
+     balancing it, so the growth reads as a hole rather than as breathing room.
+     Neutralising the grow and centring the stack keeps the card optically
+     balanced at any height. */
+  .industry-card, .auto-card, .doc-card, .addon-card, .erp-feature{
+    justify-content:center;
+  }
+  /* A flex child that can grow absorbs the free space before justify-content
+     ever sees it, so the paragraph silently stretched to the full card height
+     and rendered its text against the top edge -- the card looked taller but
+     emptier. Only the trailing paragraphs are neutralised. */
+  .industry-card > p,
+  .industry-slider-track .auto-card > p{ flex-grow:0; }
+
+  /* .auto-grid's version of the same card is left alone: it ends in .auto-foot
+     carrying margin-top:auto, which pins that row to the bottom edge on
+     purpose. Auto margins also absorb free space ahead of justify-content, so
+     the centring rule above is inert there and the footer keeps its position. */
+
+  /* .arch-node is deliberately excluded from the centring above: its chip row
+     sits after the flex-grow paragraph, so extra height pins the chips to the
+     bottom edge -- a deliberate part of that card's design, and the reason it
+     grows gracefully on its own. */
+
+  /* Icon, heading and copy get a floor on the space between them, so a taller
+     card spaces its parts out instead of leaving one tight clump. Only applied
+     where the family has no internal margins of its own to double up with. */
+  .doc-card, .addon-card, .erp-feature{ row-gap:clamp(6px, 0.6vw, 12px); }
+
+  /* ---- carousel card widths ---------------------------------------------- */
+  /* The two home carousels held the most unused height on the page, and height
+     alone would have made them narrow and tall. Widening the ceiling fills the
+     row at desktop and above while the floor keeps phones at today's size.
+     The carousel script measures the card at runtime
+     (first.getBoundingClientRect().width + gap), so the slide step follows
+     these values without any change to the JS. */
+  .industry-slider-track .auto-card{ flex:0 0 clamp(280px, 30vw, 420px); }
+  .deployed-slider-track .industry-card{ flex:0 0 clamp(260px, 27vw, 380px); }
+
+  /* ---- responsive -------------------------------------------------------- */
+  /* Phones stack these grids to one column, where a full-height card per row
+     turns a six-card grid into six screens of scrolling. Same system, lower
+     numbers -- not a fixed size, and not the desktop size either. */
+  @media (max-width:720px){
+    :root{
+      --zt-card-xs:clamp(88px, 11vh, 120px);
+      --zt-card-sm:clamp(150px, 18vh, 200px);
+      --zt-card-md:clamp(180px, 22vh, 240px);
+      --zt-card-lg:clamp(240px, 32vh, 340px);
+      --zt-card-pad:clamp(20px, 4.5vw, 26px);
+      --zt-card-pad-lg:clamp(22px, 5vw, 30px);
+    }
+    .outcome-card{ min-height:clamp(240px, 28vh, 300px); }
+  }
+
+  /* Short viewports: the sections themselves already fall back to natural flow
+     above, so the cards must stop tracking vh here too or they would be taller
+     than the screen holding them. */
+  @media (max-height:560px){
+    :root{
+      --zt-card-xs:110px;
+      --zt-card-sm:170px;
+      --zt-card-md:200px;
+      --zt-card-lg:260px;
+    }
+    .outcome-card{ min-height:240px; }
+  }
+
+
+  /* ==========================================================================
+     LANDING PAGE -- PORTRAIT CARDS
+
+     Four of the home page's five card families were still landscape or square
+     inside sections that are a screen tall. Measured at 1440x900:
+
+       architecture   426x387  aspect 1.10   room for 561
+       industries     420x261  aspect 1.61   room for 488
+       deployed       380x261  aspect 1.46   room for 516
+       blog           360x380  aspect 0.95   room for 380
+       case studies   360x482  aspect 0.75   already portrait -- untouched
+
+     Shape comes from aspect-ratio rather than another stack of vh clamps.
+     Height is then derived from the card's own width, so the portrait
+     proportion holds at every breakpoint without a per-viewport table, and
+     because aspect-ratio only sets a PREFERRED size, a card whose content
+     needs more room still grows instead of clipping. That is what keeps the
+     narrow-and-tall phone case honest: at 390px the blog card's copy needs
+     ~447px and simply takes it.
+
+     3/4 matches the case-study card that was already portrait, so all five
+     families now share one proportion.
+
+     Scoping is by track and section id -- .auto-card and .industry-card are
+     shared with the grids on ERP Services, Automation and Client Outcomes,
+     which keep the sizing from the previous pass.
+     ========================================================================== */
+
+  .industry-slider-track .auto-card,
+  .deployed-slider-track .industry-card,
+  #architecture .arch-node{
+    aspect-ratio:3 / 4;
+    /* The previous pass gave .arch-node an explicit min-height token. An
+       explicit value REPLACES min-height:auto, which is what lets a grid or
+       flex item grow to fit its own content -- so the ratio stopped being a
+       preferred height and became a hard ceiling, and at 390px the card's copy
+       rendered outside its own border. Restoring auto makes the used height
+       max(ratio, content): portrait when there is room, honest when there
+       isn't. */
+    min-height:auto;
+  }
+
+  /* .arch-node is the only one of these that is a GRID item with an auto width
+     -- the carousel cards each carry an explicit flex basis. With width auto and
+     the height driven by content (which is what min-height:auto above allows),
+     aspect-ratio resolves the other way round and derives the WIDTH from that
+     height, so a taller card also became a wider one and burst its column: at
+     390px the track is 300px and the cards laid out at 319-448px. Giving the
+     card a definite width makes the ratio a one-way street -- width comes from
+     the column, height is the ratio's preferred value, and content may still
+     grow it. Where a track is already definite this changes nothing; it is the
+     narrow single-column widths that were bursting. */
+  #architecture .arch-node{ width:100%; }
+
+  /* The blog card is deliberately NOT given a ratio. It carries overflow:hidden
+     to clip the thumbnail into its rounded corner, and that cancels a flex
+     item's automatic minimum size -- so a fixed aspect height became a hard
+     ceiling and the longest three cards had their "Read article" link cut off
+     (43px over at 1440x900). Its portrait shape comes from the narrower width
+     plus a thumbnail that scales with the viewport, leaving the height free to
+     follow the copy. */
+
+  /* Widths narrow as the counterpart to the added height -- a portrait card
+     that only grew taller would have read as a column, not a card. Ceilings
+     rise with the viewport so 1440p and 4K keep the same 3:4 rather than
+     stretching a capped width against an uncapped height. */
+  .industry-slider-track .auto-card{ flex:0 0 clamp(250px, 23vw, 420px); }
+  .deployed-slider-track .industry-card{ flex:0 0 clamp(240px, 21vw, 395px); }
+  .blog-track .blog-card{ flex:0 0 clamp(260px, 20vw, 370px); }
+
+  /* The architecture cards sit in a 3-up grid, so their width is the
+     container's. Narrowing the road narrows the rail and the cards together,
+     which keeps every rail dot aligned over its own card. */
+  /* 78vw was sized against tracks that were overrunning this road anyway (see
+     the minmax(0,1fr) note above), so it was never the width actually holding
+     the cards. With the tracks corrected it is, and at 1024 it divided into
+     three 255px columns -- the "reads as a column, not a card" shape this pass
+     set out to avoid. 92vw gives the three-up its room back in the middle
+     range; the 1180px ceiling still governs from ~1280 up, so wide screens are
+     where they were. Staying three-up matters here beyond proportion: the rail
+     runs one dot per card, and dropping to two columns would break both that
+     alignment and the left-to-right reading the section is built on. */
+  .arch-road{ max-width:clamp(760px, 92vw, 1180px); margin-inline:auto; }
+
+  /* ---- content inside the taller cards ----------------------------------- */
+  /* The blog card was a block: thumbnail on top, body beneath, and the extra
+     height of a portrait card would have collected under the last line. As a
+     column the image scales with the card and the copy centres in what is
+     left, so the card fills out instead of growing a gap at its foot. */
+  .blog-track .blog-card{ display:flex; flex-direction:column; }
+  /* The thumbnail is what drives the portrait proportion here: it grows with
+     the viewport, so the card gets taller on a big screen instead of staying
+     the same height and going square. */
+  .blog-track .blog-thumb{ flex:0 0 auto; height:clamp(138px, 16vh, 280px); }
+  .blog-track .blog-body{ flex:1 1 auto; display:flex; flex-direction:column; }
+  /* Cards in a row stretch to the tallest, so without this the link sat
+     directly under copy of differing lengths and the row read as ragged. */
+  .blog-track .blog-link{ margin-top:auto; padding-top:16px; }
+
+  /* The two carousel cards carry no image -- Industry Solutions is a heading
+     and a paragraph, Deployed adds a category label and a result badge. Centred
+     in a 3:4 box that copy floated in the middle with a void above and below,
+     so it is anchored to the foot instead. That is also what the case-study and
+     blog cards do (image on top, copy at the bottom), so the whole landing page
+     now reads on one rhythm rather than three. */
+  .industry-slider-track .auto-card{ justify-content:flex-end; }
+
+  /* Deployed keeps its category label at the top edge as the counterweight,
+     with the title, copy and result badge grouped at the foot -- an auto
+     margin on the heading splits the two, so the label does not travel down
+     with the rest. */
+  .deployed-slider-track .industry-card{ justify-content:flex-start; }
+  .deployed-slider-track .industry-card > h3{ margin-top:auto; }
+
+  /* .arch-node keeps its own arrangement: the chip row is after a flex-grow
+     paragraph, so the added height pins the chips to the bottom edge, which is
+     what that card was designed to do. */
+
+  /* ---- responsive -------------------------------------------------------- */
+  /* Below 860px the architecture grid drops to a single column (a pre-existing
+     rule), which made each card the full width of the container -- 707x440 on
+     a tablet, more landscape than what it replaced. Capping the column and
+     centring it keeps the card portrait at those widths while the three layers
+     still read top to bottom. */
+  @media (max-width:860px){
+    .arch-nodes{
+      grid-template-columns:minmax(0, min(100%, clamp(300px, 62vw, 430px)));
+      justify-content:center;
+    }
+  }
+
+  /* Tablets get two columns rather than one. Three portrait cards stacked in a
+     single column made this the only landing section badly out of step with
+     the rest -- 2055px against a 1024px screen, where every other section sat
+     at 99-103%. Two columns puts the same three cards in two rows and takes it
+     to roughly 130%, without narrowing the cards enough to hurt them (341px
+     here against 359px on desktop). Phones stay single-column: two columns at
+     390px would leave each card about 165px wide. */
+  @media (min-width:620px) and (max-width:860px){
+    .arch-nodes{
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      justify-content:stretch;
+    }
+  }
+
+  /* Short viewports opt out for the same reason the sections do above: there
+     is not enough height to give a portrait card without pushing its own
+     content off the screen. */
+  @media (max-height:560px){
+    .industry-slider-track .auto-card,
+    .deployed-slider-track .industry-card,
+    .blog-track .blog-card,
+    #architecture .arch-node{ aspect-ratio:auto; }
+  }
+
+
+  /* ==========================================================================
+     "DEPTH WHERE IT MATTERS" -- DARK BAND
+
+     #carousel-industries joins #architecture and #case-studies on the shared
+     band. Nothing new is introduced: it opts into the same ::before breakout,
+     reads the same --zt-band-black / --zt-band-brand tokens, and takes the
+     same 165deg ramp, so if those tokens are ever retuned all three move
+     together. Content, layout and card geometry are untouched.
+     ========================================================================== */
+
+  /* 1. Opt into the full-bleed mechanism. The gradient is painted by a
+        pseudo-element that breaks out to 100vw, so the band spans corner to
+        corner while the content keeps the container's max-width. */
+  #carousel-industries{ position:relative; }
+  #carousel-industries::before{
+    content:'';
+    position:absolute; top:0; bottom:0;
+    left:50%; width:100vw; margin-left:-50vw;
+    z-index:-1; pointer-events:none;
+    background:var(--zt-bleed, transparent);
+  }
+
+  /* 2. The same ramp as the other two bands, from the same tokens. Black leads
+        and holds through the first 45% because the white heading and intro sit
+        at the top -- running brand up there would drop that copy to about 2:1. */
+  :root #carousel-industries{
+    --zt-bleed:linear-gradient(165deg,
+      var(--zt-band-black) 0%,
+      var(--zt-band-black) 45%,
+      var(--zt-band-brand) 100%);
+  }
+
+  /* 3. Heading and intro sit on the band itself, not inside a card, so they
+        take the same light treatment #architecture and #case-studies use. */
+  #carousel-industries .sec-head h2{ color:#FFFFFF; }
+  #carousel-industries .sec-head p{ color:rgba(255,255,255,.78); }
+
+  /* 4. Cards follow #architecture rather than #case-studies: both card
+        treatments exist on the band, and these are .auto-card, which already
+        paints var(--zt-card), so keeping the cream ground and taking the copy
+        to black is the match that changes nothing about the card itself.
+        Black on cream measures ~16:1. */
+  #carousel-industries .auto-card h3,
+  #carousel-industries .auto-card p{ color:#000000; }
+
+  /* 5. Arrows take the treatment #case-studies already gives them on this same
+        ground -- the only other band that carries slider controls. */
+  #carousel-industries .slider-arrow{
+    background:rgba(255,255,255,0.08);
+    border-color:rgba(255,255,255,0.18);
+    color:#fff;
+  }
+  #carousel-industries .slider-arrow:hover{
+    background:var(--grad); border-color:transparent; color:#fff;
+  }
+
+
+  /* ==========================================================================
+     LANDING PAGE -- EVEN SECTION HEIGHTS
+
+     Every landing section was already min-height:100svh, but three overshot it
+     and read as taller than the rest. Measured at 1440x900, against a 722px
+     content budget (900 - 133 top - 45 bottom):
+
+       case studies  1016px   content 838  -- .case-studies-section adds 69px
+                                              of its own padding on top of the
+                                              section's, and the card is 482
+       blog           944px   content 766  -- .blog-section adds 128px
+       industries     907px   content 729  -- over by a single slider-nav margin
+
+     The cause in each case is a padded plate nested inside an already-padded
+     section, which is exactly the "excessive vertical spacing" to remove --
+     not the content itself. Card copy is never shrunk and nothing is clipped;
+     where content genuinely needs the room the section still grows.
+     ========================================================================== */
+
+  /* .case-studies-section paints no plate of its own -- the band comes from the
+     wrap's ::before -- so its vertical padding was pure duplication of the
+     section's. Horizontal padding was already zero. */
+  .case-studies-section{ padding-block:0; }
+
+  /* .blog-section IS a visible rounded plate, so it keeps padding -- just
+     enough to hold its own edge rather than a second full section rhythm.
+     Horizontal is untouched. */
+  .blog-section{ padding-block:clamp(26px, 3.4vh, 52px); }
+
+  /* The case-study card is the one card still over budget after the padding
+     comes out. Its thumbnail is the flexible part: the copy underneath is
+     untouched, so nothing clips -- the image just stops being a fixed 170px on
+     every screen and scales with the viewport like everything else. */
+  #case-studies .portfolio-thumb{ height:clamp(118px, 14vh, 190px); }
+
+  /* Shared by all four slider sections. 16px was a fixed value under a row of
+     controls that already carry their own whitespace. */
+  .zt-home .slider-nav{ margin-top:clamp(8px, 1vh, 16px); }
+
+  /* ---- responsive --------------------------------------------------------
+     Everything above is already viewport-relative, so it tracks from phone to
+     4K on its own. Phones are the exception worth naming: the grids stack to
+     one column there, so a section holding six cards is legitimately taller
+     than a screen and the plate padding should not be squeezed further. */
+  @media (max-width:720px){
+    .blog-section{ padding-block:clamp(28px, 4vh, 44px); }
+    #case-studies .portfolio-thumb{ height:clamp(150px, 18vh, 190px); }
+  }
+
+  /* Short-but-wide screens -- the common 1366x768 laptop. Card widths come from
+     vw and their heights from the 3:4 ratio, so a wide viewport that is also
+     short produces cards that are tall relative to the screen holding them:
+     the sections ran 99-112% here while 1440x900 sat flat at 100%. Pulling the
+     width ceilings in (and with them the derived heights) plus a tighter
+     heading rhythm closes that spread. Keyed on height, so 1440x900 and every
+     taller screen are untouched. */
+  @media (max-height:820px) and (min-width:861px){
+    /* Set on .zt-home rather than :root -- this tightens the heading rhythm to
+       help sections hold one screen, which is only a landing-page concern. On
+       :root it would have quietly reduced heading spacing on every other page
+       too, where nothing is being fitted to a fold. */
+    .zt-home{ --sp-head:clamp(18px, 2vw, 28px); }
+
+    /* Width moves height in OPPOSITE directions depending on what sets the
+       card's height, which is why a single "make everything narrower" pass
+       made three of these worse rather than better:
+
+       - Ratio-bound cards (3:4) derive height from width, so narrower is
+         shorter.
+       - Content-bound cards take their height from the copy, so narrower
+         reflows the text into more lines and makes them TALLER. These want
+         to be wider on a short screen, not narrower. */
+
+    .industry-slider-track .auto-card{ flex:0 0 clamp(240px, 20vw, 300px); }
+    .deployed-slider-track .industry-card{ flex:0 0 clamp(230px, 18.5vw, 285px); }
+
+    .blog-track .blog-card{ flex:0 0 clamp(300px, 26vw, 390px); }
+    #case-studies .portfolio-card{ flex:0 0 clamp(320px, 29vw, 420px); }
+    #case-studies .portfolio-thumb{ height:clamp(105px, 13vh, 140px); }
+
+    /* .arch-road keeps its full desktop width for the same reason: squeezing
+       it pushed the layer copy into extra lines and made that section taller,
+       not shorter. */
+  }
+
+
+  /* ==========================================================================
+     INDUSTRY SOLUTIONS CARDS -- "Depth where it matters"
+
+     Every rule here is scoped to #carousel-industries. .auto-card is shared
+     with the ERP Services and Automation Modules grids and with the Industries
+     page, none of which render .ind-top or .ind-points, and none of which are
+     touched by anything below.
+
+     The card was a heading and a paragraph inside a 3:4 box: about 100px of
+     content in a 442px card, which is what left the top two thirds empty. It
+     now carries a head (icon + delivery model), a body (name + description)
+     and a foot (three capabilities), using the icon language the ERP Services
+     cards already use -- a 48px gradient square with a white stroke glyph --
+     rather than introducing photography that would not match anything else on
+     the site.
+
+     Colours, border, radius, shadow, hover and typography are all inherited
+     from .auto-card exactly as before.
+     ========================================================================== */
+
+  /* The portrait pass anchored this card's copy to its foot, which was the
+     right answer when there was nothing above it. With a full head and foot the
+     card reads top-down again, and the capability list does the anchoring. */
+  #carousel-industries .auto-card{
+    justify-content:flex-start;
+    gap:clamp(9px, 1vh, 15px);
+    /* .auto-card carries overflow:hidden purely to clip its 2px hover rail
+       into the rounded corners. On a flex item that also cancels
+       min-height:auto, which would turn the 3:4 ratio into a hard ceiling and
+       clip the new content on narrow cards -- at 390px the copy needs more
+       room than the ratio gives. Overflow goes visible so content always wins,
+       and the rail is clipped by its own radius instead. */
+    overflow:visible;
+    min-height:auto;
+  }
+  #carousel-industries .auto-card::before{
+    border-radius:var(--radius) var(--radius) 0 0;
+  }
+
+  /* ---- head -------------------------------------------------------------- */
+  #carousel-industries .ind-top{
+    display:flex; align-items:center; gap:clamp(10px, 1vw, 14px);
+  }
+  #carousel-industries .ind-icon{
+    flex:0 0 auto;
+    width:clamp(40px, 4.6vh, 52px); height:clamp(40px, 4.6vh, 52px);
+    border-radius:var(--r-sm);
+    background:var(--grad);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #carousel-industries .ind-icon svg{ width:54%; height:54%; display:block; }
+  #carousel-industries .ind-kind{
+    /* Floor raised from 9.5px to 11px to match the rest of the mono labels --
+       uppercase at .08em tracking already reads a size smaller than nominal,
+       and below 11px it stopped being legible at arm's length. */
+    font-size:clamp(11px, 0.72vw, 11.5px);
+    letter-spacing:.08em;
+    color:var(--zt-orange-deep);
+    line-height:1.3;
+  }
+
+  /* ---- body -------------------------------------------------------------- */
+  /* .auto-card h3 reserves 60px on the right for the number badge that the
+     grid version carries. This card has no badge, so the reservation only
+     forced early wrapping. */
+  #carousel-industries .auto-card h3{ max-width:100%; margin-bottom:0; }
+  #carousel-industries .auto-card p{ margin:0; }
+
+  /* Two auto margins rather than one. A single auto margin on the foot pushed
+     every spare pixel into the gap above the capability list, which just moved
+     the hole from the top of the card to its middle. Splitting it between the
+     head and the foot distributes the same slack evenly, so the card reads as
+     three deliberate zones -- icon and model at the top, name and description
+     in the middle, capabilities on the bottom edge. */
+  #carousel-industries .auto-card h3{ margin-top:auto; }
+
+  /* ---- foot -------------------------------------------------------------- */
+  /* margin-top:auto is what balances the card: head at the top, body under it,
+     capabilities pinned to the bottom edge, and the slack distributed between
+     rather than collected in one block. */
+  #carousel-industries .ind-points{
+    margin-top:auto;
+    padding-top:clamp(8px, 1vh, 14px);
+    display:flex; flex-direction:column;
+    gap:clamp(6px, 0.7vh, 10px);
+    border-top:1px solid var(--zt-line);
+  }
+  #carousel-industries .ind-points li{
+    display:flex; align-items:flex-start; gap:9px;
+    font-size:clamp(12px, 0.92vw, 13.5px);
+    line-height:1.4;
+    color:#000000;
+  }
+  #carousel-industries .ind-points svg{
+    flex:0 0 auto;
+    width:14px; height:14px; margin-top:2px;
+    color:var(--zt-primary);
+  }
+
+  /* ---- responsive --------------------------------------------------------
+     Everything above is already viewport-relative. The one place that needs a
+     hand is the narrowest card: at 390px the description and three
+     capabilities genuinely need more than a 3:4 box, and since content wins
+     over the ratio the card simply grows -- the track equalises the rest to
+     match, so the row stays level. */
+  @media (max-width:720px){
+    #carousel-industries .ind-points{ gap:6px; }
+    #carousel-industries .auto-card{ gap:9px; }
+  }
+
+
+  /* ==========================================================================
+     EIGHT SECTORS CARDS -- "Eight sectors running on the same platform"
+
+     Every rule here is scoped to #carousel-deployed. .industry-card is shared
+     with the Results by Industry grid on Client Outcomes, and the caseStudies
+     array behind it also feeds the Case Studies slider further down this page;
+     neither renders .dep-top or .dep-points, and neither is touched.
+
+     The empty top came from the portrait pass: with only a category label, a
+     title and a paragraph, the card anchored its copy to the foot and left the
+     label stranded at the top with a gap beneath it. The card now has a real
+     head, so that anchor comes off and the order reads
+     icon -> sector -> deployment -> problem -> modules -> outcome.
+
+     Colours, border, radius, shadow, hover and typography all stay inherited
+     from .industry-card.
+     ========================================================================== */
+
+  #carousel-deployed .industry-card{
+    justify-content:flex-start;
+    /* .industry-card takes overflow:hidden from the shared surface rule, and on
+       a flex item that cancels min-height:auto -- which would make the 3:4
+       ratio a ceiling and clip the added content on narrow cards. It has no
+       pseudo-element to clip (unlike .auto-card's hover rail), so visible
+       costs nothing here. */
+    overflow:visible;
+    min-height:auto;
+  }
+
+  /* ---- head -------------------------------------------------------------- */
+  #carousel-deployed .dep-top{
+    display:flex; align-items:center; gap:clamp(9px, 0.9vw, 13px);
+  }
+  #carousel-deployed .dep-icon{
+    flex:0 0 auto;
+    width:clamp(36px, 4.2vh, 48px); height:clamp(36px, 4.2vh, 48px);
+    border-radius:var(--r-sm);
+    background:var(--grad);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #carousel-deployed .dep-icon svg{ width:54%; height:54%; display:block; }
+
+  /* The label was a block on its own line; beside the icon it needs to stop
+     stretching and sit on the icon's centre line. */
+  #carousel-deployed .industry-cat{ line-height:1.3; }
+
+  /* ---- body + foot -------------------------------------------------------
+     Two auto margins split the spare height evenly instead of letting it
+     collect in one gap -- the same balance the Industry Solutions cards use.
+     They sit on the heading and on the module list, which keeps the two pairs
+     together: title with its description, modules with their result badge.
+     (Putting the first one on the paragraph instead stranded it between two
+     55px gaps with its own heading floated away above it.)
+
+     The heading's margin-top:auto is inherited from the portrait pass and is
+     doing the right job here, so it is deliberately left alone. */
+  #carousel-deployed .dep-points{
+    margin-top:auto;
+    padding-top:clamp(7px, 0.9vh, 12px);
+    display:flex; flex-direction:column;
+    gap:clamp(5px, 0.6vh, 8px);
+    border-top:1px solid var(--zt-line);
+  }
+  #carousel-deployed .dep-points li{
+    display:flex; align-items:flex-start; gap:8px;
+    font-size:clamp(11.5px, 0.86vw, 12.5px);
+    line-height:1.4;
+    color:var(--zt-ink);
+  }
+  #carousel-deployed .dep-points svg{
+    flex:0 0 auto;
+    width:13px; height:13px; margin-top:2px;
+    color:var(--zt-primary);
+  }
+
+  /* ---- responsive --------------------------------------------------------
+     All viewport-relative already. On phones the card is at its narrowest and
+     the copy plus two modules genuinely need more than a 3:4 box -- content
+     wins over the ratio and the track equalises the row to match. */
+  @media (max-width:720px){
+    #carousel-deployed .dep-points{ gap:5px; }
+  }
+
+
+  /* ==========================================================================
+     TOUCH TARGET FLOOR
+
+     On a 390px phone 42 interactive elements measured under the 44x44 CSS px
+     WCAG 2.5.5 asks for -- nav rows and footer links sat at 39px, the submenu
+     chevrons at 42px. Most were only a few pixels short, so this raises them
+     with padding and min-height rather than by restyling anything: the type,
+     colour and spacing rhythm are untouched, the hit area just reaches the
+     edges of the row it already occupies.
+
+     Width-only, deliberately. An earlier draft added `and (pointer:coarse)` to
+     limit this to touch, but that makes the rule untestable in any desktop
+     browser (they report pointer:fine at every width) and it silently does
+     nothing on hybrid devices that report fine while being used by hand. A
+     44px row in a narrow desktop window costs nothing and is easy to verify.
+     ========================================================================== */
+  @media (max-width:860px){
+    .nav-links > a,
+    .nav-item > a,
+    .nav-dropdown-grid > a,
+    .ft-col a,
+    .ft-social a,
+    .ft-legal a{
+      min-height:44px;
+      display:flex;
+      align-items:center;
+    }
+    /* The chevron is a square control, so it needs both axes, not just height. */
+    .nav-sub-toggle{ min-width:44px; min-height:44px; }
+    .nav-burger{ min-width:44px; min-height:44px; }
+    /* Footer link lists lose their own gap once each row is 44px tall, or the
+       columns would grow by ~40% for no visual gain. */
+    .ft-col li + li{ margin-top:2px; }
+
+    /* Standalone controls: buttons, form fields and the hero's text CTA. These
+       are targets a finger aims at on their own, unlike a link sitting inside a
+       running sentence. */
+    .btn,
+    .ft-news-form input,
+    .ft-news-form button,
+    .field input, .field select, .field textarea,
+    .hero-link{
+      min-height:44px;
+    }
+    .hero-link{ display:inline-flex; align-items:center; }
+    .logo{ min-height:44px; display:inline-flex; align-items:center; }
+    /* Keyboard affordance rather than a pointer target, so 2.5.5 does not
+       strictly cover it -- but it is a real control once focused and costs one
+       line to bring up to the same floor. */
+    .skip-link{ min-height:44px; display:inline-flex; align-items:center; }
+
+    /* NOT raised: .text-link and the consent sentence's Privacy Policy button.
+       Both sit inline inside a paragraph, which WCAG 2.5.5 exempts, and padding
+       them to 44px would break the line box they live in. */
+  }
+
+
+  /* ==========================================================================
+     FOOTER NEWSLETTER FIELD -- cross-axis fix on phones
+
+     .ft-news-field stacks to a column under 440px (a rule set far earlier), but
+     a later block restated the component with align-items:center. In the desktop
+     row that is harmless; in the phone's column it switches the CROSS axis from
+     stretch to center, so the email input collapsed to its content width -- a
+     158px field floating inside a 350px pill, with the full-width Subscribe
+     button beneath it. The input's own flex:1 cannot correct this: in a column
+     that governs height, not width.
+
+     Restated here, after both, so the stacked field gets its stretch back.
+     ========================================================================== */
+  @media (max-width:440px){
+    .ft-news-field{ align-items:stretch; }
+    .ft-news-field input{ width:100%; }
+  }
+
+
+  /* ==========================================================================
+     WORDMARK -- BRAND-TO-BLACK GRADIENT (header + footer)
+
+     The wordmark was three colours fighting each other: .z took
+     --zt-orange-deep, .t took --zt-orange-mid, and the remaining letters took
+     whatever --zt-ink rule won last, so "ZEDTAC" read as Z-orange, T-orange and
+     four dark letters with no relationship between them.
+
+     Replaced with one ramp across the whole word: brand orange on the Z falling
+     to near-black by the time it reaches "AC". Declared last so it beats the
+     `color:var(--zt-ink) !important` set earlier in the cascade -- and it does
+     so without needing !important itself, because -webkit-text-fill-color
+     outranks `color` for the glyph fill regardless of importance.
+
+     ---------------------------------------------------------------------------
+     The two lockups share the ramp's START (the brand orange) but not its END,
+     because they sit on opposite grounds:
+
+       header  on the light nav plate  -> ends at --zt-ink   (near-black)
+       footer  on the #0A0A0C plate    -> ends at --zt-bg    (the site background)
+
+     Ending the footer at the page background rather than at black is what keeps
+     the whole word legible there: black-on-black dissolved the "TAC" tail, while
+     #F5F5F5 lands 18.9:1 against the plate. Same gradient language in both
+     places, each resolved against the surface it actually sits on.
+     ========================================================================== */
+  @supports ((-webkit-background-clip:text) or (background-clip:text)){
+    .nav .logo-text,
+    footer .logo-text{
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .nav .logo-text{
+      background-image:linear-gradient(96deg,
+        var(--zt-primary) 0%,
+        var(--zt-primary) 14%,
+        var(--zt-ink) 68%,
+        var(--zt-ink) 100%);
+    }
+    footer .logo-text{
+      background-image:linear-gradient(96deg,
+        var(--zt-primary) 0%,
+        var(--zt-primary) 14%,
+        var(--zt-bg) 68%,
+        var(--zt-bg) 100%);
+    }
+    /* The two letter spans carry their own colour from the original lockup. A
+       descendant's fill paints OVER the parent's clipped background, so they
+       have to go transparent too or the Z and T would punch solid holes in the
+       ramp -- the same interaction that made .hp-key disappear earlier. The
+       footer pair are set separately because they have their own colours
+       (--zt-orange / --zt-orange-light) from the dark-plate lockup. */
+    .nav .logo-text .z,
+    .nav .logo-text .t,
+    footer .logo-text .z,
+    footer .logo-text .t{
+      -webkit-text-fill-color:transparent;
     }
   }
 
@@ -6389,7 +7346,7 @@
           <a href="#" role="button" aria-haspopup="true"
              :aria-expanded="mobileSub === 0 ? 'true' : 'false'"
              @click.prevent="toggleSub(0)"
-             :class="{'nav-active': ['platform','features','integrations','automation','module','erpservices'].includes(page) || (page === 'home' && ['services','automation'].includes(activeSection))}">Services</a>
+             :class="{'nav-active': ['platform','features','integrations','automation','module','erpservices','industries'].includes(page) || (page === 'home' && ['services','automation'].includes(activeSection))}">Services</a>
           <button class="nav-sub-toggle" type="button" aria-label="Toggle Services submenu"
                   :aria-expanded="mobileSub === 0 ? 'true' : 'false'"
                   @click="toggleSub(0)">
@@ -6409,15 +7366,21 @@
                 </span>
                 <span class="nav-dropdown-title">Automation Services</span>
               </a>
+              <a href="#" @click.prevent="goIndustries" :class="{'nav-active': page === 'industries'}">
+                <span class="nav-dropdown-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18"/><path d="M5 21V7l6-3v17"/><path d="M11 11h8v10"/><path d="M8 10h.01M8 14h.01M15 15h.01"/></svg>
+                </span>
+                <span class="nav-dropdown-title">Industries</span>
+              </a>
             </div>
           </div>
         </div>
 
-        <!-- The Solutions tab is gone. Case Studies and Industries We Serve
-             were removed from the nav (both sections still exist on the site,
-             reachable from the landing page and the Industries page), and
-             Client Outcomes moved into Resources, which is where the rest of
-             the proof/reference material already lives. -->
+        <!-- Case Studies stays out of the nav (the section lives on the landing
+             page) and Client Outcomes sits under Resources with the rest of the
+             proof material. Industries is listed above: the page was fully built
+             but goIndustries() had no caller anywhere in the file, so it could
+             not be reached by any route a visitor has. -->
 
         <a href="#" @click.prevent="goPricing" :class="{'nav-active': page === 'pricing'}">Pricing</a>
 
@@ -6458,7 +7421,7 @@
           </div>
         </div>
 
-        <a href="#about-home" @click.prevent="goSection('#about-home')" :class="{'nav-active': page === 'home' && activeSection === 'about-home'}">About</a>
+        <a href="#" @click.prevent="goAbout" :class="{'nav-active': page === 'about'}">About</a>
         <a href="#" @click.prevent="goConsult" :class="{'nav-active': page === 'consult'}">Contact</a>
 
         <div class="nav-auth">
@@ -6479,7 +7442,11 @@
 
   <!-- ================= HOME PAGE ================= -->
   <main id="main">
-  <div v-if="page === 'home'">
+  <!-- .zt-home is the scoping hook for the full-screen section system. Every
+       min-height:100svh rule hangs off this class, so the landing page keeps
+       one-screen sections while every other route falls back to the site's
+       original content-based sizing. -->
+  <div v-if="page === 'home'" class="zt-home">
 
     <!-- HERO -->
     <div class="wrap">
@@ -6555,12 +7522,23 @@
             </div>
           </div>
           <div class="arch-nodes">
+            <!-- The card opens with a dark abstract scene rather than a bare
+                 label: an empty 3:4 card carrying four lines of text read as
+                 unfinished. The scene is an inline SVG on the layer's own data
+                 entry (drawn for that layer -- stacked verticals, a kernel and
+                 its satellites, an event-to-action flow), so it scales to 4K
+                 and costs no extra request. The chip row it replaced said the
+                 same thing the points already say. -->
             <article class="arch-node" v-for="(l,i) in platformLayers" :key="l.name" :style="{'--d': (i*100)+'ms'}">
-              <span class="arch-node-num mono">Layer {{ String(i+1).padStart(2,'0') }}</span>
+              <div class="arch-node-visual">
+                <span class="arch-node-scene" v-html="l.scene" aria-hidden="true"></span>
+                <span class="arch-node-veil" aria-hidden="true"></span>
+                <span class="arch-node-num mono">Layer {{ String(i+1).padStart(2,'0') }}</span>
+              </div>
               <span class="arch-node-tag">{{ l.tag }}</span>
               <h3>{{ l.name }}</h3>
               <p>{{ l.desc }}</p>
-              <div class="arch-node-items"><span v-for="it in l.items" :key="it">{{ it }}</span></div>
+              <ul class="arch-node-points" v-if="l.points"><li v-for="pt in l.points" :key="pt">{{ pt }}</li></ul>
             </article>
           </div>
         </div>
@@ -6627,9 +7605,25 @@
             class="slider-track industry-slider-track carousel-track"
             ref="industryTrack"
           >
+            <!-- The card used to be a heading and a paragraph, which left the
+                 top two thirds of a 3:4 card empty. It now runs top / middle /
+                 bottom: the icon and model label anchor the head, the name and
+                 description sit in the middle, and the capability list is
+                 pushed to the foot by margin-top:auto. The Industries page
+                 renders this same array from its own template and is untouched. -->
             <article class="auto-card reveal" v-for="(m,i) in industryModel" :key="m.name" :style="{'--d': (i*70)+'ms'}" style="cursor:default;">
+              <div class="ind-top">
+                <span class="ind-icon" v-html="m.icon" aria-hidden="true"></span>
+                <span class="ind-kind mono">{{ m.kind }}</span>
+              </div>
               <h3>{{ m.name }}</h3>
               <p>{{ m.desc }}</p>
+              <ul class="ind-points">
+                <li v-for="pt in m.points" :key="pt">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+                  <span v-html="pt"></span>
+                </li>
+              </ul>
             </article>
           </div>
         </div>
@@ -6660,10 +7654,25 @@
             class="slider-track deployed-slider-track carousel-track"
             ref="deployedTrack"
           >
+            <!-- Sector icon and name lead, then the deployment, the problem it
+                 solved, the modules that did it and the measured outcome. The
+                 modules come from each entry's own `solution` sentence, which
+                 this card was dropping entirely. The Case Studies slider below
+                 renders the same array from its own template and still shows
+                 `solution` as prose -- it is untouched. -->
             <article class="industry-card reveal" v-for="(c,i) in caseStudies" :key="c.title" :style="{'--d': (i*60)+'ms'}">
-              <span class="industry-cat">{{ c.category }}</span>
+              <div class="dep-top">
+                <span class="dep-icon" v-html="c.icon" aria-hidden="true"></span>
+                <span class="industry-cat">{{ c.category }}</span>
+              </div>
               <h3>{{ c.title }}</h3>
               <p>{{ c.challenge }}</p>
+              <ul class="dep-points">
+                <li v-for="m in c.modules" :key="m">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
+                  <span v-html="m"></span>
+                </li>
+              </ul>
               <span class="portfolio-result">{{ c.result }}</span>
             </article>
           </div>
@@ -6739,7 +7748,12 @@
             @mouseenter="stopBlogInterval"
             @mouseleave="startBlogInterval"
           >
-            <a href="#" class="blog-card" v-for="b in blogPosts" :key="b.title" @click.prevent>
+            <!-- article, not <a>: there are no article pages in this build, so
+                 the card was an href="#" with a bare @click.prevent and no
+                 handler -- it looked clickable, announced itself as a link, and
+                 did nothing. Kept as a summary card until the posts exist; the
+                 "Read article" affordance below went with it. -->
+            <article class="blog-card" v-for="b in blogPosts" :key="b.title">
               <div class="blog-thumb">
                 <div class="blog-card-3d" aria-hidden="true">
                   <span class="hero-shape bc1"></span>
@@ -6752,9 +7766,8 @@
                 <span class="blog-date">{{ b.date }}</span>
                 <h3>{{ b.title }}</h3>
                 <p>{{ b.excerpt }}</p>
-                <span class="blog-link">Read article →</span>
               </div>
-            </a>
+            </article>
           </div>
           <div class="slider-nav">
             <button class="slider-arrow" @click="scrollSlider('blogTrack', -1)" aria-label="Previous articles">
@@ -6768,35 +7781,11 @@
       </section>
     </div>
 
-    <!-- ABOUT — on the landing page. The nav's About link calls
-         goSection('#about-home'), which forces page='home' and then looks for the
-         target, so before this existed the link resolved to nothing. The copy
-         is the condensed version of the About page rather than a second draft,
-         so the two never drift. -->
-    <div class="wrap" id="about-home">
-      <section>
-        <div class="sec-head">
-          <h2>An <span class="text-grad">ERP partner</span> built around your operations</h2>
-          <p>ZedTac is an enterprise resource planning consultancy and software company, helping organizations replace disconnected tools with a single, governed system of record.</p>
-        </div>
-        <div class="about-grid reveal">
-          <div class="about-visual">
-            <img src="images/AI_image.svg" alt="Abstract representation of ZedTac's ERP implementation process" width="400" height="400" loading="lazy" decoding="async">
-          </div>
-          <div class="about-copy">
-            <p>We help mid-market and enterprise organizations retire disconnected spreadsheets and aging legacy tools, replacing them with one <span class="text-grad">governed system of record</span> across finance, inventory, supply chain, manufacturing, HR and customer operations.</p>
-            <p>Our work starts with process, not licenses. We audit how your business genuinely runs, design a blueprint your leadership signs off, and implement in fixed phases under a named project lead — so <span class="text-grad">digital transformation</span> stays measurable instead of open-ended.</p>
-            <p>Everything we deliver is engineered to scale: multi-entity, multi-currency, cloud-native and API-first. We stay engaged well beyond go-live with training, SLA-backed support and quarterly optimization reviews.</p>
-            <div class="about-stats">
-              <div class="about-stat"><strong>12+ yrs</strong><span>Enterprise ERP delivery</span></div>
-              <div class="about-stat"><strong>120+</strong><span>Implementations delivered</span></div>
-              <div class="about-stat"><strong>98%</strong><span>Client retention</span></div>
-              <div class="about-stat"><strong>8</strong><span>Industries served</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    <!-- The condensed About section that used to close the landing page has
+         moved to the dedicated About page (page === 'about'), which already
+         carried the full version. Keeping both meant maintaining the same copy
+         twice; the nav's About link now routes to that page rather than
+         scrolling to a section here. -->
 
   </div>
 
@@ -7028,12 +8017,12 @@
       <section>
         <div class="int-block" v-for="(g,gi) in integrationGroups" :key="g.group">
           <div class="int-head reveal">
-            <h3>{{ g.group }}</h3>
+            <h2>{{ g.group }}</h2>
             <p>{{ g.desc }}</p>
           </div>
           <div class="int-grid">
             <article class="int-card reveal" v-for="(it,i) in g.items" :key="it.name" :style="{'--d': (i*60)+'ms'}">
-              <h4>{{ it.name }}</h4>
+              <h3>{{ it.name }}</h3>
               <p>{{ it.desc }}</p>
             </article>
           </div>
@@ -8315,7 +9304,7 @@
 
       <div class="ft-cols reveal">
         <div class="ft-col">
-          <h4>Product</h4>
+          <h2>Product</h2>
           <ul>
             <li><a href="#" @click.prevent="goPricing">Pricing</a></li>
             <li><a href="#" @click.prevent="goErpServices">ERP</a></li>
@@ -8324,25 +9313,23 @@
         </div>
 
         <div class="ft-col">
-          <h4>Company</h4>
+          <h2>Company</h2>
           <ul>
-            <li><a href="#about-home" @click.prevent="goSection('#about-home')">About Us</a></li>
+            <li><a href="#" @click.prevent="goAbout">About Us</a></li>
             <li><a href="#" @click.prevent="goSection('#case-studies')">Case Studies</a></li>
             <li><a href="#" @click.prevent="goSection('#blog')">Insights</a></li>
             <li><a href="#" @click.prevent="goConsult">Contact</a></li>
           </ul>
         </div>
 
-        <div class="ft-col">
-          <h4>Download</h4>
-          <ul>
-            <li><a href="#" @click.prevent="goConsult">App Store</a></li>
-            <li><a href="#" @click.prevent="goConsult">Play Store</a></li>
-          </ul>
-        </div>
+        <!-- The Download column is removed rather than relinked. Both entries
+             pointed at goConsult, so a visitor who clicked "App Store" expecting
+             a store listing landed on a consultation form; advertising store
+             presence the product does not have is worse than not listing it.
+             Restore this block when real store URLs exist. -->
 
         <div class="ft-col">
-          <h4>Connect</h4>
+          <h2>Connect</h2>
           <ul class="ft-social">
             <li><a href="https://linkedin.com/company/zedtacsoftware" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM3 9h4v12H3zM9.5 9h3.8v1.7h.05c.53-1 1.83-2 3.77-2 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.6c0-1.34-.02-3.06-1.87-3.06-1.87 0-2.16 1.46-2.16 2.96V21h-4z"/></svg>LinkedIn</a></li>
@@ -8356,7 +9343,7 @@
         </div>
 
         <div class="ft-col">
-          <h4>Legal</h4>
+          <h2>Legal</h2>
           <ul>
             <li><a href="#" @click.prevent="showPrivacy = true">Privacy Policy</a></li>
             <li><a href="#" @click.prevent="showTerms = true">Terms of Service</a></li>
@@ -8539,17 +9526,32 @@ createApp({
       ],
 
       // ---- Platform architecture -------------------------------------------
+      // The `scene` on each layer is the card's dark visual -- see the
+      // .arch-node-visual block in the stylesheet. All three share one
+      // palette (#0b0b0d ground, white hairlines, a single #FF9447 accent)
+      // and one 320x200 viewBox, so the row reads as a set. preserveAspect
+      // "slice" fills the 16:10 frame without ever stretching the drawing.
+      // Gradient ids are unique per scene: they land in the same document.
       platformLayers: [
         { name:'Vertical modules', tag:'Deep, hand-built',
-          desc:'Industry depth where it earns its keep. Real Estate carries plots, bookings and instalment plans; Education carries students and attendance. Everything else runs on a generic item-and-sale engine that posts to the very same ledger.',
-          items:['Real Estate — plots, bookings, instalments','Education — students, attendance','Generic engine — item + sale'] },
+          desc:'Industry depth where it earns its keep — and one generic engine behind everything else.',
+          points:['Domain records, not renamed generic fields','New verticals added without forking the core','Every vertical posts to the shared ledger'],
+          // Stacked columns of differing depth rising from one shared base bar:
+          // the verticals, and the ledger they all land on.
+          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA1" cx="50%" cy="22%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA1b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".85"/><stop offset="1" stop-color="#FF9447" stop-opacity=".35"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA1)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".16"><rect x="46" y="112" width="52" height="20" rx="5"/><rect x="46" y="86" width="52" height="20" rx="5"/><rect x="134" y="112" width="52" height="20" rx="5"/><rect x="134" y="86" width="52" height="20" rx="5"/><rect x="134" y="60" width="52" height="20" rx="5"/><rect x="222" y="112" width="52" height="20" rx="5"/></g><rect x="134" y="34" width="52" height="20" rx="5" fill="url(#ztA1b)" stroke="#FF9447" stroke-opacity=".65"/><g stroke="#fff" stroke-opacity=".18" stroke-width="1.4"><path d="M72 132v14M160 132v14M248 132v14"/></g><rect x="34" y="150" width="252" height="16" rx="8" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".18"/><path d="M46 158h228" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/></svg>' },
         { name:'Shared kernel', tag:'Built once, used by every business',
-          desc:'The parts no vertical should reinvent. Tenancy, users and permissions, the customer record, payments and the ledger are built once and shared, which is why a customer in one division is the same customer in another.',
-          items:['Tenancy & business units','Users & role-based access','Customers','Ledger — the source of truth','Payments','REST API'] },
+          desc:'The parts no vertical should reinvent — tenancy, customers, payments and the ledger, built once.',
+          points:['One customer across every business unit','Append-only ledger, reversing corrections','Multi-entity and multi-currency as standard'],
+          // A single core with satellites on a dashed orbit: shared services
+          // reached from every direction rather than duplicated per vertical.
+          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA2" cx="50%" cy="50%" r="62%"><stop offset="0" stop-color="#FF9447" stop-opacity=".22"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA2b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".8"/><stop offset="1" stop-color="#FF9447" stop-opacity=".28"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA2)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><circle cx="160" cy="100" r="70" fill="none" stroke="#fff" stroke-opacity=".12" stroke-dasharray="4 7"/><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2"><path d="M160 100L160 30M160 100l61 35M160 100l-61 35M160 100L99 65M160 100l61-35M160 100v70"/></g><g fill="#0b0b0d" stroke="#fff" stroke-opacity=".26"><circle cx="160" cy="30" r="9"/><circle cx="221" cy="65" r="9"/><circle cx="221" cy="135" r="9"/><circle cx="160" cy="170" r="9"/><circle cx="99" cy="135" r="9"/><circle cx="99" cy="65" r="9"/></g><rect x="128" y="76" width="64" height="48" rx="14" fill="url(#ztA2b)" stroke="#FF9447" stroke-opacity=".6"/><g stroke="#0b0b0d" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"><path d="M144 92h32M144 100h32M144 108h20"/></g></svg>' },
         { name:'Automation platform',
           tag:'Where every new capability plugs in',
-          desc:'Events, rules, actions and audited runs sitting on top of everything below. Adding an automation is a new module against this engine — never a rewrite of the layers beneath it.',
-          items:['Events','Rules','Actions','Audited runs'] },
+          desc:'Events, rules, actions and audited runs on top of everything below — a module, never a rewrite.',
+          points:['Rules configured by admins, not coded','Actions reused from a shared registry','Every run recorded with its outcome'],
+          // Events feeding a rule gate, fanned out to actions, with the run
+          // log underneath: the shape of the engine in one picture.
+          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA3" cx="44%" cy="34%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA3b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".85"/><stop offset="1" stop-color="#FF9447" stop-opacity=".3"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA3)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".2"><rect x="26" y="42" width="46" height="16" rx="8"/><rect x="26" y="72" width="46" height="16" rx="8"/><rect x="26" y="102" width="46" height="16" rx="8"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M72 50h26q12 0 12 12v14M72 80h38M72 110h26q12 0 12-12v-14"/></g><rect x="110" y="62" width="66" height="36" rx="10" fill="url(#ztA3b)" stroke="#FF9447" stroke-opacity=".6"/><path d="M126 80h34M152 72l8 8-8 8" stroke="#0b0b0d" stroke-opacity=".75" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#FF9447" stroke-opacity=".38" stroke-width="1.4" fill="none"><path d="M176 80h26q12 0 12-12v-8h30M176 80h68M176 80h26q12 0 12 12v8h30"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".2"><rect x="244" y="52" width="50" height="16" rx="5"/><rect x="244" y="72" width="50" height="16" rx="5"/><rect x="244" y="92" width="50" height="16" rx="5"/></g><g><rect x="26" y="142" width="268" height="30" rx="9" fill="#fff" fill-opacity=".04" stroke="#fff" stroke-opacity=".12"/><g fill="#FF9447" fill-opacity=".55"><rect x="38" y="152" width="4" height="10" rx="2"/><rect x="50" y="149" width="4" height="13" rx="2"/><rect x="62" y="154" width="4" height="8" rx="2"/><rect x="74" y="147" width="4" height="15" rx="2"/><rect x="86" y="153" width="4" height="9" rx="2"/><rect x="98" y="150" width="4" height="12" rx="2"/></g><g fill="#fff" fill-opacity=".16"><rect x="116" y="152" width="4" height="10" rx="2"/><rect x="128" y="149" width="4" height="13" rx="2"/><rect x="140" y="154" width="4" height="8" rx="2"/><rect x="152" y="150" width="4" height="12" rx="2"/><rect x="164" y="147" width="4" height="15" rx="2"/><rect x="176" y="153" width="4" height="9" rx="2"/><rect x="188" y="151" width="4" height="11" rx="2"/><rect x="200" y="155" width="4" height="7" rx="2"/><rect x="212" y="149" width="4" height="13" rx="2"/><rect x="224" y="152" width="4" height="10" rx="2"/><rect x="236" y="150" width="4" height="12" rx="2"/><rect x="248" y="154" width="4" height="8" rx="2"/><rect x="260" y="151" width="4" height="11" rx="2"/><rect x="272" y="153" width="4" height="9" rx="2"/></g></g></svg>' },
       ],
       moneyFlow: [
         { step:'Booking', desc:'One database transaction creates the booking, flips the plot to booked, opens the instalment plan and posts the receivable. Either all of it happens or none of it does.' },
@@ -8631,18 +9633,35 @@ createApp({
       ],
 
       // ---- Industries (verticals + served sectors) -------------------------
+      /* `icon` and `points` are read only by the Industry Solutions carousel on
+         the landing page. The Industries page renders the same array and shows
+         neither, so it is unaffected. Every point restates something the card's
+         own desc already claims -- these are the specifics of that sentence,
+         not additional marketing. */
       industryModel: [
-        { kind:'Deep vertical', name:'Real Estate', desc:'The hand-built vertical: projects, blocks and plots, bookings, instalment plans, allocation and the collections automation built around them.' },
-        { kind:'Deep vertical', name:'Education', desc:'Students, teachers, attendance and fee schedules — the second hand-built vertical, already emitting events into the automation engine.' },
+        { kind:'Deep vertical', name:'Real Estate', desc:'The hand-built vertical: projects, blocks and plots, bookings, instalment plans, allocation and the collections automation built around them.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M10 21v-6h4v6"/></svg>',
+          points:['Projects, blocks &amp; plots','Bookings &amp; instalment plans','Collections automation'] },
+        { kind:'Deep vertical', name:'Education', desc:'Students, teachers, attendance and fee schedules — the second hand-built vertical, already emitting events into the automation engine.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11.5V17c0 1.6 2.9 3 6 3s6-1.4 6-3v-5.5"/></svg>',
+          points:['Students &amp; enrolment','Attendance &amp; timetables','Fee schedules &amp; reminders'] },
         // The single "Everything else" bucket is broken out into the sectors it
         // already named, so the grid fills a clean 3x2 instead of leaving one
         // orphan on the second row. These stay explicitly labelled "Generic
         // engine": Real Estate and Education remain the only two hand-built
         // verticals, which is the claim the rest of the site makes.
-        { kind:'Generic engine', name:'Construction & Contracting', desc:'Runs on the shared item-and-sale engine — procurement, stock and job costing posting to the same ledger, with no separate codebase behind it.' },
-        { kind:'Generic engine', name:'Distribution & Retail', desc:'Stock movement, purchase orders and customer invoicing on the generic engine, reconciling against the same books as every other module.' },
-        { kind:'Generic engine', name:'Healthcare & Professional Services', desc:'Appointments, service delivery and billing modelled on the shared engine, with the automation layer handling reminders and approvals.' },
-        { kind:'No-code', name:'Build your own vertical', desc:'Define a new record type with its own fields and pipeline — vehicle, patient, case — without a migration. It plugs into the event bus automatically.' },
+        { kind:'Generic engine', name:'Construction & Contracting', desc:'Runs on the shared item-and-sale engine — procurement, stock and job costing posting to the same ledger, with no separate codebase behind it.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 18h20"/><path d="M5 18v-1.6a7 7 0 0 1 14 0V18"/><path d="M9.6 4.3h4.8V9"/></svg>',
+          points:['Procurement &amp; subcontractors','Job costing to the ledger','Stock across sites'] },
+        { kind:'Generic engine', name:'Distribution & Retail', desc:'Stock movement, purchase orders and customer invoicing on the generic engine, reconciling against the same books as every other module.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 7.2l9-4.2 9 4.2-9 4.2-9-4.2z"/><path d="M3 7.2v9.6l9 4.2 9-4.2V7.2"/></svg>',
+          points:['Stock movement &amp; reorder points','Purchase orders &amp; receipts','Customer invoicing'] },
+        { kind:'Generic engine', name:'Healthcare & Professional Services', desc:'Appointments, service delivery and billing modelled on the shared engine, with the automation layer handling reminders and approvals.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 12.2h2.6L11 9.4l2 5.4 1.3-2.6H17"/></svg>',
+          points:['Appointments &amp; scheduling','Service delivery records','Billing, reminders &amp; approvals'] },
+        { kind:'No-code', name:'Build your own vertical', desc:'Define a new record type with its own fields and pipeline — vehicle, patient, case — without a migration. It plugs into the event bus automatically.',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14.2v6.6M14.2 17.5h6.6"/></svg>',
+          points:['Custom record types &amp; fields','Your own pipeline stages','Joins the event bus automatically'] },
       ],
 
       // ---- Documentation hub ----------------------------------------------
@@ -8906,35 +9925,51 @@ createApp({
         { title:'Multi-Plant Production Control', category:'Manufacturing', image:'images/case-manufacturing.svg',
           challenge:'Three plants planned production in separate spreadsheets, so material shortages only surfaced on the shop floor.',
           solution:'BOM, routing and work-order modules with MRP-driven purchase planning unified across all three sites.',
-          result:'Production downtime down 41%' },
+          result:'Production downtime down 41%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 21h20"/><path d="M4 21V11l5 3.2V11l5 3.2V8.5l5 3V21"/></svg>',
+          modules:['BOM, routing &amp; work orders', 'MRP-driven purchase planning'] },
         { title:'Omnichannel Inventory Consolidation', category:'Retail', image:'images/case-retail.svg',
           challenge:'Store and online stock were tracked in different systems, causing repeated oversells during promotions.',
           solution:'Single inventory ledger with POS integration and automated replenishment across 28 outlets.',
-          result:'Stock accuracy at 99.2%' },
+          result:'Stock accuracy at 99.2%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4.5 8h15l-1.2 12.5H5.7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+          modules:['Single inventory ledger + POS', 'Automated replenishment'] },
         { title:'Hospital Group Resource Planning', category:'Healthcare', image:'images/case-healthcare.svg',
           challenge:'Pharmacy stock, procurement and patient billing sat in disconnected systems, delaying every invoice.',
           solution:'Integrated procurement, inventory and revenue-cycle modules with role-based clinical access controls.',
-          result:'Billing cycle cut from 9 days to 2' },
+          result:'Billing cycle cut from 9 days to 2',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
+          modules:['Procurement, stock &amp; revenue cycle', 'Role-based clinical access'] },
         { title:'Live Project Cost Control', category:'Construction', image:'images/case-construction.svg',
           challenge:'Site costs were reconciled monthly, so budget overruns were discovered far too late to correct.',
           solution:'Project costing, subcontractor billing and procurement tied to live budget-versus-actual dashboards.',
-          result:'Cost overruns reduced 27%' },
+          result:'Cost overruns reduced 27%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 18h20"/><path d="M5 18v-1.6a7 7 0 0 1 14 0V18"/><path d="M9.6 4.3h4.8V9"/></svg>',
+          modules:['Project costing &amp; subcontractor billing', 'Live budget versus actual'] },
         { title:'Campus Administration Platform', category:'Education', image:'images/case-education.svg',
           challenge:'Admissions, fee collection and payroll ran on three tools nobody could reconcile at year end.',
           solution:'Student lifecycle, fee scheduling and HR/payroll modules on one tenant with full audit trails.',
-          result:'Fee reconciliation 6x faster' },
+          result:'Fee reconciliation 6x faster',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11.5V17c0 1.6 2.9 3 6 3s6-1.4 6-3v-5.5"/></svg>',
+          modules:['Student lifecycle &amp; fee scheduling', 'HR, payroll &amp; audit trails'] },
         { title:'Warehouse & Order Fulfillment ERP', category:'Distribution', image:'images/case-distribution.svg',
           challenge:'Manual pick lists and paper goods-receipt notes made order accuracy dependent on individual staff memory.',
           solution:'Barcode-driven receiving, directed picking and automated three-way matching against purchase orders.',
-          result:'Order accuracy up to 99.6%' },
+          result:'Order accuracy up to 99.6%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="8" y="3.5" width="8" height="6" rx="1"/><rect x="3" y="12" width="8" height="6.5" rx="1"/><rect x="13" y="12" width="8" height="6.5" rx="1"/></svg>',
+          modules:['Barcode receiving &amp; directed picking', 'Automated three-way matching'] },
         { title:'Fleet & Freight Operations Suite', category:'Logistics', image:'images/case-logistics.svg',
           challenge:'Fleet running costs, trip billing and driver payroll stayed invisible until the month-end close.',
           solution:'Trip costing with fuel and maintenance tracking, integrated with automated freight invoicing.',
-          result:'Invoice disputes down 63%' },
+          result:'Invoice disputes down 63%',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2.5 6.5h10.5v9H2.5z"/><path d="M13 9.5h3.8l3.2 3.2v2.8H13z"/><circle cx="6.8" cy="18" r="1.7"/><circle cx="16.4" cy="18" r="1.7"/></svg>',
+          modules:['Trip costing, fuel &amp; maintenance', 'Automated freight invoicing'] },
         { title:'Multi-Entity Financial Consolidation', category:'Finance', image:'images/case-finance.svg',
           challenge:'Consolidating eight subsidiaries across four currencies took two weeks of manual work every quarter.',
           solution:'Multi-entity general ledger with automated FX revaluation and intercompany eliminations.',
-          result:'Quarterly close in 3 days' },
+          result:'Quarterly close in 3 days',
+          icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 20.5h18"/><rect x="5" y="11" width="3.4" height="9.5" rx="1"/><rect x="10.3" y="6.5" width="3.4" height="14" rx="1"/><rect x="15.6" y="14" width="3.4" height="6.5" rx="1"/></svg>',
+          modules:['Multi-entity GL with FX revaluation', 'Intercompany eliminations'] },
       ],
 
       pricingPlans: [
@@ -9526,7 +10561,9 @@ createApp({
     },
     bindSectionSpy(){
       this.unbindSectionSpy();
-      const ids = ['services','automation','showcase','case-studies','about-home','blog'];
+      /* 'about-home' left this list with the section itself -- About is its own
+         page now, so the spy has nothing to scroll past. */
+      const ids = ['services','automation','showcase','case-studies','blog'];
       const check = () => {
         if (this.page !== 'home'){ this.activeSection = ''; return; }
         const line = 140;                       // just below the sticky navbar
@@ -9616,6 +10653,12 @@ createApp({
     goIndustries(){ this.goPage('industries'); },
     goDocs(){ this.goPage('docs'); },
     goFaqs(){ this.goPage('faqs'); },
+    /* About is a page now, not a section on the landing page. Routing through
+       goPage() is what matters here: it calls queueReveal(), and .reveal starts
+       at opacity:0 -- the old goSection('#about-home') path rebuilt the subtree
+       without rebinding the observer, which is exactly how a route lands
+       looking like a blank page. */
+    goAbout(){ this.goPage('about'); },
     // Opens one automation module on its own page.
     openModule(i){
       this.activeModule = i;
