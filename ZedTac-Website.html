@@ -1893,12 +1893,11 @@
     width:5px; height:5px; border-radius:50%; background:var(--grad-ai);
   }
   .arch-node:has(.arch-node-points) > p{ flex-grow:0; }
-  .arch-node:has(.arch-node-points) .arch-node-items{ margin-top:auto; padding-top:16px; }
-  .arch-node-items{ display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
-  .arch-node-items span{
-    font-size:12px; background:var(--surface-2); border:1px solid var(--zt-line);
-    color:var(--zt-ink); padding:6px 11px; border-radius:var(--r-pill);
-  }
+  /* The chip row that used to close this card was retired when the cards
+     gained their dark visual: it repeated what the points above it already
+     said, and a card carrying an image, a title, a paragraph, three points
+     AND eight chips was the opposite of the concise hierarchy intended. The
+     points now take the auto margin that pinned the chips to the foot. */
   @media (max-width:860px){
     .arch-rail{ display:none; }
     .arch-nodes{ grid-template-columns:1fr; gap:18px; }
@@ -1922,11 +1921,100 @@
   /* A step below the paragraph on the dark band, so the points read as support
      under the copy rather than competing with it. */
   #architecture .arch-node-points li{ color:rgba(255,255,255,.6); }
-  #architecture .arch-node-items span{
-    background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.16);
-    color:rgba(255,255,255,.85);
-  }
   #architecture .arch-rail-line{ opacity:.75; }
+
+  /* ---------- THREE LAYERS -- card visual redesign ----------------------
+     Each layer card now opens with a dark, abstract scene (a fixed band at
+     the top of the card), then title / one line / three supporting points.
+     The scene is an inline SVG carried on each platformLayers entry --
+     columns rising from a shared base, a kernel and its satellites, an
+     event-to-action flow -- all on one near-black palette with a single
+     orange accent, so the three read as a set rather than three pictures.
+
+     Everything here is scoped to #architecture: the .arch-* roadmap classes
+     stay reusable on light ground elsewhere, and no other card family is
+     touched. The scene is pulled to the card edges with negative margins
+     (matched to --zt-card-pad-lg) rather than a body wrapper, so every
+     existing colour rule for .arch-node-tag / h3 / > p / points keeps
+     working in both themes -- only the layout moves.
+
+     Note what is deliberately NOT here: overflow:hidden on .arch-node itself.
+     The card is a grid item whose portrait shape comes from aspect-ratio, and
+     that shape is only a PREFERRED height because the card keeps
+     min-height:auto. Automatic minimum size applies only while overflow is
+     visible, so clipping the card would turn its 3:4 into a hard ceiling and
+     cut the copy off on narrow screens -- the same trap documented on the
+     blog card further down. The visual clips itself instead, and rounds its
+     own top corners to sit inside the card's border. */
+  #architecture .arch-node-visual{
+    position:relative;
+    margin:calc(-1 * var(--zt-card-pad-lg)) calc(-1 * var(--zt-card-pad-lg)) 18px;
+    aspect-ratio:16 / 10;
+    background:#0b0b0d;
+    border-bottom:1px solid rgba(255,255,255,.10);
+    border-radius:calc(var(--r-2xl) - 1px) calc(var(--r-2xl) - 1px) 0 0;
+    overflow:hidden;
+  }
+  #architecture .arch-node-scene{ position:absolute; inset:0; }
+  #architecture .arch-node-scene svg{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    transform-origin:center 45%;
+    transition:transform .5s var(--ease);
+  }
+  /* Bottom fade: the scene melts into the card body on the dark band, and
+     reads as a deliberate dark thumbnail on the light-mode cream card. */
+  #architecture .arch-node-veil{
+    position:absolute; inset:0; pointer-events:none; opacity:.55;
+    background:linear-gradient(180deg, rgba(8,8,10,0) 42%, rgba(8,8,10,.62) 100%);
+    transition:opacity .4s var(--ease);
+  }
+  /* Layer label rides on the scene as a chip. The extra class in the
+     selector clears the light-mode rule that would otherwise paint this
+     text black on the dark scene. */
+  #architecture .arch-node-visual .arch-node-num{
+    position:absolute; left:14px; top:13px; z-index:2; margin:0;
+    padding:5px 9px; border-radius:var(--r-pill);
+    font-size:10px; letter-spacing:.14em;
+    color:rgba(255,255,255,.86);
+    background:rgba(0,0,0,.4);
+    border:1px solid rgba(255,255,255,.16);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  }
+  #architecture .arch-node h3{ margin-bottom:7px; }
+  /* Spare height on a shorter card collects between the copy and the points,
+     pinning the points to the foot -- the same behaviour the retired chip
+     row had, so the card still grows gracefully across a row. The auto margin
+     replaces the base margin-top, which leaves no gap at all once the card is
+     full (a phone, where content drives the height), so the separation is
+     restated as padding that the auto margin cannot eat. */
+  #architecture .arch-node:has(.arch-node-points) .arch-node-points{
+    margin-top:auto; padding-top:13px;
+  }
+
+  /* Hover: the scene eases in, the veil deepens, the copy lifts a touch --
+     on top of the card's own translateY and border-colour shift. Kept
+     restrained on purpose. */
+  #architecture .arch-node-tag,
+  #architecture .arch-node h3,
+  #architecture .arch-node > p,
+  #architecture .arch-node-points{ transition:transform .3s var(--ease); }
+  #architecture .arch-node:hover .arch-node-scene svg{ transform:scale(1.06); }
+  /* .55 -> .78, not higher: the veil is bottom-weighted, and past about .8 it
+     stops reading as a deepening gradient and starts erasing the drawing it
+     sits on. */
+  #architecture .arch-node:hover .arch-node-veil{ opacity:.78; }
+  #architecture .arch-node:hover .arch-node-tag,
+  #architecture .arch-node:hover h3,
+  #architecture .arch-node:hover > p,
+  #architecture .arch-node:hover .arch-node-points{ transform:translateY(-2px); }
+
+  @media (prefers-reduced-motion: reduce){
+    #architecture .arch-node:hover .arch-node-scene svg,
+    #architecture .arch-node:hover .arch-node-tag,
+    #architecture .arch-node:hover h3,
+    #architecture .arch-node:hover > p,
+    #architecture .arch-node:hover .arch-node-points{ transform:none; }
+  }
 
   .flow-chain{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
   @media (max-width:920px){ .flow-chain{ grid-template-columns:repeat(2,1fr); } }
@@ -5169,7 +5257,6 @@
   #case-studies .case-label,
   #architecture .arch-node-num{ color:var(--zt-primary); }
 
-  #architecture .arch-node-items span,
   #case-studies .portfolio-result{
     background:#FFFFFF;
     border-color:var(--zt-line);
@@ -5339,8 +5426,10 @@
   #architecture .arch-node,
   #architecture .arch-node h3,
   #architecture .arch-node > p,
-  #architecture .arch-node-tag,
-  #architecture .arch-node-items span{ color:#000000; }
+  #architecture .arch-node-tag{ color:#000000; }
+  /* The layer label now sits on the card's dark visual, not on the cream
+     ground, so it keeps the light chip treatment set with that visual --
+     black here would put it at ~1.2:1 on a near-black scene. */
   #architecture .arch-node-num{ color:#000000; font-weight:700; }
   /* Section heading/intro sit on the dark gray, not in a card, so they stay
      light for contrast. */
@@ -6058,7 +6147,8 @@
      times inside #case-studies and eight more times in the Portfolio section,
      and "consistently across the cards" means both sets, not just the ones on
      the gradient. */
-  #architecture .arch-node-items span,
+  /* The #architecture layer chips this rule also covered are gone -- that row
+     was retired when the Three Layers cards gained their dark visual. */
   .portfolio-result{
     background:var(--zt-primary) !important;
     border-color:var(--zt-primary) !important;
@@ -6107,7 +6197,6 @@
 
      Geometry is untouched: size, shape, padding, radius, position and
      font-size are all exactly as they were. */
-  #architecture .arch-node-items span,
   .portfolio-result{
     background:var(--zt-tag-fill) !important;
     border-color:var(--zt-tag-fill) !important;
@@ -7433,13 +7522,23 @@
             </div>
           </div>
           <div class="arch-nodes">
+            <!-- The card opens with a dark abstract scene rather than a bare
+                 label: an empty 3:4 card carrying four lines of text read as
+                 unfinished. The scene is an inline SVG on the layer's own data
+                 entry (drawn for that layer -- stacked verticals, a kernel and
+                 its satellites, an event-to-action flow), so it scales to 4K
+                 and costs no extra request. The chip row it replaced said the
+                 same thing the points already say. -->
             <article class="arch-node" v-for="(l,i) in platformLayers" :key="l.name" :style="{'--d': (i*100)+'ms'}">
-              <span class="arch-node-num mono">Layer {{ String(i+1).padStart(2,'0') }}</span>
+              <div class="arch-node-visual">
+                <span class="arch-node-scene" v-html="l.scene" aria-hidden="true"></span>
+                <span class="arch-node-veil" aria-hidden="true"></span>
+                <span class="arch-node-num mono">Layer {{ String(i+1).padStart(2,'0') }}</span>
+              </div>
               <span class="arch-node-tag">{{ l.tag }}</span>
               <h3>{{ l.name }}</h3>
               <p>{{ l.desc }}</p>
               <ul class="arch-node-points" v-if="l.points"><li v-for="pt in l.points" :key="pt">{{ pt }}</li></ul>
-              <div class="arch-node-items"><span v-for="it in l.items" :key="it">{{ it }}</span></div>
             </article>
           </div>
         </div>
@@ -9427,20 +9526,32 @@ createApp({
       ],
 
       // ---- Platform architecture -------------------------------------------
+      // The `scene` on each layer is the card's dark visual -- see the
+      // .arch-node-visual block in the stylesheet. All three share one
+      // palette (#0b0b0d ground, white hairlines, a single #FF9447 accent)
+      // and one 320x200 viewBox, so the row reads as a set. preserveAspect
+      // "slice" fills the 16:10 frame without ever stretching the drawing.
+      // Gradient ids are unique per scene: they land in the same document.
       platformLayers: [
         { name:'Vertical modules', tag:'Deep, hand-built',
-          desc:'Industry depth where it earns its keep. Real Estate carries plots, bookings and instalment plans; Education carries students and attendance. Everything else runs on a generic item-and-sale engine that posts to the very same ledger.',
+          desc:'Industry depth where it earns its keep — and one generic engine behind everything else.',
           points:['Domain records, not renamed generic fields','New verticals added without forking the core','Every vertical posts to the shared ledger'],
-          items:['Real Estate — plots, bookings, instalments','Education — students, attendance','Generic engine — item + sale'] },
+          // Stacked columns of differing depth rising from one shared base bar:
+          // the verticals, and the ledger they all land on.
+          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA1" cx="50%" cy="22%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA1b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".85"/><stop offset="1" stop-color="#FF9447" stop-opacity=".35"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA1)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".16"><rect x="46" y="112" width="52" height="20" rx="5"/><rect x="46" y="86" width="52" height="20" rx="5"/><rect x="134" y="112" width="52" height="20" rx="5"/><rect x="134" y="86" width="52" height="20" rx="5"/><rect x="134" y="60" width="52" height="20" rx="5"/><rect x="222" y="112" width="52" height="20" rx="5"/></g><rect x="134" y="34" width="52" height="20" rx="5" fill="url(#ztA1b)" stroke="#FF9447" stroke-opacity=".65"/><g stroke="#fff" stroke-opacity=".18" stroke-width="1.4"><path d="M72 132v14M160 132v14M248 132v14"/></g><rect x="34" y="150" width="252" height="16" rx="8" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".18"/><path d="M46 158h228" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/></svg>' },
         { name:'Shared kernel', tag:'Built once, used by every business',
-          desc:'The parts no vertical should reinvent. Tenancy, users and permissions, the customer record, payments and the ledger are built once and shared, which is why a customer in one division is the same customer in another.',
+          desc:'The parts no vertical should reinvent — tenancy, customers, payments and the ledger, built once.',
           points:['One customer across every business unit','Append-only ledger, reversing corrections','Multi-entity and multi-currency as standard'],
-          items:['Tenancy & business units','Users & role-based access','Customers','Ledger — the source of truth','Payments','REST API'] },
+          // A single core with satellites on a dashed orbit: shared services
+          // reached from every direction rather than duplicated per vertical.
+          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA2" cx="50%" cy="50%" r="62%"><stop offset="0" stop-color="#FF9447" stop-opacity=".22"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA2b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".8"/><stop offset="1" stop-color="#FF9447" stop-opacity=".28"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA2)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><circle cx="160" cy="100" r="70" fill="none" stroke="#fff" stroke-opacity=".12" stroke-dasharray="4 7"/><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2"><path d="M160 100L160 30M160 100l61 35M160 100l-61 35M160 100L99 65M160 100l61-35M160 100v70"/></g><g fill="#0b0b0d" stroke="#fff" stroke-opacity=".26"><circle cx="160" cy="30" r="9"/><circle cx="221" cy="65" r="9"/><circle cx="221" cy="135" r="9"/><circle cx="160" cy="170" r="9"/><circle cx="99" cy="135" r="9"/><circle cx="99" cy="65" r="9"/></g><rect x="128" y="76" width="64" height="48" rx="14" fill="url(#ztA2b)" stroke="#FF9447" stroke-opacity=".6"/><g stroke="#0b0b0d" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"><path d="M144 92h32M144 100h32M144 108h20"/></g></svg>' },
         { name:'Automation platform',
           tag:'Where every new capability plugs in',
-          desc:'Events, rules, actions and audited runs sitting on top of everything below. Adding an automation is a new module against this engine — never a rewrite of the layers beneath it.',
+          desc:'Events, rules, actions and audited runs on top of everything below — a module, never a rewrite.',
           points:['Rules configured by admins, not coded','Actions reused from a shared registry','Every run recorded with its outcome'],
-          items:['Events','Rules','Actions','Audited runs','Scheduled jobs','Approval routing','Action registry','Ledger postings'] },
+          // Events feeding a rule gate, fanned out to actions, with the run
+          // log underneath: the shape of the engine in one picture.
+          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA3" cx="44%" cy="34%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA3b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".85"/><stop offset="1" stop-color="#FF9447" stop-opacity=".3"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA3)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".2"><rect x="26" y="42" width="46" height="16" rx="8"/><rect x="26" y="72" width="46" height="16" rx="8"/><rect x="26" y="102" width="46" height="16" rx="8"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M72 50h26q12 0 12 12v14M72 80h38M72 110h26q12 0 12-12v-14"/></g><rect x="110" y="62" width="66" height="36" rx="10" fill="url(#ztA3b)" stroke="#FF9447" stroke-opacity=".6"/><path d="M126 80h34M152 72l8 8-8 8" stroke="#0b0b0d" stroke-opacity=".75" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#FF9447" stroke-opacity=".38" stroke-width="1.4" fill="none"><path d="M176 80h26q12 0 12-12v-8h30M176 80h68M176 80h26q12 0 12 12v8h30"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".2"><rect x="244" y="52" width="50" height="16" rx="5"/><rect x="244" y="72" width="50" height="16" rx="5"/><rect x="244" y="92" width="50" height="16" rx="5"/></g><g><rect x="26" y="142" width="268" height="30" rx="9" fill="#fff" fill-opacity=".04" stroke="#fff" stroke-opacity=".12"/><g fill="#FF9447" fill-opacity=".55"><rect x="38" y="152" width="4" height="10" rx="2"/><rect x="50" y="149" width="4" height="13" rx="2"/><rect x="62" y="154" width="4" height="8" rx="2"/><rect x="74" y="147" width="4" height="15" rx="2"/><rect x="86" y="153" width="4" height="9" rx="2"/><rect x="98" y="150" width="4" height="12" rx="2"/></g><g fill="#fff" fill-opacity=".16"><rect x="116" y="152" width="4" height="10" rx="2"/><rect x="128" y="149" width="4" height="13" rx="2"/><rect x="140" y="154" width="4" height="8" rx="2"/><rect x="152" y="150" width="4" height="12" rx="2"/><rect x="164" y="147" width="4" height="15" rx="2"/><rect x="176" y="153" width="4" height="9" rx="2"/><rect x="188" y="151" width="4" height="11" rx="2"/><rect x="200" y="155" width="4" height="7" rx="2"/><rect x="212" y="149" width="4" height="13" rx="2"/><rect x="224" y="152" width="4" height="10" rx="2"/><rect x="236" y="150" width="4" height="12" rx="2"/><rect x="248" y="154" width="4" height="8" rx="2"/><rect x="260" y="151" width="4" height="11" rx="2"/><rect x="272" y="153" width="4" height="9" rx="2"/></g></g></svg>' },
       ],
       moneyFlow: [
         { step:'Booking', desc:'One database transaction creates the booking, flips the plot to booked, opens the instalment plan and posts the receivable. Either all of it happens or none of it does.' },
