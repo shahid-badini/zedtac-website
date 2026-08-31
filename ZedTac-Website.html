@@ -7,11 +7,18 @@
 <meta name="description" content="ZedTac is an enterprise ERP and business automation platform: a governed ledger across finance, inventory, supply chain, manufacturing and HR, plus 11 automation modules for collections, approvals, payroll, CRM and scheduled reporting.">
 <meta name="keywords" content="ERP solutions, business automation platform, ERP implementation, workflow automation, event-driven automation, accounts payable automation, receivables collections automation, expense approval automation, CRM automation, HR and payroll automation, cloud ERP, supply chain management">
 <!-- ┌───────────────────────────────────────────────────────────────────────┐
-     │ SITE ORIGIN — change in all four places below if the live domain      │
-     │ differs. It is inferred from the contact address (admin@zedtac.com);  │
-     │ nothing else in this file states the production URL. A canonical or   │
-     │ og:url pointing at the wrong origin is worse than none at all, so     │
-     │ confirm this before the site goes live.                               │
+     │ SITE ORIGIN — https://zedtac.com/ appears in SIX places below, not    │
+     │ four: canonical, og:url, og:image, twitter:image, and the JSON-LD     │
+     │ url and logo. Change all six together if the live domain differs.     │
+     │                                                                       │
+     │ Checked 31 Aug 2026: the domain is ours — the apex A records          │
+     │ resolve and the MX records carry admin@zedtac.com. But the web        │
+     │ root still serves a parked registrar lander, and HTTPS completes      │
+     │ on neither the apex nor www (the certificate does not match the       │
+     │ name). So these tags describe where the site is going, not where      │
+     │ it is yet. They become true on deploy — get HTTPS serving this        │
+     │ page at the apex before launch, or canonical and og:url both          │
+     │ point at a URL no crawler can fetch.                                  │
      └───────────────────────────────────────────────────────────────────────┘ -->
 <link rel="canonical" href="https://zedtac.com/">
 <meta name="robots" content="index, follow, max-image-preview:large">
@@ -1923,6 +1930,53 @@
   #architecture .arch-node-points li{ color:rgba(255,255,255,.6); }
   #architecture .arch-rail-line{ opacity:.75; }
 
+  /* ==========================================================================
+     PERFORMANCE -- paint that cannot show, and work done off screen
+     Measured on the live page with getComputedStyle, not guessed. Numbers in
+     the comments are what was counted on 2026-08-31.
+     ========================================================================== */
+
+  /* 26 backdrop-filters that render nothing. Each of these elements paints an
+     opaque background over its own blur, so the browser sampled and blurred a
+     backdrop for every one of them and then covered it completely. Checked per
+     element: EVERY instance of these classes is opaque, not merely some, which
+     is why this can be a flat list. The .zt-rc-chip and .zt-rc-wash blurs are
+     genuinely visible and are deliberately not in it.
+     !important because these blurs come from shared card presets that several
+     id-scoped rules also touch; a plain class selector loses to them. */
+  .portfolio-card, .auto-card, .blog-card, .btn,
+  .dash-card, .solution-split, .cookie-banner{
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  }
+
+  /* The footer is 3563px tall, starts 10872px down the page, and runs 24
+     infinite animations in its backdrop the entire time someone is reading the
+     hero. content-visibility lets the browser skip its layout, its paint and
+     those animations until it is near the viewport.
+     Safe here specifically because footer already sets overflow:hidden, so the
+     paint containment this implies clips nothing that was not clipped already.
+     contain-intrinsic-size keeps the scrollbar length honest before first
+     render; the auto keyword makes the browser remember the measured height
+     afterwards, so there is no jump on the way down. */
+  footer{
+    content-visibility:auto;
+    contain-intrinsic-size:auto 3563px;
+  }
+
+  /* Decorative motion outside the viewport is work nobody can see. A small
+     module marks off-screen blocks with .zt-idle and everything animating
+     inside them parks until it returns. Only animation-play-state is touched:
+     no layout, no paint, and each animation resumes where it stopped instead
+     of restarting.
+     NOT content-visibility for these, unlike the footer: several of these
+     blocks paint a full-bleed ::before band wider than their own box, and the
+     paint containment content-visibility implies would clip it. */
+  .zt-idle, .zt-idle *,
+  .zt-idle::before, .zt-idle::after,
+  .zt-idle *::before, .zt-idle *::after{
+    animation-play-state:paused !important;
+  }
+
   /* ---------- THREE LAYERS -- scroll-linked lift -------------------------
      The only thing this adds to the section is movement, driven by scroll
      position alone -- there is no hover or cursor behaviour here or in the
@@ -1937,7 +1991,7 @@
      effect could introduce horizontal overflow. Transforming the child leaves
      the band completely alone.
 
-     Scale never exceeds 1. The section rises 16px and eases UP to its natural
+     Scale never exceeds 1. The section rises 52px and eases UP to its natural
      size as it comes into focus, then eases slightly back as it leaves, so
      the content is never larger than it is at rest and cannot overflow its
      container. That is also what makes it read as coming forward rather than
@@ -1949,6 +2003,34 @@
      is not held for the whole page. */
   .arch-stage{ transform-origin:50% 42%; }
   .arch-stage.is-live{ will-change:transform; }
+
+  /* ---- what made the zoom stutter -------------------------------------
+     A backdrop-filter has to resample and re-blur its backdrop at every
+     intermediate scale, so nine of them inside a section that is being
+     scaled every frame is the single most expensive thing on this page.
+
+     .arch-node inherits saturate(1.75) blur(20px) from the glass card
+     preset, but in THIS section the card paints an opaque #0b0b0d ground and
+     .zt-rc-visual lays a second opaque layer over that. The blur therefore
+     has nothing to sample and renders nothing at all -- it was pure cost.
+     Verified with getComputedStyle before removing: background is
+     rgb(11,11,13) on all three cards. */
+  #architecture .arch-node{ -webkit-backdrop-filter:none; backdrop-filter:none; }
+
+  /* The chip and the hover wash ARE visible glass, so they stay -- but only
+     while the section is still. .is-moving is set by the module purely for
+     the stretch where the transform is changing, never during the flat
+     middle where the cards are read, and a 3px blur is not resolvable mid
+     zoom anyway.
+
+     The #architecture prefix is load-bearing, not decoration: the rules that
+     set these blurs are :is(#architecture, ...) .zt-reveal-card .zt-rc-chip,
+     which carries an id and beats a three-class selector. Without it this
+     rule silently loses and the blurs stay on through the whole zoom. */
+  #architecture .arch-stage.is-moving .zt-rc-chip,
+  #architecture .arch-stage.is-moving .zt-rc-wash{
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+  }
   /* The effect is motion and nothing else, so reduced-motion drops it wholly.
      The module also refuses to start, but this guarantees a neutral transform
      even if the preference is turned on mid-session. */
@@ -3393,6 +3475,62 @@
   .logo:hover .logo-mark{ transform:rotate(-5deg) scale(1.07); }
   .logo-text{ letter-spacing:-.022em; }
   .nav .logo-text{ color:#fff; }
+
+  /* ---- header wordmark ---------------------------------------------------
+     There is no .logo-mark element in the nav markup -- the header logo is
+     type and nothing else -- so the type carries it.
+
+     A mark briefly lived here and was removed on request: the header is the
+     wordmark and nothing else, which is how it started. The .logo-mark preset
+     further up stays unused -- it is shared with the footer, so it is not
+     dead code, just not called from here.
+
+     WHAT IS ALREADY THERE, because it is easy to miss and it decides what can
+     be added: .logo-text paints linear-gradient(96deg, ...) with
+     background-clip:text and a transparent -webkit-text-fill-color, in BOTH
+     the over-hero and the stuck state. -webkit-text-fill-color is inherited,
+     so the per-letter rules further up (.logo-text .z at #B24600, .t at
+     #FF9447) never actually render -- the whole word is painted by the
+     parent's single gradient sweep. They are dead but harmless, and are left
+     alone here rather than quietly deleted.
+
+     So nothing is added that would fight that sweep. Putting a second
+     gradient on just the Z and the T would give two letters their own ramp
+     and break the one continuous run across ZEDTAC. Instead:
+
+     1. A hairline that sweeps in under the word on hover and keyboard focus.
+        Decorative, so it carries no contrast requirement of its own.
+     2. Tracking that opens a touch on hover.
+     3. A gentle lift of the existing gradient on hover -- saturation and
+        brightness only, so the gradient's geometry is untouched and the rest
+        state is byte-for-byte what it was.
+
+     All three are hover/focus only, so they cost nothing at rest, and nothing
+     animates on its own: the bar already runs one infinite animation for the
+     mark aura and does not need a second. */
+  .nav .logo{ position:relative; }
+
+  .nav .logo-text{
+    transition:letter-spacing var(--dur-2) var(--ease),
+               filter var(--dur-2) var(--ease);
+  }
+  .nav .logo::after{
+    content:''; position:absolute; left:6px; right:6px; bottom:1px; height:1.5px;
+    border-radius:2px; pointer-events:none;
+    background:linear-gradient(90deg, var(--zt-primary), transparent);
+    transform:scaleX(0); transform-origin:left center;
+    transition:transform var(--dur-2) var(--ease);
+  }
+  .nav .logo:hover::after,
+  .nav .logo:focus-visible::after{ transform:scaleX(1); }
+  .nav .logo:hover .logo-text,
+  .nav .logo:focus-visible .logo-text{
+    letter-spacing:-.008em;
+    filter:saturate(1.16) brightness(1.06);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .nav .logo-text, .nav .logo::after{ transition:none; }
+  }
 
   /* ---------- LINKS -------------------------------------------------------- */
   .nav-links{
@@ -5654,6 +5792,21 @@
   .ft-social a{ display:inline-flex; align-items:center; gap:10px; }
   .ft-social svg{ width:18px; height:18px; flex:none; }
 
+  /* The Download column borrows .ft-social's icon-and-label row but stays
+     inert: no store listings exist yet, so the rows are spans rather than
+     links. The dimmed colour carries "not clickable" and the caption says
+     why, which fills the fifth grid track without promising a download. */
+  .ft-stores .is-soon{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:15px; color:rgba(255,255,255,.55);
+  }
+  .ft-stores svg{ width:18px; height:18px; flex:none; }
+  .ft-stores-note{
+    margin:16px 0 0; font-size:12px; font-weight:600;
+    letter-spacing:.08em; text-transform:uppercase;
+    color:var(--zt-primary);
+  }
+
   /* Row 3: legal base. */
   .ft-base{ padding:clamp(18px, 2vw, 28px) 0 clamp(20px, 2.2vw, 32px); }
   .ft-base-copy{ font-size:14px; color:#FFFFFF; font-weight:600; margin:0 0 14px; }
@@ -7572,27 +7725,17 @@
     background:rgba(255,255,255,.5);
   }
 
-  /* ---- the head: sector and index ---------------------------------------
-     A numeral, not a picture. It sits opposite the sector label on a hairline
-     rule, which is what gives the top of the card a structure now that the
-     image has moved away from it. */
+  /* ---- the head: sector --------------------------------------------------
+     The sector label on a hairline rule. The rule is what gives the top of
+     the card its structure now that the image has moved away from it, so it
+     stays on even though the numeral that sat opposite it is gone. */
   #carousel-deployed .dep-index{
-    display:flex; align-items:baseline; justify-content:space-between;
+    display:flex; align-items:baseline;
     gap:12px;
     padding-bottom:12px;
     border-bottom:1px solid rgba(38,23,11,.12);
   }
   #carousel-deployed .industry-cat{ line-height:1.3; display:block; }
-  #carousel-deployed .dep-num{
-    font-size:clamp(26px, 2.4vw, 34px);
-    line-height:1;
-    font-weight:500;
-    color:rgba(38,23,11,.16);
-    letter-spacing:-0.02em;
-    flex:none;
-    transition:color .22s var(--ease);
-  }
-  #carousel-deployed .industry-card:hover .dep-num{ color:rgba(255,148,71,.75); }
 
   #carousel-deployed .industry-card > h3{ margin-top:12px; }
 
@@ -8353,15 +8496,14 @@
             class="slider-track deployed-slider-track carousel-track"
             ref="deployedTrack"
           >
-            <!-- Picture at the head, everything else underneath it: sector and
-                 index, title, the problem it solved, the modules that did it,
-                 the measured outcome. The picture carries flex-grow, so on a
+            <!-- Picture at the head, everything else underneath it: sector,
+                 title, the problem it solved, the modules that did it, the
+                 measured outcome. The picture carries flex-grow, so on a
                  tall card the spare height goes into the image rather than
                  opening a hole in the middle of the copy.
 
-                 The index numeral is derived from position (card n of eight),
-                 not new copy. The scene is an inline SVG on each entry, drawn
-                 for that deployment's own story -- see the caseStudies array.
+                 The scene is an inline SVG on each entry, drawn for that
+                 deployment's own story -- see the caseStudies array.
                  The Case Studies slider below renders the same array from its
                  own template, with its own `image` and `solution` prose, and
                  is untouched. -->
@@ -8372,7 +8514,6 @@
               </div>
               <div class="dep-index">
                 <span class="industry-cat">{{ c.category }}</span>
-                <span class="dep-num mono" aria-hidden="true">{{ String(i+1).padStart(2,'0') }}</span>
               </div>
               <h3>{{ c.title }}</h3>
               <p>{{ c.challenge }}</p>
@@ -10023,11 +10164,29 @@
           </ul>
         </div>
 
-        <!-- The Download column is removed rather than relinked. Both entries
-             pointed at goConsult, so a visitor who clicked "App Store" expecting
-             a store listing landed on a consultation form; advertising store
-             presence the product does not have is worse than not listing it.
-             Restore this block when real store URLs exist. -->
+        <!-- Download. Restored, but inert: there are still no store listings,
+             so each row is a <span>, not a link. The last time this column
+             existed both entries pointed at goConsult, and a visitor who
+             clicked "App Store" landed on a consultation form. Dimmed rows
+             plus the caption underneath name the state instead of promising a
+             download, and they fill the fifth grid track the row was built
+             for. When the listings go live: swap each <span> for an <a
+             href="..." target="_blank" rel="noopener">, drop the is-soon
+             class and delete the caption. .ft-col a already styles the rest. -->
+        <div class="ft-col">
+          <h2>Download</h2>
+          <ul class="ft-stores">
+            <li>
+              <span class="is-soon">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>App Store</span>
+            </li>
+            <li>
+              <span class="is-soon">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22.018 13.298l-3.919 2.218-3.515-3.493 3.543-3.521 3.891 2.202a1.49 1.49 0 0 1 0 2.594zM1.337.924a1.486 1.486 0 0 0-.112.568v21.017c0 .217.045.419.124.6l11.155-11.087L1.337.924zm12.207 10.065l3.258-3.238L3.45.195a1.466 1.466 0 0 0-.946-.179l11.04 10.973zm0 2.067l-11 10.933c.298.036.612-.016.906-.183l13.324-7.54-3.23-3.21z"/></svg>Play Store</span>
+            </li>
+          </ul>
+          <p class="ft-stores-note">Coming soon</p>
+        </div>
 
         <div class="ft-col">
           <h2>Connect</h2>
@@ -10705,7 +10864,7 @@ createApp({
           // A scanned barcode, a directed pick path through the racks, and the
           // three-way match at the end of it.
           scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD6" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD6)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><rect x="26" y="24" width="86" height="44" rx="6" fill="#fff" fill-opacity=".05" stroke="#fff" stroke-opacity=".16"/><g fill="#FF9447" fill-opacity=".7"><rect x="38" y="34" width="3" height="24" rx="1"/><rect x="45" y="34" width="5" height="24" rx="1"/><rect x="54" y="34" width="2" height="24" rx="1"/><rect x="60" y="34" width="5" height="24" rx="1"/><rect x="69" y="34" width="3" height="24" rx="1"/><rect x="76" y="34" width="6" height="24" rx="1"/><rect x="86" y="34" width="2" height="24" rx="1"/><rect x="92" y="34" width="4" height="24" rx="1"/><rect x="100" y="34" width="3" height="24" rx="1"/></g><g stroke="#fff" stroke-opacity=".14" stroke-width="1.3"><path d="M132 30h160M132 58h160M132 86h160"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".16"><rect x="138" y="34" width="30" height="22" rx="3"/><rect x="176" y="38" width="24" height="18" rx="3"/><rect x="242" y="34" width="30" height="22" rx="3"/><rect x="138" y="62" width="24" height="22" rx="3"/><rect x="208" y="62" width="30" height="22" rx="3"/><rect x="246" y="66" width="24" height="18" rx="3"/></g><rect x="208" y="34" width="26" height="22" rx="3" fill="#FF9447" fill-opacity=".55" stroke="#FF9447" stroke-opacity=".7"/><path d="M118 96h44q10 0 10-10V62q0-10 10-10h39" fill="none" stroke="#FF9447" stroke-opacity=".45" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round"/><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"><rect x="40" y="112" width="66" height="40" rx="5"/><rect x="127" y="112" width="66" height="40" rx="5"/><rect x="214" y="112" width="66" height="40" rx="5"/></g><g fill="#fff" fill-opacity=".14"><rect x="50" y="122" width="34" height="4" rx="2"/><rect x="50" y="131" width="24" height="4" rx="2"/><rect x="137" y="122" width="34" height="4" rx="2"/><rect x="137" y="131" width="26" height="4" rx="2"/><rect x="224" y="122" width="34" height="4" rx="2"/><rect x="224" y="131" width="22" height="4" rx="2"/></g><g stroke="#FF9447" stroke-opacity=".85" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M50 143l4 5 9-10M137 143l4 5 9-10M224 143l4 5 9-10"/></g></svg>',
-          challenge:'Manual pick lists and paper receipt notes left order accuracy to individual memory.',
+          challenge:'Manual pick lists and paper goods-receipt notes left order accuracy to individual memory.',
           solution:'Barcode-driven receiving, directed picking and automated three-way matching against purchase orders.',
           result:'Order accuracy up to 99.6%',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="8" y="3.5" width="8" height="6" rx="1"/><rect x="3" y="12" width="8" height="6.5" rx="1"/><rect x="13" y="12" width="8" height="6.5" rx="1"/></svg>',
@@ -12451,31 +12610,33 @@ if (THREE) (function () {
      its top edge is at the bottom of the screen, 1 when its bottom edge has
      passed the top. Three phases:
 
-       p < .30   scale 0.76 -> 1, lift 52px -> 0      rising into place
+       p < .30   scale 0.70 -> 1, lift 52px -> 0      rising into place
        p < .84   flat                                  settled, simply itself
-       p >= .84  scale 1 -> 0.90, lift 0               settling back
+       p >= .84  scale 1 -> 0.82, lift 0               settling back
 
      SPEED. Two separate things control it and they do different jobs.
      ENTER_END / EXIT_START set how much SCROLL the move is spread over -- at
      .30 the section is fully arrived a third of the way through its travel
      instead of nearly half, so the same distance is covered in less
-     scrolling and reads faster. EASE is how tightly each frame chases that
-     target; at .20 it closes about two thirds of the remaining gap every
-     five frames, so it tracks the scroll closely instead of trailing it.
-     Raising EASE alone makes it snappier but not quicker; raising it past
-     roughly .3 starts to look stepped rather than smooth.
+     scrolling and reads faster. EASE is how tightly the transform chases
+     that target. It is expressed per 60Hz frame but applied against elapsed
+     time, so the same figure means the same real-world response on a 60Hz
+     and a 120Hz panel. Raising EASE alone makes it snappier but not quicker;
+     raising it past roughly .3 starts to look stepped rather than smooth.
+     This is the dial for "it trails the scroll" -- the stutter that used to
+     be blamed on it had two other causes, both fixed below.
 
      Scale never goes above 1, which is deliberate: at rest the section is
      exactly the size it was designed at, so nothing can spill past the
      container and cause horizontal overflow. The "coming forward" read comes
      from approaching that size, not from exceeding it -- so the way to make
-     the zoom stronger is to start further BELOW 1, which is what 0.76 does.
+     the zoom stronger is to start further BELOW 1, which is what 0.70 does.
      Pushing the top end past 1 would make the content wider than the box that
      holds it, and that is the one change here that could produce horizontal
      overflow.
 
      Transform does not affect layout, so the shrunk section leaves visible
-     air inside a container that has not moved. At 0.76 that is 24% of the
+     air inside a container that has not moved. At 0.70 that is 30% of the
      section's width, which is a lot of air -- it was asked for explicitly and
      raised as a trade-off more than once. If it ever needs pulling back, this
      one constant is the whole dial.
@@ -12497,9 +12658,23 @@ if (THREE) (function () {
      PERFORMANCE. One rAF loop, and only while the section is on screen -- an
      IntersectionObserver starts and stops it. Per frame: one
      getBoundingClientRect (a read) and one transform write, in that order, so
-     no layout is forced mid-frame. Everything is composited: transform only,
-     no opacity, filter, box-shadow or blur. will-change is added when the
-     loop starts and removed when it stops, so the layer is not held for the
+     no layout is forced mid-frame. The module animates transform only.
+
+     WHAT THE MODULE ANIMATES IS NOT WHAT COSTS. An earlier note here claimed
+     there was "no filter, box-shadow or blur" involved. That was true of the
+     transform and false of the section: nine elements inside it carried a
+     backdrop-filter, and a backdrop blur must be resampled at every
+     intermediate scale, so all nine were re-rasterised on every frame of the
+     zoom. That, not the easing, is what made it stutter. Three of the nine
+     rendered nothing at all (opaque grounds above them) and are gone; the six
+     that are visible are suspended through .is-moving while the transform is
+     changing. See the .arch-stage rules in <style>.
+
+     The other half was the progress read: it was taken from the stage itself,
+     which the module transforms, so the input moved with the output. It now
+     reads the untransformed parent.
+
+     will-change is added when the loop starts and removed when it stops, so the layer is not held for the
      life of the page. No library.
 
      REDUCED MOTION. The loop never starts and the transform is left
@@ -12514,12 +12689,13 @@ if (THREE) (function () {
 
   const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  const ENTER_SCALE = 0.76;   // where it starts as it comes into view
-  const EXIT_SCALE  = 0.90;   // where it settles back to on the way out
+  const ENTER_SCALE = 0.70;   // where it starts as it comes into view
+  const EXIT_SCALE  = 0.82;   // where it settles back to on the way out
   const ENTER_LIFT  = 52;     // px it rises through on the way in
   const ENTER_END   = 0.30;   // progress at which it has arrived
   const EXIT_START  = 0.84;   // progress at which it starts settling back
-  const EASE = 0.20;          // per-frame approach to the target
+  const EASE = 0.26;          // approach to the target, per 60Hz frame
+  const FRAME = 1000 / 60;    // the cadence EASE is expressed against
 
   const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -12527,9 +12703,26 @@ if (THREE) (function () {
   function createStage(stage){
     let raf = 0, running = false;
     let curS = 1, curY = 0;
+    let last = 0, moving = false;
 
-    function frame(){
-      const r = stage.getBoundingClientRect();          // read
+    // Progress is measured on the UNTRANSFORMED parent (#architecture, the
+    // .wrap), never on the stage itself. Reading the stage fed the transform
+    // straight back into its own input: scaling moves the measured top edge
+    // and shrinks the measured height, so the target drifted while the eased
+    // value chased it and the section rubber-banded instead of tracking the
+    // scroll. The deeper the floor, the stronger the feedback -- which is why
+    // it became obvious when ENTER_SCALE went to 0.70. The .wrap is never
+    // transformed (see the stylesheet note), so it is a fixed reference.
+    const ref = stage.parentElement || stage;
+
+    function setMoving(v){
+      if (v === moving) return;
+      moving = v;
+      stage.classList.toggle('is-moving', v);
+    }
+
+    function frame(now){
+      const r = ref.getBoundingClientRect();            // read
       const vh = window.innerHeight || 1;
       const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
 
@@ -12545,8 +12738,26 @@ if (THREE) (function () {
         y = 0;
       }
 
-      curS += (s - curS) * EASE;
-      curY += (y - curY) * EASE;
+      // Time-corrected smoothing. A fixed per-frame fraction converges twice
+      // as fast on a 120Hz panel as on 60Hz, and lurches after a dropped
+      // frame, because it counts frames rather than time. Deriving the factor
+      // from elapsed time makes the approach take the same real time on any
+      // refresh rate. dt is capped so a stalled tab resumes smoothly instead
+      // of snapping.
+      const dt = last ? Math.min(64, now - last) : FRAME;
+      last = now;
+      const k = 1 - Math.pow(1 - EASE, dt / FRAME);
+
+      curS += (s - curS) * k;
+      curY += (y - curY) * k;
+
+      // Exponential approach never exactly arrives, so snap the last sliver
+      // and treat that as settled. This is what lets the glass come back in
+      // the flat middle, and stops a sub-pixel transform being rewritten
+      // every frame for the whole time the section is on screen.
+      const settled = Math.abs(s - curS) < 0.0004 && Math.abs(y - curY) < 0.02;
+      if (settled){ curS = s; curY = y; }
+      setMoving(!settled);
 
       stage.style.transform =                            // write
         'translate3d(0,' + curY.toFixed(2) + 'px,0) scale(' + curS.toFixed(4) + ')';
@@ -12557,6 +12768,7 @@ if (THREE) (function () {
     function start(){
       if (running || reduceMQ.matches) return;
       running = true;
+      last = 0;
       stage.classList.add('is-live');
       raf = requestAnimationFrame(frame);
     }
@@ -12565,6 +12777,8 @@ if (THREE) (function () {
       running = false;
       cancelAnimationFrame(raf);
       stage.classList.remove('is-live');
+      setMoving(false);
+      last = 0;
       // Off screen by now, so this can settle instantly -- nobody sees it.
       stage.style.transform = '';
       curS = 1; curY = 0;
@@ -12617,6 +12831,81 @@ if (THREE) (function () {
 
   new MutationObserver(queueSync).observe(document.body, { childList: true, subtree: true });
 
+  queueSync();
+})();
+
+/* ============================================================================
+   OFF-SCREEN IDLE -- park decorative animation nobody can see
+   Pairs with the .zt-idle rules in <style>.
+
+   WHY. The page is roughly 14,400px tall and runs 46 infinite CSS animations,
+   all of them all of the time -- including the footer's 24 while the visitor
+   is still on the hero, 10,872px above it. None of that is visible, and it is
+   the difference between an idle compositor and a busy one during a scroll.
+
+   WHAT IT DOES. One IntersectionObserver over the top-level blocks. A block
+   that leaves the viewport (plus half a screen of margin either side) gets
+   .zt-idle, which parks every animation inside it through
+   animation-play-state. Coming back removes it and they resume from where
+   they stopped: paused, not cancelled, so nothing restarts or jumps.
+
+   WHY NOT content-visibility HERE. Several of these blocks paint a full-bleed
+   ::before band wider than their own box, and the paint containment that
+   content-visibility implies would clip it. The footer does use it, because
+   it already sets overflow:hidden so nothing new gets clipped. The footer is
+   observed here as well, which costs nothing and covers browsers without
+   content-visibility.
+
+   COST. animation-play-state drives neither layout nor paint, so a toggle is
+   a style recalc on that subtree and nothing else. The observer is passive:
+   no scroll handler, no rAF loop, nothing per frame.
+
+   REDUCED MOTION. Nothing to do. The animations are already suppressed
+   elsewhere and pausing a stopped animation is a no-op.
+
+   LIFECYCLE. Vue's v-if swaps the page subtree on route changes, so this uses
+   the same MutationObserver and debounced re-sync as the modules above and
+   picks up whatever blocks currently exist. A WeakSet keeps each block from
+   being observed twice and lets detached ones be collected.
+   ============================================================================ */
+(function(){
+  // Grandchildren of #main, not children: #main holds one wrapper per route
+  // (.zt-home and friends) and the actual sections are inside it. Observing
+  // the children would mean one 10,872px block that is always intersecting,
+  // so nothing would ever park. The grandchildren are the .wrap sections --
+  // eight of them, 944px to 2874px, against a viewport around 900px.
+  const BLOCKS = '#main > * > *, footer';
+
+  let io = null;
+  const seen = new WeakSet();
+
+  function observer(){
+    if (io) return io;
+    io = new IntersectionObserver(entries => {
+      for (const entry of entries){
+        entry.target.classList.toggle('zt-idle', !entry.isIntersecting);
+      }
+    }, { rootMargin: '50% 0px 50% 0px', threshold: 0 });
+    return io;
+  }
+
+  function sync(){
+    const obs = observer();
+    for (const block of document.querySelectorAll(BLOCKS)){
+      if (seen.has(block)) continue;
+      seen.add(block);
+      obs.observe(block);
+    }
+  }
+
+  let queued = false;
+  function queueSync(){
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { queued = false; sync(); }, 0);
+  }
+
+  new MutationObserver(queueSync).observe(document.body, { childList: true, subtree: true });
   queueSync();
 })();
 </script>
