@@ -1949,19 +1949,18 @@
     -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
   }
 
-  /* The footer is 3563px tall, starts 10872px down the page, and runs 24
-     infinite animations in its backdrop the entire time someone is reading the
-     hero. content-visibility lets the browser skip its layout, its paint and
-     those animations until it is near the viewport.
-     Safe here specifically because footer already sets overflow:hidden, so the
-     paint containment this implies clips nothing that was not clipped already.
-     contain-intrinsic-size keeps the scrollbar length honest before first
-     render; the auto keyword makes the browser remember the measured height
-     afterwards, so there is no jump on the way down. */
-  footer{
-    content-visibility:auto;
-    contain-intrinsic-size:auto 3563px;
-  }
+  /* NO content-visibility on the footer. It was tried here -- the footer is
+     3563px tall and runs 24 infinite animations -- and it made the footer
+     content hide and reappear while scrolling. The footer subtree gets
+     skipped and unskipped as it nears the viewport, its layout is thrown away
+     and rebuilt each time, and contain-intrinsic-size can only ever be a
+     guess at a height that changes with the route, so the reserved space and
+     the real space disagree and the block jumps.
+
+     It is not worth it, because the win it was bought for is already had
+     elsewhere: .zt-idle below parks those same 24 animations when the footer
+     is off screen, and does it by touching animation-play-state only, which
+     drives neither layout nor paint and so cannot make anything disappear. */
 
   /* Decorative motion outside the viewport is work nobody can see. A small
      module marks off-screen blocks with .zt-idle and everything animating
@@ -12849,12 +12848,13 @@ if (THREE) (function () {
    animation-play-state. Coming back removes it and they resume from where
    they stopped: paused, not cancelled, so nothing restarts or jumps.
 
-   WHY NOT content-visibility HERE. Several of these blocks paint a full-bleed
-   ::before band wider than their own box, and the paint containment that
-   content-visibility implies would clip it. The footer does use it, because
-   it already sets overflow:hidden so nothing new gets clipped. The footer is
-   observed here as well, which costs nothing and covers browsers without
-   content-visibility.
+   WHY NOT content-visibility ANYWHERE. Two separate reasons. Most of these
+   blocks paint a full-bleed ::before band wider than their own box, and the
+   paint containment it implies would clip that. The footer has no such band
+   and did use it for a while, but skipping and unskipping a 3563px block
+   while scrolling made its content visibly hide and return, so it came back
+   out. Pausing animations achieves the same saving without touching whether
+   anything renders.
 
    COST. animation-play-state drives neither layout nor paint, so a toggle is
    a style recalc on that subtree and nothing else. The observer is passive:
