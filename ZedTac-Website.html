@@ -1923,97 +1923,37 @@
   #architecture .arch-node-points li{ color:rgba(255,255,255,.6); }
   #architecture .arch-rail-line{ opacity:.75; }
 
-  /* ---------- THREE LAYERS -- card visual redesign ----------------------
-     Each layer card now opens with a dark, abstract scene (a fixed band at
-     the top of the card), then title / one line / three supporting points.
-     The scene is an inline SVG carried on each platformLayers entry --
-     columns rising from a shared base, a kernel and its satellites, an
-     event-to-action flow -- all on one near-black palette with a single
-     orange accent, so the three read as a set rather than three pictures.
+  /* ---------- THREE LAYERS -- scroll-linked lift -------------------------
+     The only thing this adds to the section is movement, driven by scroll
+     position alone -- there is no hover or cursor behaviour here or in the
+     module. Nothing about the design changes: no colour, spacing, size, type
+     or layout rule lives here, and the transform is applied to a wrapper the
+     cards sit inside rather than to the cards themselves, so every card keeps
+     its exact geometry.
 
-     Everything here is scoped to #architecture: the .arch-* roadmap classes
-     stay reusable on light ground elsewhere, and no other card family is
-     touched. The scene is pulled to the card edges with negative margins
-     (matched to --zt-card-pad-lg) rather than a body wrapper, so every
-     existing colour rule for .arch-node-tag / h3 / > p / points keeps
-     working in both themes -- only the layout moves.
+     WHY THE <section> AND NOT THE .wrap. #architecture carries the full-bleed
+     ::before that paints the band. Scaling the .wrap would scale that 100vw
+     pseudo-element too, pushing it past the viewport -- the one way this
+     effect could introduce horizontal overflow. Transforming the child leaves
+     the band completely alone.
 
-     Note what is deliberately NOT here: overflow:hidden on .arch-node itself.
-     The card is a grid item whose portrait shape comes from aspect-ratio, and
-     that shape is only a PREFERRED height because the card keeps
-     min-height:auto. Automatic minimum size applies only while overflow is
-     visible, so clipping the card would turn its 3:4 into a hard ceiling and
-     cut the copy off on narrow screens -- the same trap documented on the
-     blog card further down. The visual clips itself instead, and rounds its
-     own top corners to sit inside the card's border. */
-  #architecture .arch-node-visual{
-    position:relative;
-    margin:calc(-1 * var(--zt-card-pad-lg)) calc(-1 * var(--zt-card-pad-lg)) 18px;
-    aspect-ratio:16 / 10;
-    background:#0b0b0d;
-    border-bottom:1px solid rgba(255,255,255,.10);
-    border-radius:calc(var(--r-2xl) - 1px) calc(var(--r-2xl) - 1px) 0 0;
-    overflow:hidden;
-  }
-  #architecture .arch-node-scene{ position:absolute; inset:0; }
-  #architecture .arch-node-scene svg{
-    position:absolute; inset:0; width:100%; height:100%; display:block;
-    transform-origin:center 45%;
-    transition:transform .5s var(--ease);
-  }
-  /* Bottom fade: the scene melts into the card body on the dark band, and
-     reads as a deliberate dark thumbnail on the light-mode cream card. */
-  #architecture .arch-node-veil{
-    position:absolute; inset:0; pointer-events:none; opacity:.55;
-    background:linear-gradient(180deg, rgba(8,8,10,0) 42%, rgba(8,8,10,.62) 100%);
-    transition:opacity .4s var(--ease);
-  }
-  /* Layer label rides on the scene as a chip. The extra class in the
-     selector clears the light-mode rule that would otherwise paint this
-     text black on the dark scene. */
-  #architecture .arch-node-visual .arch-node-num{
-    position:absolute; left:14px; top:13px; z-index:2; margin:0;
-    padding:5px 9px; border-radius:var(--r-pill);
-    font-size:10px; letter-spacing:.14em;
-    color:rgba(255,255,255,.86);
-    background:rgba(0,0,0,.4);
-    border:1px solid rgba(255,255,255,.16);
-    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
-  }
-  #architecture .arch-node h3{ margin-bottom:7px; }
-  /* Spare height on a shorter card collects between the copy and the points,
-     pinning the points to the foot -- the same behaviour the retired chip
-     row had, so the card still grows gracefully across a row. The auto margin
-     replaces the base margin-top, which leaves no gap at all once the card is
-     full (a phone, where content drives the height), so the separation is
-     restated as padding that the auto margin cannot eat. */
-  #architecture .arch-node:has(.arch-node-points) .arch-node-points{
-    margin-top:auto; padding-top:13px;
-  }
+     Scale never exceeds 1. The section rises 16px and eases UP to its natural
+     size as it comes into focus, then eases slightly back as it leaves, so
+     the content is never larger than it is at rest and cannot overflow its
+     container. That is also what makes it read as coming forward rather than
+     as a zoom.
 
-  /* Hover: the scene eases in, the veil deepens, the copy lifts a touch --
-     on top of the card's own translateY and border-colour shift. Kept
-     restrained on purpose. */
-  #architecture .arch-node-tag,
-  #architecture .arch-node h3,
-  #architecture .arch-node > p,
-  #architecture .arch-node-points{ transition:transform .3s var(--ease); }
-  #architecture .arch-node:hover .arch-node-scene svg{ transform:scale(1.06); }
-  /* .55 -> .78, not higher: the veil is bottom-weighted, and past about .8 it
-     stops reading as a deepening gradient and starts erasing the drawing it
-     sits on. */
-  #architecture .arch-node:hover .arch-node-veil{ opacity:.78; }
-  #architecture .arch-node:hover .arch-node-tag,
-  #architecture .arch-node:hover h3,
-  #architecture .arch-node:hover > p,
-  #architecture .arch-node:hover .arch-node-points{ transform:translateY(-2px); }
-
+     The JS writes style.transform directly (see the module in the closing
+     script block); the only job here is the origin, and taking will-change
+     off again the moment the section is out of view, so the compositor layer
+     is not held for the whole page. */
+  .arch-stage{ transform-origin:50% 42%; }
+  .arch-stage.is-live{ will-change:transform; }
+  /* The effect is motion and nothing else, so reduced-motion drops it wholly.
+     The module also refuses to start, but this guarantees a neutral transform
+     even if the preference is turned on mid-session. */
   @media (prefers-reduced-motion: reduce){
-    #architecture .arch-node:hover .arch-node-scene svg,
-    #architecture .arch-node:hover .arch-node-tag,
-    #architecture .arch-node:hover h3,
-    #architecture .arch-node:hover > p,
-    #architecture .arch-node:hover .arch-node-points{ transform:none; }
+    .arch-stage{ transform:none !important; will-change:auto !important; }
   }
 
   .flow-chain{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
@@ -6160,29 +6100,43 @@
      BAND + TAG COLOUR SOFTENING
      ========================================================================== */
 
-  /* Both ends of the band ramp come off their extremes. Pure #000 was harsh
-     against the cream cards; this is a warm charcoal that still reads black in
-     context but loses the hard edge. The brand end drops from 100% to 65%
-     saturation and from 64% to 55% lightness -- the same hue (25deg), so it is
-     still unmistakably the site's orange, just no longer neon. */
+  /* ---- THE PLATE --------------------------------------------------------
+     One ground for every full-bleed section on the landing page: Three
+     Layers, Depth where it matters, Case Studies and Eight Sectors. Declared
+     once here so retuning it moves all four together.
+
+     It replaces the dark-to-light ramp these sections used to run
+     (#221207 -> #72401D -> #CF7230 at 165deg). That ramp brightened downward
+     and finished on a lit orange; this one stays dark end to end and lets the
+     orange appear only as a bloom at the top of each section. Same 25deg
+     brand hue in the bloom -- the colour did not change, the amount of it
+     did.
+
+       bloom   rgba(255,148,71,.16) fading out by 60%   -- the brand, as light
+       ground  #17110C -> #0A0806 -> #080605            -- warm near-black
+
+     All four full-bleed sections read it, so retuning it moves the whole
+     landing page at once.
+
+     Contrast improves everywhere by moving to this. White section headings
+     sat at 17.3:1 on the old ramp's flat dark end and had to be held above
+     the 40% mark to stay there; on this ground they are near 19:1 anywhere in
+     the section, so nothing has to be positioned around the gradient. */
   :root{
-    /* Lifted again off pure black: a dark charcoal that keeps the band clearly
-       dark while losing the last of the hard, flat blackness. */
-    --zt-band-black:#24211E;
-    /* One more step down in saturation and lightness (25deg hue held), so the
-       brand end reads as a settled, professional orange rather than a bright
-       one. */
-    --zt-band-brand:#C87941;
+    --zt-plate:
+      radial-gradient(120% 80% at 50% -10%, rgba(255,148,71,.16) 0%, rgba(255,148,71,0) 60%),
+      radial-gradient(100% 100% at 50% 100%, #17110C 0%, #0A0806 70%, #080605 100%);
     /* Tag fill is now the button's own primary, exactly -- see the tag rule. */
     --zt-tag-fill:var(--zt-primary);
   }
 
+  /* Eight Sectors is deliberately NOT in this list. It sits on the page's own
+     light ground, which is what puts a break between Depth where it matters
+     and Case Studies instead of running three dark bands back to back. */
   :root #architecture,
+  :root #carousel-industries,
   :root #case-studies{
-    --zt-bleed:linear-gradient(165deg,
-      var(--zt-band-black) 0%,
-      var(--zt-band-black) 45%,
-      var(--zt-band-brand) 100%);
+    --zt-bleed:var(--zt-plate);
   }
 
   /* --- tag labels: the button's exact primary, white type ------------------
@@ -6787,10 +6741,10 @@
      "DEPTH WHERE IT MATTERS" -- DARK BAND
 
      #carousel-industries joins #architecture and #case-studies on the shared
-     band. Nothing new is introduced: it opts into the same ::before breakout,
-     reads the same --zt-band-black / --zt-band-brand tokens, and takes the
-     same 165deg ramp, so if those tokens are ever retuned all three move
-     together. Content, layout and card geometry are untouched.
+     band. Nothing new is introduced: it opts into the same ::before breakout
+     and takes the same 165deg brand ramp, declared once for all three in BAND
+     + TAG COLOUR SOFTENING above, so if those stops are ever retuned all three
+     move together. Content, layout and card geometry are untouched.
      ========================================================================== */
 
   /* 1. Opt into the full-bleed mechanism. The gradient is painted by a
@@ -6805,28 +6759,21 @@
     background:var(--zt-bleed, transparent);
   }
 
-  /* 2. The same ramp as the other two bands, from the same tokens. Black leads
-        and holds through the first 45% because the white heading and intro sit
-        at the top -- running brand up there would drop that copy to about 2:1. */
-  :root #carousel-industries{
-    --zt-bleed:linear-gradient(165deg,
-      var(--zt-band-black) 0%,
-      var(--zt-band-black) 45%,
-      var(--zt-band-brand) 100%);
-  }
+  /* 2. The ramp itself is no longer restated here. It used to be a third copy
+        of the same four lines, which is exactly how the three bands would
+        drift apart the first time one was retuned and the others missed --
+        this section is now named in the single shared rule instead. */
 
   /* 3. Heading and intro sit on the band itself, not inside a card, so they
         take the same light treatment #architecture and #case-studies use. */
   #carousel-industries .sec-head h2{ color:#FFFFFF; }
   #carousel-industries .sec-head p{ color:rgba(255,255,255,.78); }
 
-  /* 4. Cards follow #architecture rather than #case-studies: both card
-        treatments exist on the band, and these are .auto-card, which already
-        paints var(--zt-card), so keeping the cream ground and taking the copy
-        to black is the match that changes nothing about the card itself.
-        Black on cream measures ~16:1. */
-  #carousel-industries .auto-card h3,
-  #carousel-industries .auto-card p{ color:#000000; }
+  /* 4. Cards follow #architecture, and now literally so: both sections build
+        the same reveal card (see the REVEAL CARDS block), which is dark
+        throughout and carries its own copy colours. The black-on-cream rule
+        that used to sit here belonged to the cream card this section no
+        longer renders. */
 
   /* 5. Arrows take the treatment #case-studies already gives them on this same
         ground -- the only other band that carries slider controls. */
@@ -6925,116 +6872,258 @@
        not shorter. */
   }
 
-
   /* ==========================================================================
      INDUSTRY SOLUTIONS CARDS -- "Depth where it matters"
 
-     Every rule here is scoped to #carousel-industries. .auto-card is shared
-     with the ERP Services and Automation Modules grids and with the Industries
-     page, none of which render .ind-top or .ind-points, and none of which are
-     touched by anything below.
+     This block held the icon + model head, the name/description body and the
+     bordered capability list that made up the old card. All of it went when
+     the section adopted the shared reveal card below, which supplies its own
+     head, panel and point list -- so the rules are removed rather than left
+     to match nothing. .ind-top / .ind-icon / .ind-kind / .ind-points were
+     only ever rendered by this one template; the Industries page builds the
+     same industryModel array with its own markup and is unaffected.
 
-     The card was a heading and a paragraph inside a 3:4 box: about 100px of
-     content in a 442px card, which is what left the top two thirds empty. It
-     now carries a head (icon + delivery model), a body (name + description)
-     and a foot (three capabilities), using the icon language the ERP Services
-     cards already use -- a 48px gradient square with a white stroke glyph --
-     rather than introducing photography that would not match anything else on
-     the site.
-
-     Colours, border, radius, shadow, hover and typography are all inherited
-     from .auto-card exactly as before.
+     Card sizing is untouched and still comes from the portrait pass above
+     (.industry-slider-track .auto-card), which is what the carousel measures
+     its slide step against.
      ========================================================================== */
 
-  /* The portrait pass anchored this card's copy to its foot, which was the
-     right answer when there was nothing above it. With a full head and foot the
-     card reads top-down again, and the capability list does the anchoring. */
-  #carousel-industries .auto-card{
-    justify-content:flex-start;
-    gap:clamp(9px, 1vh, 15px);
-    /* .auto-card carries overflow:hidden purely to clip its 2px hover rail
-       into the rounded corners. On a flex item that also cancels
-       min-height:auto, which would turn the 3:4 ratio into a hard ceiling and
-       clip the new content on narrow cards -- at 390px the copy needs more
-       room than the ratio gives. Overflow goes visible so content always wins,
-       and the rail is clipped by its own radius instead. */
+
+  /* ==========================================================================
+     REVEAL CARDS -- one component, two sections
+
+     Used by "Three layers, one ledger" (#architecture) and "Depth where it
+     matters" (#carousel-industries). Both were asked to look and behave
+     identically, so this is written once and both sections opt in with the
+     .zt-reveal-card marker class. Duplicating it per section would have meant
+     every future tweak had to be made twice and would drift the first time
+     one was missed.
+
+     Shape: the card IS the image. A dark abstract scene fills it, a chip sits
+     in the top corner, and the label + title sit at the foot. The description
+     and its supporting points are COLLAPSED until the card is hovered or
+     focused, then they open while the scene behind them dims and blurs so the
+     copy stays readable.
+
+     The reveal is a 0fr -> 1fr grid row, not a max-height guess: a grid track
+     in fr units interpolates, so the panel animates to the height its content
+     actually needs and nothing has to be measured or hard-coded. The inner
+     wrapper carries overflow:hidden and min-height:0, without which the
+     content refuses to be squeezed below its own min-content height and the
+     panel never closes.
+
+     SCOPING. The :is() prefix pins every rule to those two sections, so the
+     shared .auto-card class -- which also builds the ERP Services grid, the
+     Automation Modules grid and the Industries page -- is untouched anywhere
+     else. It also sets the specificity these rules need: :is() takes the
+     weight of its heaviest argument, so the prefix counts as an id, and the
+     theme blocks above (which paint both cards cream with black copy, correct
+     for the layouts they were written for) are outranked rather than fought
+     with !important. The block sits AFTER those theme blocks for the same
+     reason -- the base card rule ties with them on specificity and wins on
+     order.
+
+     Every rule for an element INSIDE the card names .zt-reveal-card as well,
+     which is why the selectors look longer than they need to. Measured, not
+     assumed: the prefix plus one class is (1,1,0), and the theme rules for
+     the copy are things like `#carousel-industries .auto-card h3` at (1,1,1)
+     -- a type selector is enough to outrank it, and the titles rendered black
+     on a near-black scene. Naming the card lifts these to (1,2,0) and settles
+     it on class count.
+
+     Note what is deliberately NOT here: overflow:hidden on the card. Both
+     cards take their portrait shape from aspect-ratio, and that shape is only
+     a PREFERRED height because they keep min-height:auto. Automatic minimum
+     size applies only while overflow is visible, so clipping the card would
+     turn the 3:4 into a hard ceiling and cut the copy off on narrow screens --
+     the trap already documented on the blog card. The scene layer clips
+     itself instead.
+     ========================================================================== */
+
+  :is(#architecture, #carousel-industries) .zt-reveal-card{
+    position:relative; isolation:isolate;
+    padding:0;
+    background:#0b0b0d;
+    border-color:rgba(255,255,255,.12);
+    /* Inherited colour, not decoration: the theme blocks set black on these
+       cards for the cream layouts they assumed. Anything inside that does not
+       name its own colour would land black on a near-black scene. */
+    color:rgba(255,255,255,.8);
+    display:flex; flex-direction:column; justify-content:flex-end;
+    gap:0;
     overflow:visible;
-    min-height:auto;
   }
-  #carousel-industries .auto-card::before{
-    border-radius:var(--radius) var(--radius) 0 0;
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within{
+    border-color:rgba(255,148,71,.55);
+  }
+  /* Keyboard users get the same reveal as the mouse, so the cards are made
+     focusable in the markup; this is the visible target for that focus. */
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-visible{
+    outline:2px solid var(--zt-orange-light); outline-offset:3px;
+  }
+  /* .auto-card paints a 2px hover rail through ::before. On a card that is now
+     entirely image it read as a stray line across the artwork. */
+  #carousel-industries .zt-reveal-card::before{ display:none; }
+
+  /* ---- the image layer --------------------------------------------------- */
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-visual{
+    position:absolute; inset:0; z-index:0;
+    border-radius:inherit; overflow:hidden;
+    background:#0b0b0d;
+    pointer-events:none;
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-scene{ position:absolute; inset:0; }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-scene svg{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    transform-origin:center 38%;
+    transition:transform .55s var(--ease);
+  }
+  /* Two veils rather than one. The base gradient is always there so the title
+     never sits on bare artwork; the wash fades in on hover to carry the
+     opened copy. Splitting them means the hover state can deepen without the
+     resting card looking murky. */
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-veil{
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(8,8,10,0) 34%, rgba(8,8,10,.88) 100%);
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-wash{
+    position:absolute; inset:0; opacity:0;
+    background:rgba(8,8,10,.42);
+    -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
+    /* Fades from the foot up, so the drawing stays legible at the top of the
+       card while the copy at the bottom gets a solid ground. */
+    -webkit-mask-image:linear-gradient(to top, #000 52%, transparent 100%);
+    mask-image:linear-gradient(to top, #000 52%, transparent 100%);
+    transition:opacity .4s var(--ease);
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-wash,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-wash{ opacity:1; }
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-scene svg,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-scene svg{ transform:scale(1.06); }
+
+  /* ---- the content layer ------------------------------------------------- */
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-body{
+    position:relative; z-index:1;
+    flex:1 1 auto;
+    padding:var(--zt-card-pad-lg);
+    display:flex; flex-direction:column; justify-content:flex-end;
+  }
+  /* The chip is pinned to the top corner rather than sitting in the column,
+     so the opening panel never pushes it around. */
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-chip{
+    position:absolute; left:var(--zt-card-pad-lg); top:var(--zt-card-pad-lg);
+    margin:0; padding:5px 9px; border-radius:var(--r-pill);
+    font-size:10px; letter-spacing:.14em; font-weight:400; line-height:1.3;
+    color:rgba(255,255,255,.86);
+    background:rgba(0,0,0,.42);
+    border:1px solid rgba(255,255,255,.18);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-head{ position:relative; }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-tag{
+    display:block;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    letter-spacing:.08em; text-transform:uppercase;
+    color:rgba(255,255,255,.6); margin-bottom:6px;
+    max-width:calc(100% - 44px);
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-title{
+    color:#fff; font-size:21px; margin:0; max-width:100%;
+    /* Room for the toggle sitting in the same row. */
+    padding-right:44px;
   }
 
-  /* ---- head -------------------------------------------------------------- */
-  #carousel-industries .ind-top{
-    display:flex; align-items:center; gap:clamp(10px, 1vw, 14px);
+  /* The plus that turns into a minus: the only moving part that tells a
+     visitor there is more inside the card before they hover it. */
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-toggle{
+    position:absolute; right:0; bottom:2px;
+    width:30px; height:30px; border-radius:50%;
+    border:1px solid rgba(255,255,255,.26);
+    background:rgba(255,255,255,.08);
+    display:grid; place-items:center;
+    transition:background-color .3s var(--ease), border-color .3s var(--ease);
   }
-  #carousel-industries .ind-icon{
-    flex:0 0 auto;
-    width:clamp(40px, 4.6vh, 52px); height:clamp(40px, 4.6vh, 52px);
-    border-radius:var(--r-sm);
-    background:var(--grad);
-    color:#fff;
-    display:flex; align-items:center; justify-content:center;
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-toggle i{
+    position:absolute; width:11px; height:1.5px; border-radius:2px;
+    background:rgba(255,255,255,.9);
+    transition:transform .35s var(--ease), opacity .3s var(--ease);
   }
-  #carousel-industries .ind-icon svg{ width:54%; height:54%; display:block; }
-  #carousel-industries .ind-kind{
-    /* Floor raised from 9.5px to 11px to match the rest of the mono labels --
-       uppercase at .08em tracking already reads a size smaller than nominal,
-       and below 11px it stopped being legible at arm's length. */
-    font-size:clamp(11px, 0.72vw, 11.5px);
-    letter-spacing:.08em;
-    color:var(--zt-orange-deep);
-    line-height:1.3;
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-toggle i:last-child{ transform:rotate(90deg); }
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-toggle,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-toggle{
+    background:var(--zt-orange); border-color:transparent;
   }
-
-  /* ---- body -------------------------------------------------------------- */
-  /* .auto-card h3 reserves 60px on the right for the number badge that the
-     grid version carries. This card has no badge, so the reservation only
-     forced early wrapping. */
-  #carousel-industries .auto-card h3{ max-width:100%; margin-bottom:0; }
-  #carousel-industries .auto-card p{ margin:0; }
-
-  /* Two auto margins rather than one. A single auto margin on the foot pushed
-     every spare pixel into the gap above the capability list, which just moved
-     the hole from the top of the card to its middle. Splitting it between the
-     head and the foot distributes the same slack evenly, so the card reads as
-     three deliberate zones -- icon and model at the top, name and description
-     in the middle, capabilities on the bottom edge. */
-  #carousel-industries .auto-card h3{ margin-top:auto; }
-
-  /* ---- foot -------------------------------------------------------------- */
-  /* margin-top:auto is what balances the card: head at the top, body under it,
-     capabilities pinned to the bottom edge, and the slack distributed between
-     rather than collected in one block. */
-  #carousel-industries .ind-points{
-    margin-top:auto;
-    padding-top:clamp(8px, 1vh, 14px);
-    display:flex; flex-direction:column;
-    gap:clamp(6px, 0.7vh, 10px);
-    border-top:1px solid var(--zt-line);
-  }
-  #carousel-industries .ind-points li{
-    display:flex; align-items:flex-start; gap:9px;
-    font-size:clamp(12px, 0.92vw, 13.5px);
-    line-height:1.4;
-    color:#000000;
-  }
-  #carousel-industries .ind-points svg{
-    flex:0 0 auto;
-    width:14px; height:14px; margin-top:2px;
-    color:var(--zt-primary);
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-toggle i,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-toggle i{ background:#0b0b0d; }
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-toggle i:last-child,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-toggle i:last-child{
+    transform:rotate(180deg); opacity:0;
   }
 
-  /* ---- responsive --------------------------------------------------------
-     Everything above is already viewport-relative. The one place that needs a
-     hand is the narrowest card: at 390px the description and three
-     capabilities genuinely need more than a 3:4 box, and since content wins
-     over the ratio the card simply grows -- the track equalises the rest to
-     match, so the row stays level. */
-  @media (max-width:720px){
-    #carousel-industries .ind-points{ gap:6px; }
-    #carousel-industries .auto-card{ gap:9px; }
+  /* ---- the panel that opens ---------------------------------------------- */
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel{
+    display:grid; grid-template-rows:0fr;
+    transition:grid-template-rows .42s var(--ease);
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-panel,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-panel{ grid-template-rows:1fr; }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel-inner{
+    overflow:hidden; min-height:0;
+    opacity:0; transform:translateY(6px);
+    transition:opacity .3s var(--ease), transform .38s var(--ease);
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-panel-inner,
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-panel-inner{
+    opacity:1; transform:none;
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-desc{
+    color:rgba(255,255,255,.76); font-size:14px; line-height:1.6;
+    margin:12px 0 0; flex-grow:0; max-width:100%;
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-points{
+    display:grid; gap:6px; margin:11px 0 0; padding:0;
+    border:0; list-style:none;
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-points li{
+    display:block;
+    font-size:12.5px; line-height:1.45;
+    color:rgba(255,255,255,.62);
+    padding-left:16px; position:relative;
+  }
+  :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-points li::before{
+    content:''; position:absolute; left:0; top:6px;
+    width:5px; height:5px; border-radius:50%; background:var(--zt-orange);
+  }
+
+  /* Touch devices have no hover, so there is nothing to reveal with -- the
+     panel is simply open, and the toggle (which would be a lie there) is
+     dropped. Same content either way; only the way it is reached differs. */
+  @media (hover: none){
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel{ grid-template-rows:1fr; }
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel-inner{ opacity:1; transform:none; }
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-wash{ opacity:1; }
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-toggle{ display:none; }
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-title{ padding-right:0; }
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-tag{ max-width:100%; }
+    /* With the panel permanently open the copy filled the whole card and the
+       scene was reduced to a blurred smear behind it -- the picture stopped
+       doing any work. Reserving a band above the copy gives it back. The
+       card grows to fit (min-height:auto), so this adds height rather than
+       squeezing anything; the value is a percentage of the card's own width,
+       which keeps the band proportional across phone sizes. */
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-body{ padding-top:56%; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-scene svg,
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel,
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel-inner,
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-wash,
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-toggle,
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-toggle i{ transition:none; }
+    :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-scene svg,
+    :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-scene svg{ transform:none; }
   }
 
 
@@ -7044,57 +7133,568 @@
      Every rule here is scoped to #carousel-deployed. .industry-card is shared
      with the Results by Industry grid on Client Outcomes, and the caseStudies
      array behind it also feeds the Case Studies slider further down this page;
-     neither renders .dep-top or .dep-points, and neither is touched.
+     neither renders .dep-visual or .dep-points, and neither is touched.
 
-     The empty top came from the portrait pass: with only a category label, a
-     title and a paragraph, the card anchored its copy to the foot and left the
-     label stranded at the top with a gap beneath it. The card now has a real
-     head, so that anchor comes off and the order reads
-     icon -> sector -> deployment -> problem -> modules -> outcome.
+     The card opens with a dark visual and puts everything else underneath it,
+     so the order reads
+     picture -> sector -> deployment -> problem -> modules -> outcome.
 
-     Colours, border, radius, shadow, hover and typography all stay inherited
-     from .industry-card.
+     The console treatment this section briefly carried -- dark plate, node
+     mesh, live status readout, dark glass node cards, scanning sweep -- has
+     been taken back out in full. The section is on the page's own light
+     ground again, so the heading, intro and slider arrows all inherit their
+     normal colours and nothing here overrides them.
+
+     The card is cream, inheriting its colours, border, radius, shadow, hover
+     and typography from .industry-card. The one dark thing left in the
+     section is the visual at the top of each card, which is the point.
      ========================================================================== */
 
+  /* ---- the section's own layout -----------------------------------------
+     Every other section on this page is stacked the same way: heading
+     centred-left above, content full width below. That sameness was the
+     complaint, and it is a layout problem, not a card problem -- so this
+     section stops stacking.
+
+     From 1000px up it becomes two columns. The heading and the arrows hold a
+     narrow left rail; the carousel takes the rest and runs OFF the right edge
+     of the viewport instead of stopping at the container. The heading now
+     sits beside the cards it describes rather than floating above them, and
+     the track reads as continuing past the screen, which is what a carousel
+     actually does.
+
+     The right bleed is `margin-right: calc(50% - 50vw)` -- the standard way to
+     escape a max-width container. It cannot produce a horizontal scrollbar:
+     .carousel-viewport already carries overflow:hidden, so the track is
+     clipped at the viewport edge, and body carries overflow-x:clip besides.
+
+     Below 1000px it falls back to the stacked layout, because a 260px rail
+     plus a card leaves neither enough room. */
+  @media (min-width:1000px){
+    #carousel-deployed > section{
+      display:grid;
+      /* The rail's ceiling tracks the viewport rather than sitting at a flat
+         460px: fixed, it took 44% of a 1024 screen and left barely two cards
+         beside it. min() keeps it generous on a wide screen and proportionate
+         on a narrow one -- ~463px at 1440, ~338px at 1024. */
+      grid-template-columns:minmax(320px, min(33vw, 470px)) 1fr;
+      column-gap:clamp(32px, 4vw, 72px);
+      /* stretch so the rail card stands the same height as the eight beside
+         it, with its own margin-top:auto dropping the arrows onto its bottom
+         edge. align-content:start is the necessary partner: this <section> is
+         a full-screen block, so without it the single grid row expands to the
+         whole screen and stretch then pulls the rail 100px past the cards it
+         is supposed to match. Pinning the row to its content makes the row
+         exactly the track's height, which is what the rail should equal. */
+      align-items:stretch;
+      align-content:start;
+    }
+    #carousel-deployed .carousel-viewport{
+      margin-right:calc(50% - 50vw);
+      /* The cards are shorter than the rail now, so they sit centred against
+         it rather than hanging from its top edge -- equal air above and
+         below, with the rail's heading reading across the middle of them. */
+      align-self:center;
+    }
+    /* The shared track padding is 4px top / 12px bottom -- room for the hover
+       lift and shadow, which only need it at the foot. Centring exposes that
+       asymmetry as an 8px lean, so the top is matched to the bottom here. */
+    #carousel-deployed .deployed-slider-track{
+      padding-top:12px;
+    }
+  }
+
+  /* ---- the rail, as a card ----------------------------------------------
+     The heading is a member of the set now, not a caption above it: same
+     10px radius, same hairline, same absence of fill and shadow as the eight
+     cards beside it. The arrows live inside it, so the rail reads as one
+     object -- title, intro, controls -- instead of three loose pieces.
+
+     Below 1000px it flattens back to plain type: a bordered box wrapped
+     around a heading that spans the full width reads as a stray panel, not as
+     a card in a row. */
+  #carousel-deployed .dep-rail .sec-head{
+    margin-bottom:0; text-align:left; max-width:none;
+  }
+  /* Below the two-column breakpoint the rail is not a card, and grouping the
+     arrows with the heading would put the controls BEFORE the thing they
+     control. display:contents dissolves the wrapper so its two children
+     become direct children of the stacked section again, and order:1 drops
+     the arrows below the carousel where they were. */
+  @media (max-width:999.98px){
+    #carousel-deployed .dep-rail{ display:contents; }
+    #carousel-deployed .dep-rail .sec-head{ margin-bottom:clamp(22px,3vw,32px); }
+    #carousel-deployed .dep-rail .slider-nav{ order:1; justify-content:flex-end; }
+  }
+  #carousel-deployed .dep-rail .slider-nav{
+    justify-content:flex-start;
+    margin-top:clamp(22px, 2.6vw, 34px);
+  }
+  @media (min-width:1000px){
+    #carousel-deployed .dep-rail{
+      display:flex; flex-direction:column;
+      /* Pulled out past the container's left padding, so the rail sits nearer
+         the edge of the screen -- the mirror of the carousel bleeding off the
+         right. Kept to a fraction of the gutter rather than a full bleed: the
+         card still needs an edge to sit against. */
+      margin-left:calc(-1 * clamp(8px, 2.2vw, 34px));
+      padding:clamp(24px, 2vw, 34px);
+      /* The rail is what sets the row's height now. It used to inherit it
+         from the track, which meant shrinking the cards shrank the rail with
+         them; pinning it here keeps the rail the size it is while the cards
+         come down, and that difference is exactly the space they centre in. */
+      min-height:clamp(460px, 66vh, 620px);
+      border:1px solid rgba(38,23,11,.14);
+      border-radius:10px;
+      background:transparent;
+      /* The two ambient layers below are painted inside the card, so it has to
+         clip them to its own rounded corners and hold its own stacking
+         context. Safe to clip here: the rail's height is set by min-height,
+         not by content, so nothing is at risk of being cut off. */
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    /* Everything real sits above the ambient layers. */
+    #carousel-deployed .dep-rail > *{ position:relative; z-index:1; }
+
+    /* Layer 1 -- a faint engineering grid, the same device the eight card
+       scenes are drawn on, so the rail shares their surface. Static: it is the
+       ground the scan moves over, and animating it too would be noise. Masked
+       from the top so it fades out before the arrows. */
+    #carousel-deployed .dep-rail::before{
+      content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+      background-image:
+        linear-gradient(to right, rgba(38,23,11,.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(38,23,11,.05) 1px, transparent 1px);
+      background-size:46px 46px;
+      -webkit-mask-image:radial-gradient(125% 95% at 50% 0%, #000 15%, transparent 82%);
+      mask-image:radial-gradient(125% 95% at 50% 0%, #000 15%, transparent 82%);
+    }
+
+    /* Layer 2 -- the scan. A soft brand-coloured band that travels the whole
+       card, top edge to bottom edge, once every 6.5s.
+
+       Built as a full-height element carrying the band in its middle third and
+       moved with translateY from -100% to 100%, rather than as a short strip
+       whose `top` is animated. Percentage translateY resolves against the
+       element's OWN height, so a full-height element travels exactly one card
+       height in each direction -- and transform is composited, so the sweep
+       costs no layout or paint per frame. Animating `top` or
+       `background-position` instead would repaint the card every frame. */
+    #carousel-deployed .dep-rail::after{
+      content:''; position:absolute; left:0; right:0; top:0; height:100%;
+      z-index:0; pointer-events:none;
+      background:linear-gradient(180deg,
+        rgba(255,148,71,0) 38%,
+        rgba(255,148,71,.10) 46%,
+        rgba(255,148,71,.18) 50%,
+        rgba(255,148,71,.10) 54%,
+        rgba(255,148,71,0) 62%);
+      animation:dep-scan 6.5s linear infinite;
+    }
+    /* Heading at the top, controls at the foot, and the sector index filling
+       what is between them. An earlier pass centred the whole block instead,
+       because with only a heading and two buttons the rail had a hole in its
+       middle -- the index is the better answer to that hole than moving
+       everything into it. */
+    #carousel-deployed .dep-rail{ justify-content:flex-start; }
+    #carousel-deployed .dep-rail .slider-nav{
+      margin-top:auto;
+      padding-top:clamp(20px, 2.2vw, 30px);
+      border-top:1px solid rgba(38,23,11,.12);
+    }
+
+    /* The global .sec-head is sized for a 720px block: its h2 resolves to 50px
+       at 1440 and its paragraph caps at 60ch. Dropped into a ~350px rail that
+       heading broke into five short lines and the intro ran to the edge on
+       every one. These are the same styles brought down to the column they
+       actually sit in -- nothing about the type family, weight or colour
+       changes, only the size and the measure. */
+    /* The rail is a wider column now, so the heading can carry more weight
+       without breaking into short lines. */
+    #carousel-deployed .dep-rail .sec-head h2{
+      font-size:clamp(32px, 3vw, 46px);
+      line-height:1.08;
+    }
+    #carousel-deployed .dep-rail .sec-head p{
+      font-size:15px;
+      line-height:1.62;
+      margin-top:14px;
+      max-width:none;
+    }
+
+    /* Chips that wrap, not a two-column grid. The grid gave every name a
+       fixed column, and the names are short and very uneven -- "Retail" next
+       to "Construction" -- so each row carried a block of dead space and the
+       eight of them read as loosely scattered rather than as a set. A wrapping
+       flex row sizes each chip to its own word, so the spacing between them is
+       one consistent 7px and the group reads as one dense object.
+
+       The treatment is the mono/uppercase tag language the cards already use
+       for their sector labels, at hairline weight -- a capability list rather
+       than a bulleted list. */
+    #carousel-deployed .dep-sectors{
+      display:flex;
+      flex-wrap:wrap;
+      gap:7px;
+      margin:clamp(22px, 2.6vw, 34px) 0 0;
+      padding:0;
+      list-style:none;
+    }
+    #carousel-deployed .dep-sectors li{
+      display:inline-flex; align-items:center; gap:7px;
+      font-family:'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size:10.5px; letter-spacing:.07em; text-transform:uppercase;
+      line-height:1.3;
+      color:var(--zt-ink-soft);
+      padding:5px 10px;
+      border:1px solid rgba(38,23,11,.16);
+      border-radius:var(--r-pill);
+      transition:color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+    }
+    #carousel-deployed .dep-sectors li::before{
+      content:''; flex:none;
+      width:4px; height:4px; border-radius:50%;
+      background:var(--zt-orange);
+    }
+    #carousel-deployed .dep-sectors li:hover{
+      color:var(--zt-ink);
+      border-color:rgba(255,148,71,.55);
+    }
+
+    /* The 3D scene takes whatever height the rail has left -- exactly the
+       empty middle it was added to fill. basis 0 so it fills rather than
+       pushes; the floor stops it collapsing on a short viewport. */
+    #carousel-deployed .dep-engine{
+      flex:1 1 0;
+      min-height:clamp(154px, 20vh, 250px);
+      margin:clamp(16px, 1.8vw, 26px) 0 clamp(14px, 1.6vw, 22px);
+      display:flex; align-items:center; justify-content:center;
+      min-width:0;
+    }
+
+    /* The camera. Everything below lives in its space. */
+    #carousel-deployed .de3d{
+      width:100%; height:100%;
+      display:grid; place-items:center;
+      perspective:640px;
+      perspective-origin:50% 42%;
+    }
+    /* The tilt. Held here rather than on the plane so the plane is free to
+       spin on Z without the tilt having to be restated in every keyframe. */
+    #carousel-deployed .de3d-stage{
+      position:relative;
+      width:min(292px, 74%);
+      aspect-ratio:1;
+      transform-style:preserve-3d;
+      transform:rotateX(64deg);
+    }
+    /* The platform itself, turning once every 30s -- slow enough to read as a
+       system idling rather than as something spinning. */
+    #carousel-deployed .de3d-plane{
+      position:absolute; inset:0;
+      transform-style:preserve-3d;
+      animation:de3d-spin 30s linear infinite;
+    }
+    #carousel-deployed .de3d-grid{
+      position:absolute; inset:0;
+      background-image:
+        linear-gradient(to right, rgba(255,148,71,.3) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,148,71,.3) 1px, transparent 1px);
+      background-size:calc(100% / 6) calc(100% / 6);
+      -webkit-mask-image:radial-gradient(circle at 50% 50%, #000 38%, transparent 78%);
+      mask-image:radial-gradient(circle at 50% 50%, #000 38%, transparent 78%);
+    }
+    /* Rings pushing out from the centre: the platform reading as active. Three
+       of them on one 4.8s cycle, offset by --d so one is always mid-travel. */
+    #carousel-deployed .de3d-ring{
+      position:absolute; inset:0;
+      border:1px solid rgba(255,148,71,.5);
+      border-radius:50%;
+      animation:de3d-ring 4.8s linear infinite;
+      animation-delay:var(--d, 0s);
+    }
+    /* The eight pads, laid ON the platform -- flat, because that is what they
+       would be. Each sits at its own angle on the ring and turns with it. */
+    #carousel-deployed .de3d-pads{ position:absolute; inset:0; transform-style:preserve-3d; }
+    #carousel-deployed .de3d-pads i{
+      position:absolute; left:50%; top:50%;
+      width:13px; height:13px; margin:-6.5px 0 0 -6.5px;
+      border-radius:3px;
+      background:var(--zt-orange);
+      box-shadow:0 0 10px rgba(255,148,71,.55);
+      transform:rotate(var(--a)) translateX(108px);
+      animation:de3d-pad 3.4s var(--ease-in-out) infinite;
+      animation-delay:calc(var(--i, 0) * -0.42s);
+    }
+    /* The core's contact shadow, on the plane rather than on the core, which
+       is what sells the gap between them. */
+    #carousel-deployed .de3d-shadow{
+      position:absolute; left:50%; top:50%;
+      width:98px; height:98px; margin:-49px 0 0 -49px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(38,23,11,.22) 0%, rgba(38,23,11,0) 70%);
+    }
+    /* The engine: lifted 54px off the platform and turned back to face the
+       camera, so it stands upright above a plane that is lying down. */
+    #carousel-deployed .de3d-core{
+      position:absolute; left:50%; top:50%;
+      width:88px; height:60px; margin:-30px 0 0 -44px;
+      border-radius:15px;
+      background:linear-gradient(150deg, #FF9447 0%, rgba(255,148,71,.55) 100%);
+      box-shadow:0 12px 26px -10px rgba(255,148,71,.7);
+      transform:translateZ(54px) rotateX(-64deg);
+      display:flex; flex-direction:column; justify-content:center; gap:6px;
+      padding:0 16px;
+      animation:de3d-float 5.2s var(--ease-in-out) infinite;
+    }
+    #carousel-deployed .de3d-core b{
+      display:block; height:2.5px; border-radius:2px;
+      background:rgba(255,255,255,.9);
+    }
+    #carousel-deployed .de3d-core b:last-child{ width:55%; }
+  }
+
+  @keyframes dep-scan{
+    0%{ transform:translateY(-100%); }
+    100%{ transform:translateY(100%); }
+  }
+  @keyframes de3d-spin{ to{ transform:rotateZ(360deg); } }
+  @keyframes de3d-ring{
+    0%{   transform:scale(.18); opacity:0; }
+    18%{  opacity:.85; }
+    100%{ transform:scale(1);   opacity:0; }
+  }
+  @keyframes de3d-pad{
+    0%,100%{ opacity:.55; }
+    50%{ opacity:1; }
+  }
+  @keyframes de3d-float{
+    0%,100%{ transform:translateZ(48px) rotateX(-64deg); }
+    50%{     transform:translateZ(64px) rotateX(-64deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    /* The scene keeps its depth and loses its motion: the platform stops
+       turning, the core stops floating, the pads hold full opacity. The rings
+       go entirely -- frozen mid-expansion they are three stray circles. */
+    #carousel-deployed .de3d-plane,
+    #carousel-deployed .de3d-pads i,
+    #carousel-deployed .de3d-core,
+    #carousel-deployed .dep-rail::after{ animation:none; }
+    #carousel-deployed .de3d-pads i{ opacity:1; }
+    #carousel-deployed .de3d-ring{ display:none; }
+    #carousel-deployed .de3d-core{ transform:translateZ(54px) rotateX(-64deg); }
+    /* The scan is motion and nothing else, so it goes entirely rather than
+       parking a stray band across the middle of the card. */
+    #carousel-deployed .dep-rail::after{ display:none; }
+  }
+  /* Below the two-column layout there is no rail to fill. */
+  @media (max-width:999.98px){
+    #carousel-deployed .dep-engine{ display:none; }
+  }
+
+  /* Below the two-column breakpoint the rail is not a card and the cards
+     themselves are the list -- naming the eight sectors above them would be
+     the same eight words twice on one screen. */
+  @media (max-width:999.98px){
+    #carousel-deployed .dep-sectors{ display:none; }
+  }
+
+  /* ---- card size ---------------------------------------------------------
+     Bigger, as asked. The track is no longer sharing the full container width
+     with nothing else, so a wider card costs less than it used to -- and the
+     right bleed means the row still shows a card running off the edge rather
+     than ending short. The carousel measures the card at runtime
+     (first.getBoundingClientRect().width + gap), so the slide step follows
+     these numbers with no change to the JS. */
+  /* Exactly two cards across the viewport, so the section shows a pair, slides,
+     and shows the next pair. The width is derived from the track rather than
+     set in px or vw: half of it, less half the gap between them. Sized any
+     other way the pair only lines up at one screen width and drifts at every
+     other, leaving a sliver of a third card at the edge.
+
+     The carousel module reads this width at runtime and multiplies it by the
+     section's `advance` (2), so the step always matches whatever this
+     resolves to -- see the SECTIONS table in the closing script. */
+  .deployed-slider-track .industry-card{
+    flex:0 0 calc(50% - (var(--sp-gap, 23px) / 2));
+  }
+  /* Below the two-column layout the rail is gone and the track has the full
+     width, where two cards would each be too narrow to read. One card fills
+     the screen with the next just showing, and the module steps by one --
+     `advance` multiplies whatever width resolves here, so the pair logic
+     simply stops applying rather than needing to be switched off. */
+  @media (max-width:999.98px){
+    .deployed-slider-track .industry-card{ flex:0 0 clamp(268px, 78vw, 360px); }
+  }
+
+  /* ---- the card, rebuilt -------------------------------------------------
+     Three earlier passes changed this card's SURFACE -- radius, fill, shadow,
+     an asymmetric outline, hairlines -- and every one of them was reported as
+     "no change". They were right: the eye reads arrangement before surface,
+     and the arrangement never moved. Picture on top, words underneath, same
+     as the blog card, the case-study card and the reveal cards.
+
+     So the arrangement is what changed here. The card is inverted:
+
+       index row (sector + numeral)   <- the head is now type, not a picture
+       title
+       problem
+       modules
+       outcome
+       picture                        <- the foot, full-bleed to the corners
+
+     Nothing else on the site puts its image at the bottom, which is the whole
+     point -- the row is identifiable at a glance without reading it.
+
+     The flat outlined surface from the previous pass is kept (10px radius, no
+     fill, 1px hairline, no shadow) because it suits a type-led card better
+     than the soft cream one did, but it is no longer doing the work on its
+     own.
+
+     Colours, type, spacing, content and the eight scenes are untouched. */
   #carousel-deployed .industry-card{
     justify-content:flex-start;
     /* .industry-card takes overflow:hidden from the shared surface rule, and on
        a flex item that cancels min-height:auto -- which would make the 3:4
-       ratio a ceiling and clip the added content on narrow cards. It has no
-       pseudo-element to clip (unlike .auto-card's hover rail), so visible
-       costs nothing here. */
+       ratio a ceiling and clip the content on narrow cards. */
     overflow:visible;
     min-height:auto;
+    border-radius:10px;
+    background:transparent;
+    border:1px solid rgba(38,23,11,.14);
+    box-shadow:none;
+  }
+  #carousel-deployed .industry-card:hover{
+    border-color:rgba(255,148,71,.55);
+    box-shadow:0 18px 34px -22px rgba(38,23,11,.4);
+    background:rgba(255,255,255,.5);
   }
 
-  /* ---- head -------------------------------------------------------------- */
-  #carousel-deployed .dep-top{
-    display:flex; align-items:center; gap:clamp(9px, 0.9vw, 13px);
+  /* ---- the head: sector and index ---------------------------------------
+     A numeral, not a picture. It sits opposite the sector label on a hairline
+     rule, which is what gives the top of the card a structure now that the
+     image has moved away from it. */
+  #carousel-deployed .dep-index{
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap:12px;
+    padding-bottom:12px;
+    border-bottom:1px solid rgba(38,23,11,.12);
   }
-  #carousel-deployed .dep-icon{
+  #carousel-deployed .industry-cat{ line-height:1.3; display:block; }
+  #carousel-deployed .dep-num{
+    font-size:clamp(26px, 2.4vw, 34px);
+    line-height:1;
+    font-weight:500;
+    color:rgba(38,23,11,.16);
+    letter-spacing:-0.02em;
+    flex:none;
+    transition:color .22s var(--ease);
+  }
+  #carousel-deployed .industry-card:hover .dep-num{ color:rgba(255,148,71,.75); }
+
+  #carousel-deployed .industry-card > h3{ margin-top:12px; }
+
+  /* ---- modules + outcome -------------------------------------------------
+     The auto margin is back, now that the picture no longer absorbs the spare
+     height. The track stretches every card to the tallest, so the leftover
+     differs per card; this pins the modules and the result badge to the foot
+     and collects that difference once, above them, instead of letting it
+     trail off the bottom of the shorter cards. */
+  #carousel-deployed .dep-points{
+    margin-top:auto;
+    padding-top:clamp(7px, 0.9vh, 12px);
+    display:flex; flex-direction:column;
+    gap:clamp(5px, 0.6vh, 8px);
+    border-top:1px solid rgba(38,23,11,.12);
+  }
+  #carousel-deployed .dep-points li{
+    display:flex; align-items:flex-start; gap:8px;
+    font-size:clamp(11.5px, 0.86vw, 12.5px);
+    line-height:1.4;
+    color:var(--zt-ink);
+  }
+  #carousel-deployed .dep-points svg{
     flex:0 0 auto;
-    width:clamp(36px, 4.2vh, 48px); height:clamp(36px, 4.2vh, 48px);
-    border-radius:var(--r-sm);
-    background:var(--grad);
-    color:#fff;
-    display:flex; align-items:center; justify-content:center;
+    width:13px; height:13px; margin-top:2px;
+    color:var(--zt-primary);
   }
-  #carousel-deployed .dep-icon svg{ width:54%; height:54%; display:block; }
 
-  /* The label was a block on its own line; beside the icon it needs to stop
-     stretching and sit on the icon's centre line. */
-  #carousel-deployed .industry-cat{ line-height:1.3; }
+  /* Stagger. Alternating baselines so the row has a rhythm instead of reading
+     as eight identical tiles in a line.
 
-  /* ---- body + foot -------------------------------------------------------
-     Two auto margins split the spare height evenly instead of letting it
-     collect in one gap -- the same balance the Industry Solutions cards use.
-     They sit on the heading and on the module list, which keeps the two pairs
-     together: title with its description, modules with their result badge.
-     (Putting the first one on the paragraph instead stranded it between two
-     55px gaps with its own heading floated away above it.)
+     Done with `top` on a relatively positioned card, NOT a transform: the
+     scroll reveal, the shared hover lift and the scene zoom already own this
+     element's transform, and a fourth would have to re-declare all of them at
+     every combination or silently cancel them. `top` leaves layout, the
+     reveal and the hover lift completely alone, so the carousel still
+     measures and steps by the same card width.
 
-     The heading's margin-top:auto is inherited from the portrait pass and is
-     doing the right job here, so it is deliberately left alone. */
+     Dropped on phones, where the track is one card wide and a lone offset
+     card looks misplaced rather than rhythmic. */
+  @media (min-width:721px){
+    #carousel-deployed .industry-card:nth-child(even){ position:relative; top:18px; }
+  }
+
+  /* ---- the picture, now the foot ----------------------------------------
+     Pulled out to the card's edges with negative side margins matched to
+     .industry-card's 20px padding, and flush to the bottom, so it fills the
+     corner rather than floating above it. Its bottom radius is the card's
+     minus the 1px border. */
+  #carousel-deployed .dep-visual{
+    position:relative;
+    margin:-22px -20px 16px;
+    background:#0b0b0d;
+    border-radius:9px 9px 0 0;
+    border-bottom:1px solid rgba(38,23,11,.14);
+    overflow:hidden;
+    /* A fixed ratio, identical on all eight. It used to carry flex-grow so it
+       could absorb the card's spare height -- but the copy is a different
+       length on every card, so each picture absorbed a different amount and
+       the bands came out between 151px and 171px. Side by side that reads as
+       cards of different heights even though the boxes were all 470px. One
+       ratio makes every band the same. */
+    aspect-ratio:16 / 9;
+    flex:0 0 auto;
+  }
+  #carousel-deployed .dep-scene{ position:absolute; inset:0; }
+  #carousel-deployed .dep-scene svg{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    transition:transform .5s var(--ease);
+  }
+  /* Settles the drawing into the cream body rather than ending it on a hard
+     edge -- the same device the reveal cards use, at half the strength since
+     nothing sits on top of this one. */
+  #carousel-deployed .dep-veil{
+    position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(8,8,10,0) 55%, rgba(8,8,10,.55) 100%);
+  }
+  /* .industry-card already lifts on hover; the scene eases with it so the
+     picture feels attached to the card rather than painted behind it. */
+  #carousel-deployed .industry-card:hover .dep-scene svg{ transform:scale(1.05); }
+  @media (prefers-reduced-motion: reduce){
+    #carousel-deployed .dep-scene svg{ transition:none; }
+    #carousel-deployed .industry-card:hover .dep-scene svg{ transform:none; }
+  }
+
+  /* The label used to sit beside an icon on the card's centre line. It is on
+     its own line under the visual, where it leads the copy. */
+  #carousel-deployed .industry-cat{ line-height:1.3; display:block; }
+
+  /* The portrait pass gave this heading margin-top:auto, to hold the category
+     label at the card's top edge while the title, copy and badge grouped at
+     the foot. The visual now holds the top, so that auto margin would open a
+     gap between the label and the title it belongs to. Cleared here; the
+     spare height collects above .dep-points instead, which keeps the modules
+     and result badge on the bottom edge where they were. */
+  #carousel-deployed .industry-card > h3{ margin-top:0; }
+
+  /* ---- modules + outcome -------------------------------------------------
+     margin-top:auto on the module list is what balances the card: visual and
+     copy at the top, modules and the result badge pinned to the bottom edge,
+     and the spare height collected once in between rather than spread into
+     every gap. */
   #carousel-deployed .dep-points{
     margin-top:auto;
     padding-top:clamp(7px, 0.9vh, 12px);
@@ -7121,6 +7721,7 @@
   @media (max-width:720px){
     #carousel-deployed .dep-points{ gap:5px; }
   }
+
 
 
   /* ==========================================================================
@@ -7509,7 +8110,11 @@
          copying the Two Solutions split-card layout used further down —
          same "how the parts relate" job, different, purpose-built shape. -->
     <div class="wrap" id="architecture">
-      <section>
+      <!-- .arch-stage is the element the scroll-linked depth transforms. It is
+           the <section> the content already sat in -- no new wrapper, no
+           change to the box it forms -- so the layout, spacing and card
+           geometry below are byte-for-byte what they were. -->
+      <section class="arch-stage">
         <div class="sec-head reveal">
           <h2>Three layers, one <span class="text-grad">ledger</span></h2>
           <p>Follow the flow left to right: every layer posts into the same source of truth, which is why an automation and a person recording the same thing produce the same entry.</p>
@@ -7529,16 +8134,37 @@
                  its satellites, an event-to-action flow), so it scales to 4K
                  and costs no extra request. The chip row it replaced said the
                  same thing the points already say. -->
-            <article class="arch-node" v-for="(l,i) in platformLayers" :key="l.name" :style="{'--d': (i*100)+'ms'}">
-              <div class="arch-node-visual">
-                <span class="arch-node-scene" v-html="l.scene" aria-hidden="true"></span>
-                <span class="arch-node-veil" aria-hidden="true"></span>
-                <span class="arch-node-num mono">Layer {{ String(i+1).padStart(2,'0') }}</span>
+            <!-- The card is the image. The layer chip and the title are always
+                 visible; the description and its points live in a panel that
+                 opens on hover or keyboard focus, which is why the card is
+                 focusable. tabindex is the whole cost of that: the card is not
+                 a link or a control, so there is nothing to activate, only
+                 content to expose -- and leaving it out would hide the copy
+                 from anyone not using a mouse. Touch devices get the panel
+                 open by default (see the hover:none block in the stylesheet).
+                 aria-hidden on the toggle keeps a purely decorative +/- out of
+                 the accessibility tree, where the content it hints at is
+                 already present and readable. -->
+            <article class="arch-node zt-reveal-card" v-for="(l,i) in platformLayers" :key="l.name" :style="{'--d': (i*100)+'ms'}" tabindex="0">
+              <div class="zt-rc-visual" aria-hidden="true">
+                <span class="zt-rc-scene" v-html="l.scene"></span>
+                <span class="zt-rc-veil"></span>
+                <span class="zt-rc-wash"></span>
               </div>
-              <span class="arch-node-tag">{{ l.tag }}</span>
-              <h3>{{ l.name }}</h3>
-              <p>{{ l.desc }}</p>
-              <ul class="arch-node-points" v-if="l.points"><li v-for="pt in l.points" :key="pt">{{ pt }}</li></ul>
+              <div class="zt-rc-body">
+                <span class="zt-rc-chip mono">Layer {{ String(i+1).padStart(2,'0') }}</span>
+                <div class="zt-rc-head">
+                  <span class="zt-rc-tag">{{ l.tag }}</span>
+                  <h3 class="zt-rc-title">{{ l.name }}</h3>
+                  <span class="zt-rc-toggle" aria-hidden="true"><i></i><i></i></span>
+                </div>
+                <div class="zt-rc-panel">
+                  <div class="zt-rc-panel-inner">
+                    <p class="zt-rc-desc">{{ l.desc }}</p>
+                    <ul class="zt-rc-points" v-if="l.points"><li v-for="pt in l.points" :key="pt">{{ pt }}</li></ul>
+                  </div>
+                </div>
+              </div>
             </article>
           </div>
         </div>
@@ -7605,25 +8231,37 @@
             class="slider-track industry-slider-track carousel-track"
             ref="industryTrack"
           >
-            <!-- The card used to be a heading and a paragraph, which left the
-                 top two thirds of a 3:4 card empty. It now runs top / middle /
-                 bottom: the icon and model label anchor the head, the name and
-                 description sit in the middle, and the capability list is
-                 pushed to the foot by margin-top:auto. The Industries page
-                 renders this same array from its own template and is untouched. -->
-            <article class="auto-card reveal" v-for="(m,i) in industryModel" :key="m.name" :style="{'--d': (i*70)+'ms'}" style="cursor:default;">
-              <div class="ind-top">
-                <span class="ind-icon" v-html="m.icon" aria-hidden="true"></span>
-                <span class="ind-kind mono">{{ m.kind }}</span>
+            <!-- Same reveal card as "Three layers, one ledger" -- see the
+                 REVEAL CARDS block in the stylesheet, which both sections
+                 share. The card is the image: the sector chip and the name
+                 are always visible, and the description and capabilities open
+                 on hover or keyboard focus, which is why the card is
+                 focusable. The delivery model that used to sit beside an icon
+                 is now the label above the name, and the icon itself is gone
+                 -- the scene behind the card does that job, and a 48px
+                 gradient square on top of it was two illustrations arguing.
+                 The Industries page renders this same array from its own
+                 template, with its own icons, and is untouched. -->
+            <article class="auto-card reveal zt-reveal-card" v-for="(m,i) in industryModel" :key="m.name" :style="{'--d': (i*70)+'ms'}" style="cursor:default;" tabindex="0">
+              <div class="zt-rc-visual" aria-hidden="true">
+                <span class="zt-rc-scene" v-html="m.scene"></span>
+                <span class="zt-rc-veil"></span>
+                <span class="zt-rc-wash"></span>
               </div>
-              <h3>{{ m.name }}</h3>
-              <p>{{ m.desc }}</p>
-              <ul class="ind-points">
-                <li v-for="pt in m.points" :key="pt">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
-                  <span v-html="pt"></span>
-                </li>
-              </ul>
+              <div class="zt-rc-body">
+                <span class="zt-rc-chip mono">Sector {{ String(i+1).padStart(2,'0') }}</span>
+                <div class="zt-rc-head">
+                  <span class="zt-rc-tag">{{ m.kind }}</span>
+                  <h3 class="zt-rc-title">{{ m.name }}</h3>
+                  <span class="zt-rc-toggle" aria-hidden="true"><i></i><i></i></span>
+                </div>
+                <div class="zt-rc-panel">
+                  <div class="zt-rc-panel-inner">
+                    <p class="zt-rc-desc">{{ m.desc }}</p>
+                    <ul class="zt-rc-points"><li v-for="pt in m.points" :key="pt" v-html="pt"></li></ul>
+                  </div>
+                </div>
+              </div>
             </article>
           </div>
         </div>
@@ -7645,25 +8283,96 @@
     <!-- Auto-playing carousel: same mechanism as Industry Solutions above. -->
     <div class="wrap" id="carousel-deployed">
       <section>
-        <div class="sec-head reveal">
-          <h2>Eight sectors running on the <span class="text-grad">same platform</span></h2>
-          <p>Each with its own terminology and workflows, and all posting into one ledger.</p>
+        <!-- The heading, its intro and the arrows share one card, so the rail
+             is a member of the same set as the eight beside it rather than
+             loose type sitting next to them. The arrows stay inside
+             #carousel-deployed, which is the root the carousel module looks
+             them up from, so nesting them here changes nothing for the JS. -->
+        <div class="dep-rail reveal">
+          <div class="sec-head">
+            <h2>Eight sectors running on the <span class="text-grad">same platform</span></h2>
+            <p>Each with its own terminology and workflows, and all posting into one ledger.</p>
+          </div>
+          <!-- The eight sectors, named. This is the same `category` field the
+               cards carry, rendered from the same array -- not a second list
+               to keep in step. It fills the middle of the rail with the one
+               thing the heading claims and the cards only reveal one at a
+               time, and it says nothing the section did not already say. -->
+          <ul class="dep-sectors">
+            <li v-for="c in caseStudies" :key="'rail-'+c.category">{{ c.category }}</li>
+          </ul>
+          <!-- The section's claim built in 3D rather than drawn flat: eight
+               pads on one rotating platform, with the engine floating above
+               its centre and the ledger reading underneath. Real depth, not a
+               picture of it -- a perspective camera, a plane tilted on the X
+               axis, and the core lifted off it on translateZ.
+
+               Pure CSS. No library: the page already loads three.js for the
+               hero, and a second 3D dependency for a decorative panel would
+               cost far more than the transforms below. Everything animated
+               here is transform or opacity, so it composites.
+
+               Decorative, so aria-hidden -- the eight sectors are named in the
+               chips above and titled on the cards beside it. Nothing here
+               asserts anything the section does not already say. -->
+          <div class="dep-engine" aria-hidden="true">
+            <div class="de3d">
+              <div class="de3d-stage">
+                <div class="de3d-plane">
+                  <span class="de3d-grid"></span>
+                  <span class="de3d-ring" style="--d:0s"></span>
+                  <span class="de3d-ring" style="--d:-1.6s"></span>
+                  <span class="de3d-ring" style="--d:-3.2s"></span>
+                  <div class="de3d-pads">
+                    <i style="--a:0deg;   --i:0"></i>
+                    <i style="--a:45deg;  --i:1"></i>
+                    <i style="--a:90deg;  --i:2"></i>
+                    <i style="--a:135deg; --i:3"></i>
+                    <i style="--a:180deg; --i:4"></i>
+                    <i style="--a:225deg; --i:5"></i>
+                    <i style="--a:270deg; --i:6"></i>
+                    <i style="--a:315deg; --i:7"></i>
+                  </div>
+                </div>
+                <span class="de3d-shadow"></span>
+                <div class="de3d-core"><b></b><b></b><b></b></div>
+              </div>
+            </div>
+          </div>
+          <div class="slider-nav">
+            <button class="slider-arrow" aria-label="Previous sectors">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <button class="slider-arrow" aria-label="Next sectors">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          </div>
         </div>
         <div class="carousel-viewport">
           <div
             class="slider-track deployed-slider-track carousel-track"
             ref="deployedTrack"
           >
-            <!-- Sector icon and name lead, then the deployment, the problem it
-                 solved, the modules that did it and the measured outcome. The
-                 modules come from each entry's own `solution` sentence, which
-                 this card was dropping entirely. The Case Studies slider below
-                 renders the same array from its own template and still shows
-                 `solution` as prose -- it is untouched. -->
+            <!-- Picture at the head, everything else underneath it: sector and
+                 index, title, the problem it solved, the modules that did it,
+                 the measured outcome. The picture carries flex-grow, so on a
+                 tall card the spare height goes into the image rather than
+                 opening a hole in the middle of the copy.
+
+                 The index numeral is derived from position (card n of eight),
+                 not new copy. The scene is an inline SVG on each entry, drawn
+                 for that deployment's own story -- see the caseStudies array.
+                 The Case Studies slider below renders the same array from its
+                 own template, with its own `image` and `solution` prose, and
+                 is untouched. -->
             <article class="industry-card reveal" v-for="(c,i) in caseStudies" :key="c.title" :style="{'--d': (i*60)+'ms'}">
-              <div class="dep-top">
-                <span class="dep-icon" v-html="c.icon" aria-hidden="true"></span>
+              <div class="dep-visual" aria-hidden="true">
+                <span class="dep-scene" v-html="c.scene"></span>
+                <span class="dep-veil"></span>
+              </div>
+              <div class="dep-index">
                 <span class="industry-cat">{{ c.category }}</span>
+                <span class="dep-num mono" aria-hidden="true">{{ String(i+1).padStart(2,'0') }}</span>
               </div>
               <h3>{{ c.title }}</h3>
               <p>{{ c.challenge }}</p>
@@ -7676,14 +8385,6 @@
               <span class="portfolio-result">{{ c.result }}</span>
             </article>
           </div>
-        </div>
-        <div class="slider-nav">
-          <button class="slider-arrow" aria-label="Previous sectors">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-          <button class="slider-arrow" aria-label="Next sectors">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
         </div>
       </section>
     </div>
@@ -9529,8 +10230,13 @@ createApp({
       // The `scene` on each layer is the card's dark visual -- see the
       // .arch-node-visual block in the stylesheet. All three share one
       // palette (#0b0b0d ground, white hairlines, a single #FF9447 accent)
-      // and one 320x200 viewBox, so the row reads as a set. preserveAspect
-      // "slice" fills the 16:10 frame without ever stretching the drawing.
+      // and one 300x400 viewBox, so the row reads as a set. That viewBox is
+      // the card's own 3:4 -- drawn at 16:10 the compositions were sliced
+      // down their sides, which is what turned scene 3 into one giant arrow.
+      // Each is weighted into its upper two thirds, because the lower third
+      // carries the veil and the copy. preserveAspectRatio "slice" fills the
+      // frame without ever stretching the drawing, and matters on a phone,
+      // where content pushes the card past 3:4.
       // Gradient ids are unique per scene: they land in the same document.
       platformLayers: [
         { name:'Vertical modules', tag:'Deep, hand-built',
@@ -9538,20 +10244,21 @@ createApp({
           points:['Domain records, not renamed generic fields','New verticals added without forking the core','Every vertical posts to the shared ledger'],
           // Stacked columns of differing depth rising from one shared base bar:
           // the verticals, and the ledger they all land on.
-          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA1" cx="50%" cy="22%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA1b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".85"/><stop offset="1" stop-color="#FF9447" stop-opacity=".35"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA1)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".16"><rect x="46" y="112" width="52" height="20" rx="5"/><rect x="46" y="86" width="52" height="20" rx="5"/><rect x="134" y="112" width="52" height="20" rx="5"/><rect x="134" y="86" width="52" height="20" rx="5"/><rect x="134" y="60" width="52" height="20" rx="5"/><rect x="222" y="112" width="52" height="20" rx="5"/></g><rect x="134" y="34" width="52" height="20" rx="5" fill="url(#ztA1b)" stroke="#FF9447" stroke-opacity=".65"/><g stroke="#fff" stroke-opacity=".18" stroke-width="1.4"><path d="M72 132v14M160 132v14M248 132v14"/></g><rect x="34" y="150" width="252" height="16" rx="8" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".18"/><path d="M46 158h228" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/></svg>' },
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA1" cx="50%" cy="26%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA1b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".9"/><stop offset="1" stop-color="#FF9447" stop-opacity=".38"/></linearGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztA1)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".16"><rect x="34" y="214" width="62" height="22" rx="6"/><rect x="34" y="186" width="62" height="22" rx="6"/><rect x="34" y="158" width="62" height="22" rx="6"/><rect x="119" y="214" width="62" height="22" rx="6"/><rect x="119" y="186" width="62" height="22" rx="6"/><rect x="119" y="158" width="62" height="22" rx="6"/><rect x="119" y="130" width="62" height="22" rx="6"/><rect x="204" y="214" width="62" height="22" rx="6"/><rect x="204" y="186" width="62" height="22" rx="6"/></g><rect x="119" y="102" width="62" height="22" rx="6" fill="url(#ztA1b)" stroke="#FF9447" stroke-opacity=".7"/><g stroke="#fff" stroke-opacity=".18" stroke-width="1.4"><path d="M65 236v14M150 236v14M235 236v14"/></g><rect x="24" y="252" width="252" height="18" rx="9" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".18"/><path d="M38 261h224" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.8" stroke-linecap="round"/></svg>' },
         { name:'Shared kernel', tag:'Built once, used by every business',
           desc:'The parts no vertical should reinvent — tenancy, customers, payments and the ledger, built once.',
           points:['One customer across every business unit','Append-only ledger, reversing corrections','Multi-entity and multi-currency as standard'],
           // A single core with satellites on a dashed orbit: shared services
           // reached from every direction rather than duplicated per vertical.
-          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA2" cx="50%" cy="50%" r="62%"><stop offset="0" stop-color="#FF9447" stop-opacity=".22"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA2b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".8"/><stop offset="1" stop-color="#FF9447" stop-opacity=".28"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA2)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><circle cx="160" cy="100" r="70" fill="none" stroke="#fff" stroke-opacity=".12" stroke-dasharray="4 7"/><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2"><path d="M160 100L160 30M160 100l61 35M160 100l-61 35M160 100L99 65M160 100l61-35M160 100v70"/></g><g fill="#0b0b0d" stroke="#fff" stroke-opacity=".26"><circle cx="160" cy="30" r="9"/><circle cx="221" cy="65" r="9"/><circle cx="221" cy="135" r="9"/><circle cx="160" cy="170" r="9"/><circle cx="99" cy="135" r="9"/><circle cx="99" cy="65" r="9"/></g><rect x="128" y="76" width="64" height="48" rx="14" fill="url(#ztA2b)" stroke="#FF9447" stroke-opacity=".6"/><g stroke="#0b0b0d" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"><path d="M144 92h32M144 100h32M144 108h20"/></g></svg>' },
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA2" cx="50%" cy="43%" r="60%"><stop offset="0" stop-color="#FF9447" stop-opacity=".24"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA2b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".85"/><stop offset="1" stop-color="#FF9447" stop-opacity=".3"/></linearGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztA2)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><circle cx="150" cy="172" r="100" fill="none" stroke="#fff" stroke-opacity=".1" stroke-dasharray="4 8"/><circle cx="150" cy="172" r="66" fill="none" stroke="#fff" stroke-opacity=".07"/><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2"><path d="M150 172V72M150 172l87-50M150 172l87 50M150 172v100M150 172l-87 50M150 172l-87-50"/></g><g fill="#0b0b0d" stroke="#fff" stroke-opacity=".28"><circle cx="150" cy="72" r="11"/><circle cx="237" cy="122" r="11"/><circle cx="237" cy="222" r="11"/><circle cx="150" cy="272" r="11"/><circle cx="63" cy="222" r="11"/><circle cx="63" cy="122" r="11"/></g><rect x="108" y="142" width="84" height="60" rx="17" fill="url(#ztA2b)" stroke="#FF9447" stroke-opacity=".65"/><g stroke="#0b0b0d" stroke-opacity=".78" stroke-width="2.4" stroke-linecap="round"><path d="M128 161h44M128 172h44M128 183h26"/></g></svg>' },
         { name:'Automation platform',
           tag:'Where every new capability plugs in',
           desc:'Events, rules, actions and audited runs on top of everything below — a module, never a rewrite.',
           points:['Rules configured by admins, not coded','Actions reused from a shared registry','Every run recorded with its outcome'],
           // Events feeding a rule gate, fanned out to actions, with the run
-          // log underneath: the shape of the engine in one picture.
-          scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA3" cx="44%" cy="34%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA3b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".85"/><stop offset="1" stop-color="#FF9447" stop-opacity=".3"/></linearGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztA3)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 40h320M0 80h320M0 120h320M0 160h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".2"><rect x="26" y="42" width="46" height="16" rx="8"/><rect x="26" y="72" width="46" height="16" rx="8"/><rect x="26" y="102" width="46" height="16" rx="8"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M72 50h26q12 0 12 12v14M72 80h38M72 110h26q12 0 12-12v-14"/></g><rect x="110" y="62" width="66" height="36" rx="10" fill="url(#ztA3b)" stroke="#FF9447" stroke-opacity=".6"/><path d="M126 80h34M152 72l8 8-8 8" stroke="#0b0b0d" stroke-opacity=".75" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#FF9447" stroke-opacity=".38" stroke-width="1.4" fill="none"><path d="M176 80h26q12 0 12-12v-8h30M176 80h68M176 80h26q12 0 12 12v8h30"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".2"><rect x="244" y="52" width="50" height="16" rx="5"/><rect x="244" y="72" width="50" height="16" rx="5"/><rect x="244" y="92" width="50" height="16" rx="5"/></g><g><rect x="26" y="142" width="268" height="30" rx="9" fill="#fff" fill-opacity=".04" stroke="#fff" stroke-opacity=".12"/><g fill="#FF9447" fill-opacity=".55"><rect x="38" y="152" width="4" height="10" rx="2"/><rect x="50" y="149" width="4" height="13" rx="2"/><rect x="62" y="154" width="4" height="8" rx="2"/><rect x="74" y="147" width="4" height="15" rx="2"/><rect x="86" y="153" width="4" height="9" rx="2"/><rect x="98" y="150" width="4" height="12" rx="2"/></g><g fill="#fff" fill-opacity=".16"><rect x="116" y="152" width="4" height="10" rx="2"/><rect x="128" y="149" width="4" height="13" rx="2"/><rect x="140" y="154" width="4" height="8" rx="2"/><rect x="152" y="150" width="4" height="12" rx="2"/><rect x="164" y="147" width="4" height="15" rx="2"/><rect x="176" y="153" width="4" height="9" rx="2"/><rect x="188" y="151" width="4" height="11" rx="2"/><rect x="200" y="155" width="4" height="7" rx="2"/><rect x="212" y="149" width="4" height="13" rx="2"/><rect x="224" y="152" width="4" height="10" rx="2"/><rect x="236" y="150" width="4" height="12" rx="2"/><rect x="248" y="154" width="4" height="8" rx="2"/><rect x="260" y="151" width="4" height="11" rx="2"/><rect x="272" y="153" width="4" height="9" rx="2"/></g></g></svg>' },
+          // log underneath: the shape of the engine in one picture. Read top
+          // to bottom here rather than left to right -- the portrait frame.
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztA3" cx="50%" cy="30%" r="68%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztA3b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".9"/><stop offset="1" stop-color="#FF9447" stop-opacity=".32"/></linearGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztA3)"/><g stroke="#fff" stroke-opacity=".05" stroke-width="1"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".2"><rect x="26" y="56" width="72" height="20" rx="10"/><rect x="114" y="56" width="72" height="20" rx="10"/><rect x="202" y="56" width="72" height="20" rx="10"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M62 76v18q0 10 10 10h68M150 76v28M238 76v18q0 10-10 10h-68"/></g><rect x="105" y="124" width="90" height="52" rx="14" fill="url(#ztA3b)" stroke="#FF9447" stroke-opacity=".65"/><path d="M126 150h44M160 140l10 10-10 10" stroke="#0b0b0d" stroke-opacity=".78" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#FF9447" stroke-opacity=".4" stroke-width="1.5" fill="none"><path d="M150 176v18q0 10-10 10H72q-10 0-10 10v8M150 176v40M150 176v18q0 10 10 10h68q10 0 10 10v8"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".2"><rect x="30" y="222" width="64" height="26" rx="7"/><rect x="118" y="222" width="64" height="26" rx="7"/><rect x="206" y="222" width="64" height="26" rx="7"/></g><rect x="26" y="274" width="248" height="36" rx="10" fill="#fff" fill-opacity=".04" stroke="#fff" stroke-opacity=".12"/><g fill="#FF9447" fill-opacity=".55"><rect x="38" y="286" width="4" height="12" rx="2"/><rect x="50" y="283" width="4" height="15" rx="2"/><rect x="62" y="288" width="4" height="10" rx="2"/><rect x="74" y="281" width="4" height="17" rx="2"/><rect x="86" y="287" width="4" height="11" rx="2"/><rect x="98" y="284" width="4" height="14" rx="2"/></g><g fill="#fff" fill-opacity=".16"><rect x="116" y="286" width="4" height="12" rx="2"/><rect x="128" y="283" width="4" height="15" rx="2"/><rect x="140" y="288" width="4" height="10" rx="2"/><rect x="152" y="284" width="4" height="14" rx="2"/><rect x="164" y="281" width="4" height="17" rx="2"/><rect x="176" y="287" width="4" height="11" rx="2"/><rect x="188" y="285" width="4" height="13" rx="2"/><rect x="200" y="289" width="4" height="9" rx="2"/><rect x="212" y="283" width="4" height="15" rx="2"/><rect x="224" y="286" width="4" height="12" rx="2"/><rect x="236" y="284" width="4" height="14" rx="2"/><rect x="248" y="288" width="4" height="10" rx="2"/><rect x="260" y="285" width="4" height="13" rx="2"/></g></svg>' },
       ],
       moneyFlow: [
         { step:'Booking', desc:'One database transaction creates the booking, flips the plot to booked, opens the instalment plan and posts the receivable. Either all of it happens or none of it does.' },
@@ -9638,30 +10345,48 @@ createApp({
          neither, so it is unaffected. Every point restates something the card's
          own desc already claims -- these are the specifics of that sentence,
          not additional marketing. */
+      // `scene` is the card's dark visual, exactly as on platformLayers above
+      // -- the two sections share one card component (see the REVEAL CARDS
+      // block in the stylesheet). Same palette, same 300x400 portrait viewBox,
+      // same weighting into the upper two thirds, so a visitor scrolling from
+      // one section to the other sees one system rather than two art styles.
+      // `icon` is kept: the Industries page still renders it.
       industryModel: [
-        { kind:'Deep vertical', name:'Real Estate', desc:'The hand-built vertical: projects, blocks and plots, bookings, instalment plans, allocation and the collections automation built around them.',
+        { kind:'Deep vertical', name:'Real Estate', desc:'The hand-built vertical — plots, bookings, instalment plans and the collections automation around them.',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 21h18"/><path d="M6 21V9l6-4 6 4v12"/><path d="M10 21v-6h4v6"/></svg>',
-          points:['Projects, blocks &amp; plots','Bookings &amp; instalment plans','Collections automation'] },
-        { kind:'Deep vertical', name:'Education', desc:'Students, teachers, attendance and fee schedules — the second hand-built vertical, already emitting events into the automation engine.',
+          points:['Projects, blocks &amp; plots','Bookings &amp; instalment plans','Collections automation'],
+          // A plot grid with one parcel booked, over an instalment ladder.
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztI1" cx="50%" cy="28%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztI1b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".9"/><stop offset="1" stop-color="#FF9447" stop-opacity=".35"/></linearGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztI1)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g fill="#fff" fill-opacity=".05" stroke="#fff" stroke-opacity=".16"><rect x="34" y="62" width="54" height="40" rx="5"/><rect x="96" y="62" width="54" height="40" rx="5"/><rect x="158" y="62" width="54" height="40" rx="5"/><rect x="34" y="110" width="54" height="40" rx="5"/><rect x="158" y="110" width="54" height="40" rx="5"/><rect x="34" y="158" width="54" height="40" rx="5"/><rect x="96" y="158" width="54" height="40" rx="5"/><rect x="158" y="158" width="54" height="40" rx="5"/></g><rect x="96" y="110" width="54" height="40" rx="5" fill="url(#ztI1b)" stroke="#FF9447" stroke-opacity=".7"/><path d="M112 138v-14l11-8 11 8v14" fill="none" stroke="#0b0b0d" stroke-opacity=".8" stroke-width="2.4" stroke-linejoin="round"/><g stroke="#fff" stroke-opacity=".14"><path d="M232 62v136"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="34" y="232" width="232" height="14" rx="7"/><rect x="34" y="256" width="232" height="14" rx="7"/><rect x="34" y="280" width="232" height="14" rx="7"/></g><g fill="#FF9447" fill-opacity=".55"><rect x="34" y="232" width="150" height="14" rx="7"/><rect x="34" y="256" width="96" height="14" rx="7"/><rect x="34" y="280" width="52" height="14" rx="7"/></g></svg>' },
+        { kind:'Deep vertical', name:'Education', desc:'The second hand-built vertical — students, attendance and fee schedules, already emitting events.',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11.5V17c0 1.6 2.9 3 6 3s6-1.4 6-3v-5.5"/></svg>',
-          points:['Students &amp; enrolment','Attendance &amp; timetables','Fee schedules &amp; reminders'] },
+          points:['Students &amp; enrolment','Attendance &amp; timetables','Fee schedules &amp; reminders'],
+          // A register: enrolled rows against an attendance matrix.
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztI2" cx="50%" cy="26%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztI2)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"><circle cx="48" cy="76" r="13"/><circle cx="48" cy="122" r="13"/><circle cx="48" cy="168" r="13"/><circle cx="48" cy="214" r="13"/></g><g fill="#fff" fill-opacity=".1"><rect x="70" y="70" width="58" height="7" rx="3.5"/><rect x="70" y="116" width="46" height="7" rx="3.5"/><rect x="70" y="162" width="62" height="7" rx="3.5"/><rect x="70" y="208" width="50" height="7" rx="3.5"/></g><g fill="#fff" fill-opacity=".05"><rect x="70" y="82" width="34" height="5" rx="2.5"/><rect x="70" y="128" width="40" height="5" rx="2.5"/><rect x="70" y="174" width="30" height="5" rx="2.5"/><rect x="70" y="220" width="38" height="5" rx="2.5"/></g><g stroke="#fff" stroke-opacity=".18" fill="none" stroke-width="1.6"><rect x="152" y="66" width="20" height="20" rx="5"/><rect x="180" y="66" width="20" height="20" rx="5"/><rect x="208" y="66" width="20" height="20" rx="5"/><rect x="236" y="66" width="20" height="20" rx="5"/><rect x="152" y="112" width="20" height="20" rx="5"/><rect x="180" y="112" width="20" height="20" rx="5"/><rect x="208" y="112" width="20" height="20" rx="5"/><rect x="236" y="112" width="20" height="20" rx="5"/><rect x="152" y="158" width="20" height="20" rx="5"/><rect x="180" y="158" width="20" height="20" rx="5"/><rect x="208" y="158" width="20" height="20" rx="5"/><rect x="236" y="158" width="20" height="20" rx="5"/><rect x="152" y="204" width="20" height="20" rx="5"/><rect x="180" y="204" width="20" height="20" rx="5"/><rect x="208" y="204" width="20" height="20" rx="5"/><rect x="236" y="204" width="20" height="20" rx="5"/></g><g stroke="#FF9447" stroke-opacity=".75" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M156 76l4 5 8-9M184 76l4 5 8-9M240 76l4 5 8-9M156 122l4 5 8-9M212 122l4 5 8-9M240 122l4 5 8-9M156 168l4 5 8-9M184 168l4 5 8-9M212 168l4 5 8-9M156 214l4 5 8-9M212 214l4 5 8-9M240 214l4 5 8-9"/></g><rect x="34" y="256" width="232" height="40" rx="10" fill="#fff" fill-opacity=".04" stroke="#fff" stroke-opacity=".12"/><g fill="#fff" fill-opacity=".1"><rect x="48" y="270" width="70" height="7" rx="3.5"/></g><rect x="48" y="284" width="140" height="5" rx="2.5" fill="#FF9447" fill-opacity=".45"/></svg>' },
         // The single "Everything else" bucket is broken out into the sectors it
         // already named, so the grid fills a clean 3x2 instead of leaving one
         // orphan on the second row. These stay explicitly labelled "Generic
         // engine": Real Estate and Education remain the only two hand-built
         // verticals, which is the claim the rest of the site makes.
-        { kind:'Generic engine', name:'Construction & Contracting', desc:'Runs on the shared item-and-sale engine — procurement, stock and job costing posting to the same ledger, with no separate codebase behind it.',
+        { kind:'Generic engine', name:'Construction & Contracting', desc:'Procurement, stock and job costing on the shared engine — no separate codebase behind it.',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 18h20"/><path d="M5 18v-1.6a7 7 0 0 1 14 0V18"/><path d="M9.6 4.3h4.8V9"/></svg>',
-          points:['Procurement &amp; subcontractors','Job costing to the ledger','Stock across sites'] },
-        { kind:'Generic engine', name:'Distribution & Retail', desc:'Stock movement, purchase orders and customer invoicing on the generic engine, reconciling against the same books as every other module.',
+          points:['Procurement &amp; subcontractors','Job costing to the ledger','Stock across sites'],
+          // Site structure rising in stages, with cost lines accruing beneath.
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztI3" cx="50%" cy="28%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztI3b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".9"/><stop offset="1" stop-color="#FF9447" stop-opacity=".38"/></linearGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztI3)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.4" fill="none"><path d="M74 210V64h96"/><path d="M170 64l38 26"/><path d="M208 90v14"/></g><circle cx="74" cy="64" r="5" fill="#fff" fill-opacity=".2"/><rect x="188" y="104" width="40" height="30" rx="5" fill="url(#ztI3b)" stroke="#FF9447" stroke-opacity=".7"/><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="92" y="186" width="52" height="24" rx="4"/><rect x="150" y="186" width="52" height="24" rx="4"/><rect x="92" y="158" width="52" height="24" rx="4"/><rect x="150" y="158" width="52" height="24" rx="4"/><rect x="92" y="130" width="52" height="24" rx="4"/></g><rect x="34" y="214" width="232" height="16" rx="8" fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".18"/><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"><rect x="34" y="250" width="232" height="12" rx="6"/><rect x="34" y="272" width="232" height="12" rx="6"/><rect x="34" y="294" width="232" height="12" rx="6"/></g><g fill="#FF9447" fill-opacity=".5"><rect x="34" y="250" width="176" height="12" rx="6"/><rect x="34" y="272" width="118" height="12" rx="6"/><rect x="34" y="294" width="74" height="12" rx="6"/></g></svg>' },
+        { kind:'Generic engine', name:'Distribution & Retail', desc:'Stock movement, purchase orders and invoicing on the generic engine, against the same books.',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 7.2l9-4.2 9 4.2-9 4.2-9-4.2z"/><path d="M3 7.2v9.6l9 4.2 9-4.2V7.2"/></svg>',
-          points:['Stock movement &amp; reorder points','Purchase orders &amp; receipts','Customer invoicing'] },
-        { kind:'Generic engine', name:'Healthcare & Professional Services', desc:'Appointments, service delivery and billing modelled on the shared engine, with the automation layer handling reminders and approvals.',
+          points:['Stock movement &amp; reorder points','Purchase orders &amp; receipts','Customer invoicing'],
+          // Warehouse racking with one line moving out to a shipment.
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztI4" cx="50%" cy="28%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztI4b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF9447" stop-opacity=".9"/><stop offset="1" stop-color="#FF9447" stop-opacity=".35"/></linearGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztI4)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.4" fill="none"><path d="M34 108h232M34 160h232M34 212h232"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="40" y="76" width="44" height="32" rx="4"/><rect x="94" y="82" width="34" height="26" rx="4"/><rect x="138" y="76" width="44" height="32" rx="4"/><rect x="192" y="86" width="30" height="22" rx="4"/><rect x="40" y="130" width="34" height="30" rx="4"/><rect x="84" y="136" width="44" height="24" rx="4"/><rect x="192" y="128" width="44" height="32" rx="4"/><rect x="40" y="184" width="44" height="28" rx="4"/><rect x="94" y="188" width="34" height="24" rx="4"/><rect x="138" y="182" width="40" height="30" rx="4"/></g><rect x="138" y="128" width="44" height="32" rx="4" fill="url(#ztI4b)" stroke="#FF9447" stroke-opacity=".7"/><path d="M146 144h24M162 137l8 7-8 7" fill="none" stroke="#0b0b0d" stroke-opacity=".8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#FF9447" stroke-opacity=".4" stroke-width="1.5" fill="none"><path d="M182 144h48q10 0 10 10v78"/></g><rect x="206" y="240" width="68" height="46" rx="8" fill="#fff" fill-opacity=".05" stroke="#fff" stroke-opacity=".18"/><g fill="#fff" fill-opacity=".12"><rect x="218" y="254" width="44" height="6" rx="3"/><rect x="218" y="266" width="30" height="6" rx="3"/></g><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"><rect x="34" y="240" width="150" height="14" rx="7"/><rect x="34" y="262" width="150" height="14" rx="7"/><rect x="34" y="284" width="150" height="14" rx="7"/></g></svg>' },
+        { kind:'Generic engine', name:'Healthcare & Professional Services', desc:'Appointments, service delivery and billing on the shared engine, reminders and approvals automated.',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M7 12.2h2.6L11 9.4l2 5.4 1.3-2.6H17"/></svg>',
-          points:['Appointments &amp; scheduling','Service delivery records','Billing, reminders &amp; approvals'] },
-        { kind:'No-code', name:'Build your own vertical', desc:'Define a new record type with its own fields and pipeline — vehicle, patient, case — without a migration. It plugs into the event bus automatically.',
+          points:['Appointments &amp; scheduling','Service delivery records','Billing, reminders &amp; approvals'],
+          // A day of appointment slots, one confirmed, billing lines beneath.
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztI5" cx="50%" cy="28%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient><linearGradient id="ztI5b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FF9447" stop-opacity=".9"/><stop offset="1" stop-color="#FF9447" stop-opacity=".35"/></linearGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztI5)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g stroke="#fff" stroke-opacity=".14" stroke-width="1.3"><path d="M78 62v168"/></g><g fill="#fff" fill-opacity=".1"><rect x="34" y="68" width="26" height="6" rx="3"/><rect x="34" y="106" width="26" height="6" rx="3"/><rect x="34" y="144" width="26" height="6" rx="3"/><rect x="34" y="182" width="26" height="6" rx="3"/><rect x="34" y="220" width="26" height="6" rx="3"/></g><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"><rect x="92" y="60" width="140" height="24" rx="6"/><rect x="92" y="136" width="118" height="24" rx="6"/><rect x="92" y="174" width="150" height="24" rx="6"/><rect x="92" y="212" width="104" height="24" rx="6"/></g><rect x="92" y="98" width="164" height="24" rx="6" fill="url(#ztI5b)" stroke="#FF9447" stroke-opacity=".7"/><path d="M104 110l5 6 10-12" fill="none" stroke="#0b0b0d" stroke-opacity=".85" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M34 268h44l10-20 14 44 12-30 8 16h144" fill="none" stroke="#FF9447" stroke-opacity=".55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"><rect x="34" y="300" width="232" height="12" rx="6"/><rect x="34" y="322" width="232" height="12" rx="6"/></g></svg>' },
+        { kind:'No-code', name:'Build your own vertical', desc:'Define a new record type and pipeline — vehicle, patient, case — with no migration.',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M17.5 14.2v6.6M14.2 17.5h6.6"/></svg>',
-          points:['Custom record types &amp; fields','Your own pipeline stages','Joins the event bus automatically'] },
+          points:['Custom record types &amp; fields','Your own pipeline stages','Joins the event bus automatically'],
+          // Existing modules, an empty slot waiting, and the bus they all join.
+          scene:'<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztI6" cx="50%" cy="30%" r="70%"><stop offset="0" stop-color="#FF9447" stop-opacity=".2"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="300" height="400" fill="#0b0b0d"/><rect width="300" height="400" fill="url(#ztI6)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h300M0 100h300M0 150h300M0 200h300M0 250h300M0 300h300M0 350h300M50 0v400M100 0v400M150 0v400M200 0v400M250 0v400"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="34" y="62" width="70" height="56" rx="10"/><rect x="115" y="62" width="70" height="56" rx="10"/><rect x="196" y="62" width="70" height="56" rx="10"/><rect x="34" y="132" width="70" height="56" rx="10"/><rect x="115" y="132" width="70" height="56" rx="10"/></g><g fill="#fff" fill-opacity=".14"><rect x="48" y="80" width="34" height="5" rx="2.5"/><rect x="48" y="92" width="22" height="5" rx="2.5"/><rect x="129" y="80" width="34" height="5" rx="2.5"/><rect x="129" y="92" width="22" height="5" rx="2.5"/><rect x="210" y="80" width="34" height="5" rx="2.5"/><rect x="210" y="92" width="22" height="5" rx="2.5"/><rect x="48" y="150" width="34" height="5" rx="2.5"/><rect x="48" y="162" width="22" height="5" rx="2.5"/><rect x="129" y="150" width="34" height="5" rx="2.5"/><rect x="129" y="162" width="22" height="5" rx="2.5"/></g><rect x="196" y="132" width="70" height="56" rx="10" fill="#FF9447" fill-opacity=".08" stroke="#FF9447" stroke-opacity=".7" stroke-dasharray="6 5"/><path d="M231 148v24M219 160h24" stroke="#FF9447" stroke-opacity=".9" stroke-width="2.6" stroke-linecap="round"/><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M69 188v22M150 188v22M231 188v22"/></g><rect x="34" y="216" width="232" height="18" rx="9" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".2"/><path d="M48 225h204" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.8" stroke-linecap="round"/><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"><rect x="34" y="256" width="232" height="12" rx="6"/><rect x="34" y="278" width="232" height="12" rx="6"/></g></svg>' },
       ],
 
       // ---- Documentation hub ----------------------------------------------
@@ -9921,51 +10646,84 @@ createApp({
           desc:'A staged cutover with on-hand hypercare cover, then SLA-backed support, release upgrades and quarterly optimization reviews to keep the system earning its keep.' },
       ],
 
+      // `scene` is the dark visual that heads each card in the Eight Sectors
+      // carousel -- see the EIGHT SECTORS block in the stylesheet. Landscape
+      // 320x180 here, not the 300x400 the reveal cards use, because this one
+      // is a band across the top of a card rather than the whole card. Same
+      // palette otherwise (#0b0b0d ground, white hairlines, one #FF9447
+      // accent), so the two families read as one system.
+      //
+      // Each drawing is the entry's OWN story, not a generic sector badge:
+      // three plants converging on one line, two sales channels merging into a
+      // single stock bar, a nine-day billing gap closing to two, and so on.
+      // `image` is unchanged -- the Case Studies slider below still uses it.
       caseStudies: [
         { title:'Multi-Plant Production Control', category:'Manufacturing', image:'images/case-manufacturing.svg',
-          challenge:'Three plants planned production in separate spreadsheets, so material shortages only surfaced on the shop floor.',
+          // Three separate plant stacks resolving into one work-order line.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD1" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD1)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="26" y="30" width="58" height="40" rx="5"/><rect x="131" y="30" width="58" height="40" rx="5"/><rect x="236" y="30" width="58" height="40" rx="5"/></g><g fill="#fff" fill-opacity=".14"><rect x="36" y="42" width="16" height="16" rx="2"/><rect x="56" y="48" width="16" height="10" rx="2"/><rect x="141" y="46" width="16" height="12" rx="2"/><rect x="161" y="40" width="16" height="18" rx="2"/><rect x="246" y="44" width="16" height="14" rx="2"/><rect x="266" y="50" width="16" height="8" rx="2"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M55 70v14q0 10 10 10h85M160 70v24M265 70v14q0 10-10 10h-85"/></g><rect x="112" y="96" width="96" height="26" rx="7" fill="#FF9447" fill-opacity=".16" stroke="#FF9447" stroke-opacity=".6"/><g fill="#FF9447" fill-opacity=".8"><rect x="124" y="105" width="30" height="4" rx="2"/><rect x="124" y="113" width="18" height="3" rx="1.5"/></g><g stroke="#FF9447" stroke-opacity=".35" stroke-width="1.4" fill="none"><path d="M160 122v14"/></g><rect x="40" y="136" width="240" height="14" rx="7" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"/><path d="M52 143h172" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/></svg>',
+          challenge:'Three plants planned in separate spreadsheets, so shortages surfaced on the shop floor.',
           solution:'BOM, routing and work-order modules with MRP-driven purchase planning unified across all three sites.',
           result:'Production downtime down 41%',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 21h20"/><path d="M4 21V11l5 3.2V11l5 3.2V8.5l5 3V21"/></svg>',
           modules:['BOM, routing &amp; work orders', 'MRP-driven purchase planning'] },
         { title:'Omnichannel Inventory Consolidation', category:'Retail', image:'images/case-retail.svg',
-          challenge:'Store and online stock were tracked in different systems, causing repeated oversells during promotions.',
+          // Two channels -- shopfront and online -- merging into one stock bar.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD2" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD2)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="30" y="28" width="90" height="44" rx="6"/><rect x="200" y="28" width="90" height="44" rx="6"/></g><path d="M46 60V46l14-10 14 10v14" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.8" stroke-linejoin="round"/><g fill="#fff" fill-opacity=".16"><rect x="84" y="44" width="26" height="4" rx="2"/><rect x="84" y="53" width="18" height="4" rx="2"/></g><rect x="214" y="40" width="34" height="22" rx="3" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.8"/><path d="M222 62h18" stroke="#fff" stroke-opacity=".3" stroke-width="1.8" stroke-linecap="round"/><g fill="#fff" fill-opacity=".16"><rect x="256" y="44" width="24" height="4" rx="2"/><rect x="256" y="53" width="16" height="4" rx="2"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M75 72v16q0 10 10 10h60M245 72v16q0 10-10 10h-60"/></g><rect x="104" y="100" width="112" height="26" rx="7" fill="#FF9447" fill-opacity=".16" stroke="#FF9447" stroke-opacity=".6"/><path d="M120 113h22M148 106l8 7-8 7" fill="none" stroke="#FF9447" stroke-opacity=".85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><g fill="#FF9447" fill-opacity=".7"><rect x="166" y="109" width="38" height="8" rx="4"/></g><rect x="40" y="140" width="240" height="14" rx="7" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"/><path d="M52 147h214" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/></svg>',
+          challenge:'Store and online stock sat in different systems, causing repeated oversells in promotions.',
           solution:'Single inventory ledger with POS integration and automated replenishment across 28 outlets.',
           result:'Stock accuracy at 99.2%',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4.5 8h15l-1.2 12.5H5.7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
           modules:['Single inventory ledger + POS', 'Automated replenishment'] },
         { title:'Hospital Group Resource Planning', category:'Healthcare', image:'images/case-healthcare.svg',
+          // Pharmacy stock and procurement feeding a billing timeline that
+          // closes from nine days to two.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD3" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD3)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="26" y="26" width="52" height="34" rx="5"/><rect x="88" y="26" width="52" height="34" rx="5"/><rect x="150" y="26" width="52" height="34" rx="5"/></g><path d="M52 36v14M45 43h14" stroke="#FF9447" stroke-opacity=".8" stroke-width="2.4" stroke-linecap="round"/><g fill="#fff" fill-opacity=".16"><rect x="98" y="36" width="32" height="4" rx="2"/><rect x="98" y="45" width="22" height="4" rx="2"/><rect x="160" y="36" width="32" height="4" rx="2"/><rect x="160" y="45" width="26" height="4" rx="2"/></g><rect x="212" y="26" width="82" height="34" rx="5" fill="#fff" fill-opacity=".05" stroke="#fff" stroke-opacity=".14"/><path d="M220 46l10-8 8 12 7-16 6 10h35" fill="none" stroke="#FF9447" stroke-opacity=".7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2"><path d="M40 96h240"/></g><g fill="#fff" fill-opacity=".2"><circle cx="40" cy="96" r="4"/><circle cx="280" cy="96" r="4"/></g><rect x="40" y="108" width="240" height="12" rx="6" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"/><rect x="40" y="108" width="54" height="12" rx="6" fill="#FF9447" fill-opacity=".65"/><g fill="#fff" fill-opacity=".1"><rect x="40" y="132" width="70" height="6" rx="3"/><rect x="120" y="132" width="46" height="6" rx="3"/><rect x="176" y="132" width="58" height="6" rx="3"/></g></svg>',
           challenge:'Pharmacy stock, procurement and patient billing sat in disconnected systems, delaying every invoice.',
           solution:'Integrated procurement, inventory and revenue-cycle modules with role-based clinical access controls.',
           result:'Billing cycle cut from 9 days to 2',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg>',
           modules:['Procurement, stock &amp; revenue cycle', 'Role-based clinical access'] },
         { title:'Live Project Cost Control', category:'Construction', image:'images/case-construction.svg',
+          // Budget against actual, paired bar by bar, with the overrun caught
+          // while the job is still running.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD4" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD4)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><g stroke="#fff" stroke-opacity=".12" stroke-dasharray="4 5"><path d="M34 52h252"/></g><g fill="#fff" fill-opacity=".09" stroke="#fff" stroke-opacity=".16"><rect x="42" y="66" width="18" height="60" rx="3"/><rect x="102" y="58" width="18" height="68" rx="3"/><rect x="162" y="72" width="18" height="54" rx="3"/><rect x="222" y="62" width="18" height="64" rx="3"/></g><g fill="#FF9447" fill-opacity=".6"><rect x="64" y="78" width="18" height="48" rx="3"/><rect x="124" y="52" width="18" height="74" rx="3"/><rect x="184" y="84" width="18" height="42" rx="3"/><rect x="244" y="70" width="18" height="56" rx="3"/></g><path d="M34 126h252" stroke="#fff" stroke-opacity=".2" stroke-width="1.4"/><circle cx="133" cy="46" r="6" fill="#FF9447" fill-opacity=".85"/><g fill="#fff" fill-opacity=".1"><rect x="42" y="140" width="40" height="6" rx="3"/><rect x="102" y="140" width="40" height="6" rx="3"/><rect x="162" y="140" width="40" height="6" rx="3"/><rect x="222" y="140" width="40" height="6" rx="3"/></g></svg>',
           challenge:'Site costs were reconciled monthly, so budget overruns were discovered far too late to correct.',
           solution:'Project costing, subcontractor billing and procurement tied to live budget-versus-actual dashboards.',
           result:'Cost overruns reduced 27%',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2 18h20"/><path d="M5 18v-1.6a7 7 0 0 1 14 0V18"/><path d="M9.6 4.3h4.8V9"/></svg>',
           modules:['Project costing &amp; subcontractor billing', 'Live budget versus actual'] },
         { title:'Campus Administration Platform', category:'Education', image:'images/case-education.svg',
+          // Admissions, fees and payroll -- three tools that never reconciled
+          // -- landing on one tenant with an audit trail.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD5" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD5)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="26" y="26" width="76" height="30" rx="6"/><rect x="122" y="26" width="76" height="30" rx="6"/><rect x="218" y="26" width="76" height="30" rx="6"/></g><g fill="#fff" fill-opacity=".16"><rect x="38" y="38" width="38" height="5" rx="2.5"/><rect x="38" y="47" width="24" height="4" rx="2"/><rect x="134" y="38" width="38" height="5" rx="2.5"/><rect x="134" y="47" width="28" height="4" rx="2"/><rect x="230" y="38" width="38" height="5" rx="2.5"/><rect x="230" y="47" width="20" height="4" rx="2"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M64 56v16q0 10 10 10h76M160 56v26M256 56v16q0 10-10 10h-76"/></g><rect x="98" y="84" width="124" height="30" rx="8" fill="#FF9447" fill-opacity=".16" stroke="#FF9447" stroke-opacity=".6"/><path d="M160 90l-22 9 22 9 22-9-22-9z" fill="none" stroke="#FF9447" stroke-opacity=".85" stroke-width="1.8" stroke-linejoin="round"/><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2"><path d="M160 114v12"/></g><rect x="40" y="126" width="240" height="26" rx="8" fill="#fff" fill-opacity=".04" stroke="#fff" stroke-opacity=".12"/><g fill="#FF9447" fill-opacity=".5"><rect x="52" y="136" width="4" height="7" rx="2"/><rect x="64" y="133" width="4" height="10" rx="2"/><rect x="76" y="138" width="4" height="5" rx="2"/><rect x="88" y="134" width="4" height="9" rx="2"/></g><g fill="#fff" fill-opacity=".14"><rect x="106" y="136" width="4" height="7" rx="2"/><rect x="118" y="133" width="4" height="10" rx="2"/><rect x="130" y="138" width="4" height="5" rx="2"/><rect x="142" y="135" width="4" height="8" rx="2"/><rect x="154" y="133" width="4" height="10" rx="2"/><rect x="166" y="137" width="4" height="6" rx="2"/><rect x="178" y="134" width="4" height="9" rx="2"/><rect x="190" y="138" width="4" height="5" rx="2"/><rect x="202" y="135" width="4" height="8" rx="2"/><rect x="214" y="133" width="4" height="10" rx="2"/><rect x="226" y="137" width="4" height="6" rx="2"/><rect x="238" y="135" width="4" height="8" rx="2"/><rect x="250" y="138" width="4" height="5" rx="2"/><rect x="262" y="134" width="4" height="9" rx="2"/></g></svg>',
           challenge:'Admissions, fee collection and payroll ran on three tools nobody could reconcile at year end.',
           solution:'Student lifecycle, fee scheduling and HR/payroll modules on one tenant with full audit trails.',
           result:'Fee reconciliation 6x faster',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 4L2 9l10 5 10-5-10-5z"/><path d="M6 11.5V17c0 1.6 2.9 3 6 3s6-1.4 6-3v-5.5"/></svg>',
           modules:['Student lifecycle &amp; fee scheduling', 'HR, payroll &amp; audit trails'] },
         { title:'Warehouse & Order Fulfillment ERP', category:'Distribution', image:'images/case-distribution.svg',
-          challenge:'Manual pick lists and paper goods-receipt notes made order accuracy dependent on individual staff memory.',
+          // A scanned barcode, a directed pick path through the racks, and the
+          // three-way match at the end of it.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD6" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD6)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><rect x="26" y="24" width="86" height="44" rx="6" fill="#fff" fill-opacity=".05" stroke="#fff" stroke-opacity=".16"/><g fill="#FF9447" fill-opacity=".7"><rect x="38" y="34" width="3" height="24" rx="1"/><rect x="45" y="34" width="5" height="24" rx="1"/><rect x="54" y="34" width="2" height="24" rx="1"/><rect x="60" y="34" width="5" height="24" rx="1"/><rect x="69" y="34" width="3" height="24" rx="1"/><rect x="76" y="34" width="6" height="24" rx="1"/><rect x="86" y="34" width="2" height="24" rx="1"/><rect x="92" y="34" width="4" height="24" rx="1"/><rect x="100" y="34" width="3" height="24" rx="1"/></g><g stroke="#fff" stroke-opacity=".14" stroke-width="1.3"><path d="M132 30h160M132 58h160M132 86h160"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".16"><rect x="138" y="34" width="30" height="22" rx="3"/><rect x="176" y="38" width="24" height="18" rx="3"/><rect x="242" y="34" width="30" height="22" rx="3"/><rect x="138" y="62" width="24" height="22" rx="3"/><rect x="208" y="62" width="30" height="22" rx="3"/><rect x="246" y="66" width="24" height="18" rx="3"/></g><rect x="208" y="34" width="26" height="22" rx="3" fill="#FF9447" fill-opacity=".55" stroke="#FF9447" stroke-opacity=".7"/><path d="M118 96h44q10 0 10-10V62q0-10 10-10h39" fill="none" stroke="#FF9447" stroke-opacity=".45" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round"/><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"><rect x="40" y="112" width="66" height="40" rx="5"/><rect x="127" y="112" width="66" height="40" rx="5"/><rect x="214" y="112" width="66" height="40" rx="5"/></g><g fill="#fff" fill-opacity=".14"><rect x="50" y="122" width="34" height="4" rx="2"/><rect x="50" y="131" width="24" height="4" rx="2"/><rect x="137" y="122" width="34" height="4" rx="2"/><rect x="137" y="131" width="26" height="4" rx="2"/><rect x="224" y="122" width="34" height="4" rx="2"/><rect x="224" y="131" width="22" height="4" rx="2"/></g><g stroke="#FF9447" stroke-opacity=".85" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M50 143l4 5 9-10M137 143l4 5 9-10M224 143l4 5 9-10"/></g></svg>',
+          challenge:'Manual pick lists and paper receipt notes left order accuracy to individual memory.',
           solution:'Barcode-driven receiving, directed picking and automated three-way matching against purchase orders.',
           result:'Order accuracy up to 99.6%',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="8" y="3.5" width="8" height="6" rx="1"/><rect x="3" y="12" width="8" height="6.5" rx="1"/><rect x="13" y="12" width="8" height="6.5" rx="1"/></svg>',
           modules:['Barcode receiving &amp; directed picking', 'Automated three-way matching'] },
         { title:'Fleet & Freight Operations Suite', category:'Logistics', image:'images/case-logistics.svg',
+          // A trip drawn as a route, with fuel and maintenance costing onto it
+          // as it runs rather than at month end.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD7" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD7)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><path d="M34 96q40-56 88-30t72-34 92-6" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.6" stroke-dasharray="6 6"/><path d="M34 96q40-56 88-30t72-34" fill="none" stroke="#FF9447" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/><g fill="#0b0b0d" stroke="#fff" stroke-opacity=".3" stroke-width="1.6"><circle cx="34" cy="96" r="6"/><circle cx="286" cy="26" r="6"/></g><g fill="#FF9447" fill-opacity=".8"><circle cx="122" cy="66" r="4.5"/><circle cx="194" cy="32" r="4.5"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="34" y="112" width="52" height="16" rx="4"/><path d="M86 116h20l12 12v-12"/></g><rect x="86" y="112" width="34" height="16" rx="3" fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"/><g fill="#0b0b0d" stroke="#fff" stroke-opacity=".28" stroke-width="1.6"><circle cx="52" cy="132" r="5"/><circle cx="104" cy="132" r="5"/></g><g fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"><rect x="140" y="106" width="140" height="12" rx="6"/><rect x="140" y="126" width="140" height="12" rx="6"/><rect x="140" y="146" width="140" height="12" rx="6"/></g><g fill="#FF9447" fill-opacity=".55"><rect x="140" y="106" width="96" height="12" rx="6"/><rect x="140" y="126" width="62" height="12" rx="6"/><rect x="140" y="146" width="112" height="12" rx="6"/></g></svg>',
           challenge:'Fleet running costs, trip billing and driver payroll stayed invisible until the month-end close.',
           solution:'Trip costing with fuel and maintenance tracking, integrated with automated freight invoicing.',
           result:'Invoice disputes down 63%',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M2.5 6.5h10.5v9H2.5z"/><path d="M13 9.5h3.8l3.2 3.2v2.8H13z"/><circle cx="6.8" cy="18" r="1.7"/><circle cx="16.4" cy="18" r="1.7"/></svg>',
           modules:['Trip costing, fuel &amp; maintenance', 'Automated freight invoicing'] },
         { title:'Multi-Entity Financial Consolidation', category:'Finance', image:'images/case-finance.svg',
-          challenge:'Consolidating eight subsidiaries across four currencies took two weeks of manual work every quarter.',
+          // Eight subsidiary ledgers across four currencies collapsing into a
+          // single consolidated close.
+          scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD8" cx="50%" cy="34%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD8)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="26" y="22" width="30" height="22" rx="4"/><rect x="64" y="22" width="30" height="22" rx="4"/><rect x="102" y="22" width="30" height="22" rx="4"/><rect x="140" y="22" width="30" height="22" rx="4"/><rect x="178" y="22" width="30" height="22" rx="4"/><rect x="216" y="22" width="30" height="22" rx="4"/><rect x="254" y="22" width="30" height="22" rx="4"/><rect x="292" y="22" width="22" height="22" rx="4"/></g><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2" fill="none"><path d="M41 44v10q0 8 8 8h103M79 44v6q0 8 8 8h65M117 44v18h35M155 44v18M193 44v18h-35M231 44v6q0 8-8 8h-65M269 44v10q0 8-8 8h-103"/></g><rect x="104" y="72" width="112" height="34" rx="9" fill="#FF9447" fill-opacity=".16" stroke="#FF9447" stroke-opacity=".6"/><g stroke="#FF9447" stroke-opacity=".85" stroke-width="2" fill="none" stroke-linecap="round"><path d="M124 84h20M124 94h20M170 82v14M164 86h12M190 82v14"/></g><g stroke="#fff" stroke-opacity=".14" stroke-width="1.2"><path d="M160 106v10"/></g><rect x="40" y="116" width="240" height="14" rx="7" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"/><path d="M52 123h196" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/><g fill="#fff" fill-opacity=".1"><rect x="40" y="142" width="52" height="6" rx="3"/><rect x="102" y="142" width="40" height="6" rx="3"/><rect x="152" y="142" width="58" height="6" rx="3"/><rect x="220" y="142" width="60" height="6" rx="3"/></g></svg>',
+          challenge:'Consolidating eight subsidiaries across four currencies took two weeks every quarter.',
           solution:'Multi-entity general ledger with automated FX revaluation and intercompany eliminations.',
           result:'Quarterly close in 3 days',
           icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 20.5h18"/><rect x="5" y="11" width="3.4" height="9.5" rx="1"/><rect x="10.3" y="6.5" width="3.4" height="14" rx="1"/><rect x="15.6" y="14" width="3.4" height="6.5" rx="1"/></svg>',
@@ -11522,9 +12280,19 @@ if (THREE) (function () {
      go silently dead).
      ============================================================================ */
 
+  /* `paged` changes what one tick means. Industry Solutions steps a single
+     card: its cards are narrow, several are on screen at once, and a one-card
+     step reads as continuous motion. Eight Sectors is paged instead -- it
+     shows a pair, slides, shows the next pair -- so its step is however many
+     cards currently fit, not a fixed number.
+
+     Counted at measure time rather than hard-coded to 2, because the count
+     changes with the layout: two cards fit beside the rail from 1000px up,
+     one fits below that where the rail flattens away. A literal 2 would skip
+     a card on every phone tick. */
   const SECTIONS = [
     { id: 'carousel-industries', prevLabel: 'Previous industries', nextLabel: 'Next industries' },
-    { id: 'carousel-deployed',   prevLabel: 'Previous sectors',    nextLabel: 'Next sectors' }
+    { id: 'carousel-deployed',   prevLabel: 'Previous sectors',    nextLabel: 'Next sectors', paged: true }
   ];
   const DURATION = 1000; // ms -- both the CSS transition and the autoplay cadence
   const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -11541,7 +12309,12 @@ if (THREE) (function () {
     function measure(){
       const first = track.firstElementChild;
       const gap = parseFloat(getComputedStyle(track).columnGap) || 20;
-      step = first ? first.getBoundingClientRect().width + gap : viewport.clientWidth;
+      const cardStep = first ? first.getBoundingClientRect().width + gap : 0;
+      // +gap so the trailing card's absent gap does not round the count down.
+      const per = (def.paged && cardStep)
+        ? Math.max(1, Math.round((viewport.clientWidth + gap) / cardStep))
+        : 1;
+      step = cardStep ? cardStep * per : viewport.clientWidth;
       travel = Math.max(0, track.scrollWidth - viewport.clientWidth);
       position = Math.min(position, travel);
       track.style.transform = 'translate3d(' + (-position) + 'px,0,0)';
@@ -11655,6 +12428,196 @@ if (THREE) (function () {
   new MutationObserver(queue).observe(document.body, { childList: true, subtree: true });
 
   queue();
+})();
+
+(function(){
+  'use strict';
+
+  /* ============================================================================
+     THREE LAYERS -- scroll-linked lift
+     Pairs with the ".arch-stage" rules in <style>.
+
+     WHAT IT DOES. Scrolling down, the section rises and comes forward as it
+     reaches the viewport, holds still while it is being read, then settles
+     back as it leaves and the page carries on. That is the whole effect.
+
+     SCROLL ONLY. There is deliberately no pointer handling here -- no hover
+     lift, no cursor parallax, nothing that reacts to the mouse being over the
+     section. An earlier pass had it and it was removed on request. Position
+     in the scroll is the only input, which also means a phone and a desktop
+     behave identically.
+
+     THE CURVE. Progress is the section's travel through the viewport: 0 when
+     its top edge is at the bottom of the screen, 1 when its bottom edge has
+     passed the top. Three phases:
+
+       p < .30   scale 0.76 -> 1, lift 52px -> 0      rising into place
+       p < .84   flat                                  settled, simply itself
+       p >= .84  scale 1 -> 0.90, lift 0               settling back
+
+     SPEED. Two separate things control it and they do different jobs.
+     ENTER_END / EXIT_START set how much SCROLL the move is spread over -- at
+     .30 the section is fully arrived a third of the way through its travel
+     instead of nearly half, so the same distance is covered in less
+     scrolling and reads faster. EASE is how tightly each frame chases that
+     target; at .20 it closes about two thirds of the remaining gap every
+     five frames, so it tracks the scroll closely instead of trailing it.
+     Raising EASE alone makes it snappier but not quicker; raising it past
+     roughly .3 starts to look stepped rather than smooth.
+
+     Scale never goes above 1, which is deliberate: at rest the section is
+     exactly the size it was designed at, so nothing can spill past the
+     container and cause horizontal overflow. The "coming forward" read comes
+     from approaching that size, not from exceeding it -- so the way to make
+     the zoom stronger is to start further BELOW 1, which is what 0.76 does.
+     Pushing the top end past 1 would make the content wider than the box that
+     holds it, and that is the one change here that could produce horizontal
+     overflow.
+
+     Transform does not affect layout, so the shrunk section leaves visible
+     air inside a container that has not moved. At 0.76 that is 24% of the
+     section's width, which is a lot of air -- it was asked for explicitly and
+     raised as a trade-off more than once. If it ever needs pulling back, this
+     one constant is the whole dial.
+
+     If more punch is ever wanted without more air, the move is an overshoot
+     -- let the curve pass 1 briefly and settle back -- not a deeper floor.
+     That was not done here because it puts motion in the middle of the
+     section, which is the stretch deliberately kept still for reading.
+
+     The flat middle is what keeps the section from feeling sticky. Movement
+     stops for the whole stretch where the cards are actually being read, so
+     nothing is shifting under the cursor while someone reads or hovers a
+     card, and scrolling on through is never held up.
+
+     The exit has no vertical drift on purpose. Moving the section up while
+     the page is already moving up reads as the section resisting the scroll;
+     easing the scale alone lets it recede without fighting.
+
+     PERFORMANCE. One rAF loop, and only while the section is on screen -- an
+     IntersectionObserver starts and stops it. Per frame: one
+     getBoundingClientRect (a read) and one transform write, in that order, so
+     no layout is forced mid-frame. Everything is composited: transform only,
+     no opacity, filter, box-shadow or blur. will-change is added when the
+     loop starts and removed when it stops, so the layer is not held for the
+     life of the page. No library.
+
+     REDUCED MOTION. The loop never starts and the transform is left
+     untouched, so the section renders exactly as it would with no JS at all.
+     The same is true if rAF or IntersectionObserver never fire for any other
+     reason: nothing is written, and the section sits at its natural size.
+
+     LIFECYCLE. Mirrors the carousel module above -- Vue's v-if destroys and
+     recreates the home subtree on route changes, so a MutationObserver
+     rebinds to whichever .arch-stage currently exists.
+     ============================================================================ */
+
+  const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const ENTER_SCALE = 0.76;   // where it starts as it comes into view
+  const EXIT_SCALE  = 0.90;   // where it settles back to on the way out
+  const ENTER_LIFT  = 52;     // px it rises through on the way in
+  const ENTER_END   = 0.30;   // progress at which it has arrived
+  const EXIT_START  = 0.84;   // progress at which it starts settling back
+  const EASE = 0.20;          // per-frame approach to the target
+
+  const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+  const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+
+  function createStage(stage){
+    let raf = 0, running = false;
+    let curS = 1, curY = 0;
+
+    function frame(){
+      const r = stage.getBoundingClientRect();          // read
+      const vh = window.innerHeight || 1;
+      const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
+
+      let s, y;
+      if (p < ENTER_END){
+        const t = easeOutCubic(p / ENTER_END);
+        s = ENTER_SCALE + (1 - ENTER_SCALE) * t;
+        y = ENTER_LIFT * (1 - t);
+      } else if (p < EXIT_START){
+        s = 1; y = 0;
+      } else {
+        s = 1 - (1 - EXIT_SCALE) * easeOutCubic((p - EXIT_START) / (1 - EXIT_START));
+        y = 0;
+      }
+
+      curS += (s - curS) * EASE;
+      curY += (y - curY) * EASE;
+
+      stage.style.transform =                            // write
+        'translate3d(0,' + curY.toFixed(2) + 'px,0) scale(' + curS.toFixed(4) + ')';
+
+      if (running) raf = requestAnimationFrame(frame);
+    }
+
+    function start(){
+      if (running || reduceMQ.matches) return;
+      running = true;
+      stage.classList.add('is-live');
+      raf = requestAnimationFrame(frame);
+    }
+    function stop(){
+      if (!running) return;
+      running = false;
+      cancelAnimationFrame(raf);
+      stage.classList.remove('is-live');
+      // Off screen by now, so this can settle instantly -- nobody sees it.
+      stage.style.transform = '';
+      curS = 1; curY = 0;
+    }
+
+    // rootMargin starts the loop just before the section arrives, so the
+    // first frame the visitor sees is already on the curve rather than
+    // snapping onto it.
+    const io = new IntersectionObserver(entries => {
+      for (const entry of entries){
+        if (entry.isIntersecting) start(); else stop();
+      }
+    }, { rootMargin: '20% 0px 20% 0px', threshold: 0 });
+    io.observe(stage);
+
+    function onReduceChange(){
+      if (reduceMQ.matches) stop();
+    }
+    if (reduceMQ.addEventListener) reduceMQ.addEventListener('change', onReduceChange);
+    else if (reduceMQ.addListener) reduceMQ.addListener(onReduceChange);
+
+    return {
+      el: stage,
+      dispose(){
+        stop();
+        io.disconnect();
+        if (reduceMQ.removeEventListener) reduceMQ.removeEventListener('change', onReduceChange);
+        else if (reduceMQ.removeListener) reduceMQ.removeListener(onReduceChange);
+      }
+    };
+  }
+
+  let instance = null;
+
+  function sync(){
+    const el = document.querySelector('#architecture .arch-stage');
+    if (instance && instance.el !== el){
+      instance.dispose();
+      instance = null;
+    }
+    if (el && !instance) instance = createStage(el);
+  }
+
+  let queued = false;
+  function queueSync(){
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { queued = false; sync(); }, 0);
+  }
+
+  new MutationObserver(queueSync).observe(document.body, { childList: true, subtree: true });
+
+  queueSync();
 })();
 </script>
 </body>
