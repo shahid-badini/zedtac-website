@@ -10070,6 +10070,31 @@
 function ztBootApp(){
 const { createApp } = Vue;
 
+/* ----------------------------------------------------------------------------
+   STORAGE THAT IS ALLOWED TO FAIL
+   localStorage is not guaranteed to exist. A browser set to block site data
+   throws on the property ACCESS itself, not on the read or the write, and
+   Safari's older private mode throws on setItem. Every use below was
+   unguarded, and it cost more than a stored preference:
+
+     - acceptCookies() called setItem BEFORE clearing showCookieBanner, so the
+       throw skipped the line that dismisses the banner. Vue swallows the error
+       into a warning, so the button looked like it simply did nothing and the
+       visitor had no way to get rid of the banner at all. Same for Deny.
+     - mounted() read the key ahead of bindReveal() and the carousel timers, so
+       one throw there took out the rest of the page's setup with it.
+
+   These wrappers fail soft. When storage is unavailable the consent choice is
+   just not remembered between visits, which is the right trade: a banner that
+   asks again beats a banner that cannot be dismissed.
+   -------------------------------------------------------------------------- */
+const safeStorageGet = (key) => {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+};
+const safeStorageSet = (key, value) => {
+  try { localStorage.setItem(key, value); return true; } catch (e) { return false; }
+};
+
 createApp({
   data(){
     return {
@@ -10890,7 +10915,7 @@ createApp({
   mounted(){
     this.linkFieldLabels();
     this.startShowcaseInterval();
-    if (localStorage.getItem('cookieConsent') === null) {
+    if (safeStorageGet('cookieConsent') === null) {
       this.showCookieBanner = true;
     }
     this.startPortfolioInterval();
@@ -11577,12 +11602,14 @@ createApp({
       setTimeout(() => { this.formSubmitted = false; }, 6000);
     },
     acceptCookies() {
-      localStorage.setItem('cookieConsent', 'accepted');
+      // Dismiss first, remember second. If the write fails the banner still
+      // goes away; the visitor is simply asked again next time.
       this.showCookieBanner = false;
+      safeStorageSet('cookieConsent', 'accepted');
     },
     denyCookies() {
-      localStorage.setItem('cookieConsent', 'denied');
       this.showCookieBanner = false;
+      safeStorageSet('cookieConsent', 'denied');
     },
     // Footer newsletter signup. No backend exists to post this to, so it only
     // validates and shows a success state — the same honesty the consult form
