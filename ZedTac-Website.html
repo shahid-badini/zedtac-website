@@ -2016,20 +2016,17 @@
      rgb(11,11,13) on all three cards. */
   #architecture .arch-node{ -webkit-backdrop-filter:none; backdrop-filter:none; }
 
-  /* The chip and the hover wash ARE visible glass, so they stay -- but only
-     while the section is still. .is-moving is set by the module purely for
-     the stretch where the transform is changing, never during the flat
-     middle where the cards are read, and a 3px blur is not resolvable mid
-     zoom anyway.
+  /* There was an .is-moving class here that switched the remaining blurs off
+     while the transform was running. It was removed: toggling a class every
+     time the motion started and stopped invalidated style on six elements and
+     forced a repaint at exactly the moment the eye was settling, and near the
+     settle threshold it could flip on and off across consecutive frames. The
+     cure was worse than the disease.
 
-     The #architecture prefix is load-bearing, not decoration: the rules that
-     set these blurs are :is(#architecture, ...) .zt-reveal-card .zt-rc-chip,
-     which carries an id and beats a three-class selector. Without it this
-     rule silently loses and the blurs stay on through the whole zoom. */
-  #architecture .arch-stage.is-moving .zt-rc-chip,
-  #architecture .arch-stage.is-moving .zt-rc-wash{
-    -webkit-backdrop-filter:none; backdrop-filter:none;
-  }
+     The blurs are handled statically instead. The wash only carries its blur
+     when it is actually visible (see the .zt-rc-wash rules), and the three
+     chips keep theirs -- three small elements at 3px is not what was costing
+     anything. */
   /* The effect is motion and nothing else, so reduced-motion drops it wholly.
      The module also refuses to start, but this guarantees a neutral transform
      even if the preference is turned on mid-session. */
@@ -7142,7 +7139,10 @@
   :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-wash{
     position:absolute; inset:0; opacity:0;
     background:rgba(8,8,10,.42);
-    -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
+    /* No backdrop-filter at rest. The wash sits at opacity 0 unless the card
+       is hovered, so a blur declared here was a live backdrop the browser had
+       to maintain on every card, at all times, to render nothing. It is
+       attached to the visible states below instead. */
     /* Fades from the foot up, so the drawing stays legible at the top of the
        card while the copy at the bottom gets a solid ground. */
     -webkit-mask-image:linear-gradient(to top, #000 52%, transparent 100%);
@@ -7150,7 +7150,10 @@
     transition:opacity .4s var(--ease);
   }
   :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-wash,
-  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-wash{ opacity:1; }
+  :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-wash{
+    opacity:1;
+    -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
+  }
   :is(#architecture, #carousel-industries) .zt-reveal-card:hover .zt-rc-scene svg,
   :is(#architecture, #carousel-industries) .zt-reveal-card:focus-within .zt-rc-scene svg{ transform:scale(1.06); }
 
@@ -7254,7 +7257,10 @@
   @media (hover: none){
     :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel{ grid-template-rows:1fr; }
     :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-panel-inner{ opacity:1; transform:none; }
-    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-wash{ opacity:1; }
+    :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-wash{
+      opacity:1;
+      -webkit-backdrop-filter:blur(7px); backdrop-filter:blur(7px);
+    }
     :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-toggle{ display:none; }
     :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-title{ padding-right:0; }
     :is(#architecture, #carousel-industries) .zt-reveal-card .zt-rc-tag{ max-width:100%; }
@@ -12665,13 +12671,22 @@ if (THREE) (function () {
      backdrop-filter, and a backdrop blur must be resampled at every
      intermediate scale, so all nine were re-rasterised on every frame of the
      zoom. That, not the easing, is what made it stutter. Three of the nine
-     rendered nothing at all (opaque grounds above them) and are gone; the six
-     that are visible are suspended through .is-moving while the transform is
-     changing. See the .arch-stage rules in <style>.
+     rendered nothing at all (opaque grounds above them) and are gone. Of the
+     six that remain, the hover wash now carries its blur only in the states
+     where it is actually visible, and the three chips keep theirs. An earlier
+     pass switched them off through an .is-moving class while the transform
+     ran; that was removed, because toggling a class at the start and end of
+     every movement invalidated style on six elements and repainted at exactly
+     the moment the eye was settling.
 
-     The other half was the progress read: it was taken from the stage itself,
-     which the module transforms, so the input moved with the output. It now
-     reads the untransformed parent.
+     The progress read was the other half, twice over. It was first taken from
+     the stage itself, which the module transforms, so the input moved with the
+     output. It then read the untransformed parent -- correct, but still a
+     getBoundingClientRect on every frame, which forces the browser to flush
+     the transform written on the frame before. That forced synchronous layout
+     was the last of the stutter. The geometry is now measured only when it can
+     change (start, resize, and a ResizeObserver on the section), and each
+     frame reads nothing but window.scrollY.
 
      will-change is added when the loop starts and removed when it stops, so the layer is not held for the
      life of the page. No library.
@@ -12702,7 +12717,8 @@ if (THREE) (function () {
   function createStage(stage){
     let raf = 0, running = false;
     let curS = 1, curY = 0;
-    let last = 0, moving = false;
+    let last = 0;
+    let refTop = 0, refH = 0;
 
     // Progress is measured on the UNTRANSFORMED parent (#architecture, the
     // .wrap), never on the stage itself. Reading the stage fed the transform
@@ -12714,16 +12730,34 @@ if (THREE) (function () {
     // transformed (see the stylesheet note), so it is a fixed reference.
     const ref = stage.parentElement || stage;
 
-    function setMoving(v){
-      if (v === moving) return;
-      moving = v;
-      stage.classList.toggle('is-moving', v);
+    /* NO getBoundingClientRect IN THE LOOP.
+       Reading a rect forces the browser to flush any pending style and layout
+       first. The loop also wrote a transform at the end of every frame, so
+       each frame's read had to settle the previous frame's write: a forced
+       synchronous layout, sixty times a second, which is what the remaining
+       stutter actually was.
+
+       The geometry the curve needs -- where the section sits in the document,
+       and how tall it is -- does not change while scrolling. So it is measured
+       once and re-measured only when it can genuinely differ: when the loop
+       starts, when the window resizes, and when the section's own height
+       changes. Per frame the only reading is window.scrollY, which is a value
+       the browser already has and does not have to lay anything out to give.  */
+    function measure(){
+      const r = ref.getBoundingClientRect();
+      refTop = r.top + (window.scrollY || window.pageYOffset || 0);
+      refH = r.height;
     }
 
+    const ro = typeof ResizeObserver === 'function'
+      ? new ResizeObserver(measure) : null;
+    if (ro) ro.observe(ref);
+    window.addEventListener('resize', measure, { passive: true });
+
     function frame(now){
-      const r = ref.getBoundingClientRect();            // read
       const vh = window.innerHeight || 1;
-      const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
+      const top = refTop - (window.scrollY || window.pageYOffset || 0);
+      const p = clamp((vh - top) / (vh + refH), 0, 1);
 
       let s, y;
       if (p < ENTER_END){
@@ -12750,13 +12784,13 @@ if (THREE) (function () {
       curS += (s - curS) * k;
       curY += (y - curY) * k;
 
-      // Exponential approach never exactly arrives, so snap the last sliver
-      // and treat that as settled. This is what lets the glass come back in
-      // the flat middle, and stops a sub-pixel transform being rewritten
-      // every frame for the whole time the section is on screen.
-      const settled = Math.abs(s - curS) < 0.0004 && Math.abs(y - curY) < 0.02;
-      if (settled){ curS = s; curY = y; }
-      setMoving(!settled);
+      // Exponential approach never exactly arrives, so snap the last sliver.
+      // Nothing is toggled off the back of this any more -- it only stops a
+      // sub-pixel transform being rewritten for the whole time the section is
+      // on screen.
+      if (Math.abs(s - curS) < 0.0004 && Math.abs(y - curY) < 0.02){
+        curS = s; curY = y;
+      }
 
       stage.style.transform =                            // write
         'translate3d(0,' + curY.toFixed(2) + 'px,0) scale(' + curS.toFixed(4) + ')';
@@ -12768,6 +12802,7 @@ if (THREE) (function () {
       if (running || reduceMQ.matches) return;
       running = true;
       last = 0;
+      measure();                    // the section may have moved while away
       stage.classList.add('is-live');
       raf = requestAnimationFrame(frame);
     }
@@ -12776,7 +12811,6 @@ if (THREE) (function () {
       running = false;
       cancelAnimationFrame(raf);
       stage.classList.remove('is-live');
-      setMoving(false);
       last = 0;
       // Off screen by now, so this can settle instantly -- nobody sees it.
       stage.style.transform = '';
@@ -12804,6 +12838,8 @@ if (THREE) (function () {
       dispose(){
         stop();
         io.disconnect();
+        if (ro) ro.disconnect();
+        window.removeEventListener('resize', measure);
         if (reduceMQ.removeEventListener) reduceMQ.removeEventListener('change', onReduceChange);
         else if (reduceMQ.removeListener) reduceMQ.removeListener(onReduceChange);
       }
