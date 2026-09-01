@@ -141,6 +141,8 @@ The **Resources** dropdown has five entries.
 
 The complete capability list across ERP and automation — 38 grouped capability areas covering modules, integration points and governance controls.
 
+It also carries **"Every feature, side by side"** — a comparison table setting the capability list against what a buyer would otherwise be comparing.
+
 *Purpose: the reference page for a buyer doing detailed comparison.*
 
 ### Resources → Integrations
@@ -225,6 +227,17 @@ Visitors can click any module in the sidebar to jump straight to that scene. Bel
 ## PART 6 — SHARED ELEMENTS
 
 These appear on every page.
+
+### Loading Screen
+The first thing a visitor sees. A full-screen panel with the ZedTac monogram, three rings expanding from behind it, the company name, a progress bar and the line "Initializing platform". It clears itself once the page is ready.
+
+Worth knowing: it is shown on **every** visit, not only the first, and it delays the moment the visitor reaches the actual content. If the site ever feels slow to open, this is the first thing to look at.
+
+### Scroll Progress Bar
+A thin bar across the very top of the window that fills as the visitor moves down a page. Decorative — it indicates position only.
+
+### Skip to Content Link
+A link that stays invisible until a keyboard user presses Tab on arrival, then appears and jumps straight past the navigation to the main content. It exists so that someone navigating by keyboard does not have to tab through the whole menu on every page. Nothing to maintain; it is noted here so it is not mistaken for a stray element.
 
 ### Top Navigation
 Company name on the left. Menu items: **Services** (dropdown), **Pricing**, **Resources** (dropdown), **About**, **Contact**. On the right: **Login** and **Get started**.
