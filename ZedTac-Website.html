@@ -664,39 +664,134 @@
   /* .hero-trust removed — the hero now states the three pillars via
      .hero-pillars instead of an empty trust row. */
 
-  .dash-card{
-    background:var(--zt-white);
-    background:transparent;
-    color:inherit;
-    border-radius:0;
-    padding:34px; /* Keep padding to maintain internal spacing */
-    box-shadow:none;
-    border:none;
+  /* ==========================================================================
+     HERO PRODUCT WINDOW
+     A dark screen sitting on a cream hero. The card used to be transparent and
+     borderless with a peach tint, which on this ground had almost no edge and
+     read as an unfinished placeholder -- the one thing a hero visual cannot
+     afford, since it is the first evidence a visitor has that real software
+     exists behind the copy. #0b0b0d is the same surface the Eight Sectors and
+     Three Layers cards already use, so it belongs to the system rather than
+     being a new invention.
+
+     Scoped .hero .holo .dash-* deliberately: three later blocks in this
+     stylesheet also style .dash-card at one and two classes, and three classes
+     clears all of them regardless of source order.
+     ========================================================================== */
+  .hero .holo .dash-card{
+    background:#0b0b0d;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:var(--r-lg);
+    box-shadow:0 44px 90px -50px rgba(38,23,11,.55);
+    padding:0; overflow:hidden;
+    color:rgba(255,255,255,.82);
+    position:relative; z-index:1;
+    width:min(560px, 100%);
+  }
+
+  /* Window chrome. One dot carries the brand, so the bar is not a generic
+     macOS impression. */
+  .hero .holo .dash-top{
+    display:flex; align-items:center; gap:12px;
+    margin:0; padding:13px 16px;
+    border-bottom:1px solid rgba(255,255,255,.09);
+    background:rgba(255,255,255,.03);
+  }
+  .hero .holo .dash-dots{ display:flex; gap:6px; }
+  .hero .holo .dash-dots span{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.16); }
+  .hero .holo .dash-dots span:first-child{ background:rgba(255,148,71,.8); }
+  .hero .holo .dash-tag{
+    margin-left:auto;
+    font-size:11px; padding:0; background:none; border-radius:0;
+    color:rgba(255,255,255,.4);
+  }
+
+  /* The one moving thing in the window, and the only one that carries meaning.
+     Opacity only, so it composites; and the hero sits inside a block the
+     off-screen idle module parks, so it stops when nobody is looking. */
+  .hero .holo .dash-live{
+    display:inline-flex; align-items:center; gap:6px; margin-left:8px;
+    font-family:'JetBrains Mono',monospace; font-size:10px;
+    letter-spacing:.09em; text-transform:uppercase;
+    color:rgba(123,224,168,.92);
+  }
+  .hero .holo .dash-live i{
+    width:6px; height:6px; border-radius:50%; background:#7BE0A8;
+    animation:dash-live 2.2s ease-in-out infinite;
+  }
+  @keyframes dash-live{ 0%,100%{ opacity:1; } 50%{ opacity:.22; } }
+  @media (prefers-reduced-motion: reduce){ .hero .holo .dash-live i{ animation:none; } }
+
+  .hero .holo .dash-body{ display:grid; grid-template-columns:142px 1fr; }
+
+  .hero .holo .dash-rail{
+    display:flex; flex-direction:column; gap:1px;
+    padding:12px 9px;
+    border-right:1px solid rgba(255,255,255,.09);
+  }
+  .hero .holo .dash-rail-item{
     position:relative;
-    z-index:1;
+    font-size:12px; line-height:1.25; white-space:nowrap;
+    padding:8px 10px; border-radius:8px;
+    color:rgba(255,255,255,.48);
   }
-  /* .dash-3d and its ds1/ds2/ds3 bokeh shapes removed — the hero visual is now
-     the .holo cluster, which carries its own glow and floating event chips. */
-  .dash-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; }
-  .dash-dots{ display:flex; gap:6px; }
-  .dash-dots span{ width:9px; height:9px; border-radius:50%; background:var(--zt-line); }
-  .dash-tag{
-    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--zt-orange-deep);
-    background:transparent; padding:8px 12px; border-radius:var(--r-pill);
+  .hero .holo .dash-rail-item.is-on{ background:rgba(255,148,71,.14); color:#FFC79A; }
+  .hero .holo .dash-rail-item.has-dot::after{
+    content:''; position:absolute; right:9px; top:50%; margin-top:-3px;
+    width:6px; height:6px; border-radius:50%; background:#FF9447;
   }
-  .dash-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; }
-  .dash-stat{ background:var(--zt-cream); border-radius:var(--r-sm); padding:20px; border:1px solid var(--zt-line); }
-  .dash-stat span{ font-size:11.5px; color:var(--zt-ink-soft); }
-  .dash-stat strong{ display:block; font-family:'Space Grotesk',sans-serif; font-size:22px; margin-top:4px; }
-  .dash-bars{ display:flex; align-items:flex-end; gap:8px; height:130px; background:var(--zt-cream); border-radius:var(--r-sm); padding:14px; border:1px solid var(--zt-line); }
-  .dash-bars i{ flex:1; border-radius:var(--r-xs) 6px 0 0; background:var(--grad); opacity:.85; animation:rise 2.4s ease-in-out infinite alternate; }
-  .dash-bars i:nth-child(2){ animation-delay:.15s; }
-  .dash-bars i:nth-child(3){ animation-delay:.3s; }
-  .dash-bars i:nth-child(4){ animation-delay:.45s; }
-  .dash-bars i:nth-child(5){ animation-delay:.6s; }
-  .dash-bars i:nth-child(6){ animation-delay:.75s; }
-  @keyframes rise{ from{ transform:scaleY(.55); } to{ transform:scaleY(1); } }
-  .dash-bars i{ transform-origin:bottom; }
+
+  .hero .holo .dash-main{ padding:16px; display:flex; flex-direction:column; gap:13px; }
+
+  .hero .holo .dash-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0; }
+  .hero .holo .dash-stat{
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+    border-radius:10px; padding:11px 12px;
+  }
+  .hero .holo .dash-stat span{
+    display:block; font-size:10px; letter-spacing:.05em; text-transform:uppercase;
+    color:rgba(255,255,255,.42);
+  }
+  .hero .holo .dash-stat strong{
+    display:block; font-family:'Space Grotesk',sans-serif;
+    font-size:22px; margin-top:4px; color:#FFFFFF; letter-spacing:-.01em;
+  }
+  .hero .holo .dash-delta{ font-style:normal; font-size:10.5px; color:#7BE0A8; }
+
+  .hero .holo .dash-chart{
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+    border-radius:10px; padding:10px 10px 8px;
+  }
+  .hero .holo .dash-chart svg{ display:block; width:100%; height:auto; }
+
+  .hero .holo .dash-feed{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+  .hero .holo .dash-feed li{ display:flex; align-items:center; gap:9px; font-size:12px; color:rgba(255,255,255,.74); }
+  .hero .holo .dash-feed em{
+    margin-left:auto; font-style:normal; font-size:10.5px;
+    font-family:'JetBrains Mono',monospace; color:rgba(255,255,255,.36);
+  }
+  .hero .holo .dash-tick{
+    flex:none; width:15px; height:15px; border-radius:50%;
+    background:rgba(123,224,168,.16);
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .hero .holo .dash-tick::before{
+    content:''; width:6px; height:3px;
+    border-left:1.6px solid #7BE0A8; border-bottom:1.6px solid #7BE0A8;
+    transform:rotate(-45deg) translate(1px,-1px);
+  }
+
+  /* Narrow: the rail lies down and keeps only the modules that carry the
+     story, rather than wrapping into two ragged lines. */
+  @media (max-width:560px){
+    .hero .holo .dash-body{ grid-template-columns:1fr; }
+    .hero .holo .dash-rail{
+      flex-direction:row; gap:4px; padding:10px;
+      border-right:none; border-bottom:1px solid rgba(255,255,255,.09);
+    }
+    .hero .holo .dash-rail-item:nth-child(n+4){ display:none; }
+    .hero .holo .dash-rail-item.has-dot::after{ display:none; }
+  }
 
   .dash-float{
     position:absolute; bottom:-22px; left:-22px;
@@ -8231,17 +8326,46 @@
           <div class="holo" ref="holo">
             <div class="holo-glow" aria-hidden="true"></div>
 
+            <!-- The product window. It used to be two stat tiles and six bars
+                 on a transparent, borderless card, which on a cream hero read
+                 as a placeholder rather than as software. It is now a dark
+                 surface -- the same #0b0b0d the Eight Sectors and Three Layers
+                 cards use -- so it reads as a screen sitting on the page.
+
+                 Everything in it is still except the live dot. A product shot
+                 does not need to move to be convincing; it needs to look like
+                 something real. -->
             <div class="dash-card">
               <div class="dash-top">
                 <div class="dash-dots"><span></span><span></span><span></span></div>
+                <span class="dash-live"><i aria-hidden="true"></i>Live</span>
                 <div class="dash-tag mono">zedtac-erp.live</div>
               </div>
-              <div class="dash-grid">
-                <div class="dash-stat"><span>Monthly Orders</span><strong>3,482</strong></div>
-                <div class="dash-stat"><span>Revenue Growth</span><strong>+18.4%</strong></div>
-              </div>
-              <div class="dash-bars">
-                <i style="height:40%"></i><i style="height:65%"></i><i style="height:50%"></i><i style="height:82%"></i><i style="height:60%"></i><i style="height:95%"></i>
+              <div class="dash-body">
+                <!-- The rail shows the breadth the copy claims, rather than
+                     asserting it again. Decorative: these modules are named in
+                     the nav and in Three Layers. -->
+                <div class="dash-rail" aria-hidden="true">
+                  <span class="dash-rail-item is-on">Finance</span>
+                  <span class="dash-rail-item">Inventory</span>
+                  <span class="dash-rail-item">Supply chain</span>
+                  <span class="dash-rail-item">Manufacturing</span>
+                  <span class="dash-rail-item">HR &amp; payroll</span>
+                  <span class="dash-rail-item has-dot">Automation</span>
+                </div>
+                <div class="dash-main">
+                  <div class="dash-grid">
+                    <div class="dash-stat"><span>Monthly orders</span><strong>3,482</strong><i class="dash-delta">+6.1% vs last</i></div>
+                    <div class="dash-stat"><span>Revenue growth</span><strong>+18.4%</strong><i class="dash-delta">QoQ</i></div>
+                  </div>
+                  <div class="dash-chart"><svg viewBox="0 0 260 80" role="img" aria-label="Twelve months of posted volume, trending up"><rect x="4" y="52" width="14" height="20" rx="3" fill="rgba(255,255,255,.14)"/><rect x="25" y="44" width="14" height="28" rx="3" fill="rgba(255,255,255,.14)"/><rect x="46" y="48" width="14" height="24" rx="3" fill="rgba(255,255,255,.14)"/><rect x="67" y="36" width="14" height="36" rx="3" fill="rgba(255,255,255,.14)"/><rect x="88" y="40" width="14" height="32" rx="3" fill="rgba(255,255,255,.14)"/><rect x="109" y="28" width="14" height="44" rx="3" fill="rgba(255,255,255,.14)"/><rect x="130" y="34" width="14" height="38" rx="3" fill="rgba(255,255,255,.14)"/><rect x="151" y="22" width="14" height="50" rx="3" fill="rgba(255,255,255,.14)"/><rect x="172" y="26" width="14" height="46" rx="3" fill="rgba(255,255,255,.14)"/><rect x="193" y="14" width="14" height="58" rx="3" fill="#FF9447"/><rect x="214" y="18" width="14" height="54" rx="3" fill="#FF9447"/><rect x="235" y="6" width="14" height="66" rx="3" fill="#FF9447"/><polyline points="11,52 32,44 53,48 74,36 95,40 116,28 137,34 158,22 179,26 200,14 221,18 242,6" fill="none" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="0" y1="76" x2="260" y2="76" stroke="#fff" stroke-opacity=".09" stroke-width="1"/></svg></div>
+                  <!-- The second pillar: runs that already happened. -->
+                  <ul class="dash-feed">
+                    <li><span class="dash-tick" aria-hidden="true"></span>214 invoices posted<em>09:12</em></li>
+                    <li><span class="dash-tick" aria-hidden="true"></span>Reorder raised, 3 SKUs<em>09:04</em></li>
+                    <li><span class="dash-tick" aria-hidden="true"></span>Payroll run approved<em>08:47</em></li>
+                  </ul>
+                </div>
               </div>
             </div>
 
