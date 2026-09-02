@@ -6431,56 +6431,34 @@
   /* An earlier rule lifts every child of .hero to z-index 1. The scene is the
      one child that has to stay underneath, and an id outranks that selector. */
   /* ---- hero backdrop -------------------------------------------------------
-     Vector rather than a photograph, for three reasons: it is sharp on any
-     display without shipping a second asset, it costs no extra request on the
-     one view that decides whether a visitor stays, and its colours are the
-     page's own tokens instead of something sampled to approximate them. The
-     subject is the product itself -- ledger sheets lying on one plane with
-     data moving between them -- and there are no people in it.
+     The picture from the reference, served from this repo rather than hot
+     linked. The hero image is the first thing a visitor sees, and making the
+     first thing they see depend on a third-party host reachable at that moment
+     is a bad trade for 114 KB. It is an <img> and not a CSS background so the
+     browser can find it in the initial HTML scan; fetchpriority marks it as
+     the one image on the page worth loading first.
 
-     Everything here is deliberately faint. A hero backdrop that competes with
-     the headline is a worse backdrop, however good it looks on its own.
+     Empty alt on purpose: it is decoration, and describing an abstract texture
+     to a screen reader adds noise, not information.
 
-     The mask is what protects the copy: the art is all but absent on the left
-     where the headline and paragraph sit, and only reaches full strength on
-     the right behind the card. */
-  /* `div.hero-art`, not `.hero-art`: the rule further up that lifts every
-     hero child to position:relative is `.hero > div:not(.hero-scene)`, which
-     counts an element as well as a class. A plain class selector ties on
-     classes but loses on that element, so the art was laid out as a grid item
-     and pushed the two columns sideways. */
+     The veil is what protects the copy. The photograph is already pale, but
+     the headline sits over its lightest corner and a cream wash keeps that
+     relationship fixed rather than depending on the image. */
   .hero > div.hero-art{
     position:absolute; inset:0; z-index:0;
     pointer-events:none; overflow:hidden;
-    -webkit-mask-image:linear-gradient(102deg, transparent 4%, rgba(0,0,0,.22) 34%, #000 68%);
-            mask-image:linear-gradient(102deg, transparent 4%, rgba(0,0,0,.22) 34%, #000 68%);
   }
-  .hero-art svg{ display:block; width:100%; height:100%; }
-
-  .hero-art .ha-grid{ stroke:var(--zt-primary); stroke-opacity:.10; stroke-width:1; fill:none; }
-  .hero-art .ha-bloom-in{ stop-color:var(--zt-primary); stop-opacity:.16; }
-  .hero-art .ha-bloom2-in{ stop-color:#E8B98F; stop-opacity:.20; }
-  .hero-art .ha-bloom-out{ stop-color:var(--zt-primary); stop-opacity:0; }
-
-  .hero-art .ha-sheet{ fill:#FFFFFF; fill-opacity:.62; stroke:var(--zt-primary); stroke-opacity:.20; }
-  .hero-art .ha-sheet-head{ fill:var(--zt-primary); fill-opacity:.14; }
-  .hero-art .ha-row{ fill:var(--zt-orange-deep); fill-opacity:.11; }
-  .hero-art .ha-row-num{ fill-opacity:.20; }
-
-  .hero-art .ha-flow{
-    fill:none; stroke:var(--zt-primary); stroke-opacity:.42;
-    stroke-width:1.8; stroke-linecap:round; stroke-dasharray:6 10;
+  .hero-art img{
+    width:100%; height:100%;
+    object-fit:cover; object-position:center top;
+    display:block;
   }
-  .hero-art .ha-node{ fill:var(--zt-primary); fill-opacity:.5; }
-
-  /* Stacked layout puts the copy over the middle of the art, so it steps back
-     further and the fade runs down the page instead of across it. */
-  @media (max-width:920px){
-    .hero > div.hero-art{
-      opacity:.55;
-      -webkit-mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.3) 26%, #000 54%);
-              mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.3) 26%, #000 54%);
-    }
+  .hero-art::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,
+      rgba(253,247,242,.88) 0%,
+      rgba(255,244,236,.75) 50%,
+      rgba(255,235,220,.60) 100%);
   }
 
   .hero > #hero-3d{ z-index:0; }
@@ -8263,7 +8241,10 @@
              the page's own tokens rather than something sampled to match.
              The subject is the product -- ledger sheets on one plane with
              data moving between them -- and there are no people in it. -->
-        <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><pattern id="haGrid" width="46" height="46" patternUnits="userSpaceOnUse" patternTransform="skewY(-9)"><path d="M46 0V46M0 46H46" class="ha-grid"/></pattern><radialGradient id="haBloomA" cx="50%" cy="50%" r="50%"><stop offset="0" class="ha-bloom-in"/><stop offset="1" class="ha-bloom-out"/></radialGradient><radialGradient id="haBloomB" cx="50%" cy="50%" r="50%"><stop offset="0" class="ha-bloom2-in"/><stop offset="1" class="ha-bloom-out"/></radialGradient></defs><rect width="1440" height="900" fill="url(#haGrid)"/><ellipse cx="1180" cy="180" rx="520" ry="400" fill="url(#haBloomA)"/><ellipse cx="820" cy="820" rx="460" ry="330" fill="url(#haBloomB)"/><g transform="skewY(-9)"><rect x="560" y="300" width="300" height="190" rx="14" class="ha-sheet"/><rect x="560" y="300" width="300" height="26" rx="13" class="ha-sheet-head"/><rect x="582" y="350" width="180" height="7" rx="3.5" class="ha-row"/><rect x="792" y="350" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="582" y="376" width="180" height="7" rx="3.5" class="ha-row"/><rect x="792" y="376" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="582" y="402" width="180" height="7" rx="3.5" class="ha-row"/><rect x="792" y="402" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="582" y="428" width="180" height="7" rx="3.5" class="ha-row"/><rect x="792" y="428" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="900" y="150" width="320" height="200" rx="14" class="ha-sheet"/><rect x="900" y="150" width="320" height="26" rx="13" class="ha-sheet-head"/><rect x="922" y="200" width="200" height="7" rx="3.5" class="ha-row"/><rect x="1152" y="200" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="922" y="226" width="200" height="7" rx="3.5" class="ha-row"/><rect x="1152" y="226" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="922" y="252" width="200" height="7" rx="3.5" class="ha-row"/><rect x="1152" y="252" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="922" y="278" width="200" height="7" rx="3.5" class="ha-row"/><rect x="1152" y="278" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="760" y="560" width="290" height="175" rx="14" class="ha-sheet"/><rect x="760" y="560" width="290" height="26" rx="13" class="ha-sheet-head"/><rect x="782" y="610" width="170" height="7" rx="3.5" class="ha-row"/><rect x="982" y="610" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="782" y="636" width="170" height="7" rx="3.5" class="ha-row"/><rect x="982" y="636" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/><rect x="782" y="662" width="170" height="7" rx="3.5" class="ha-row"/><rect x="982" y="662" width="46" height="7" rx="3.5" class="ha-row ha-row-num"/></g><g class="ha-flow"><path d="M860 372 Q940 330 1000 300"/><path d="M900 470 Q860 540 812 596"/><path d="M1050 640 Q1180 600 1300 520"/><path d="M520 470 Q600 520 700 540"/></g><g class="ha-node"><circle cx="860" cy="372" r="6"/><circle cx="1000" cy="300" r="5"/><circle cx="812" cy="596" r="6"/><circle cx="1300" cy="520" r="5"/><circle cx="520" cy="470" r="4"/></g></svg></div>
+        <div class="hero-art" aria-hidden="true">
+          <img src="images/hero-bg.jpg" alt="" width="1800" height="900"
+               decoding="async" fetchpriority="high">
+        </div>
         <div id="hero-3d" aria-hidden="true"></div>
 
         <div class="hero-content">
