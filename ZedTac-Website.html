@@ -1015,48 +1015,79 @@
     box-shadow:var(--zt-shadow); border-color:var(--zt-orange-light);
   }
   /* ---- this section's own hover ------------------------------------------
-     The brief was for these cards to behave differently from the rest of the
-     site: the one under the cursor should lift out of the row rather than just
-     nudge. Growing it alone does not read as "separate" -- the row still looks
-     like a row of equals with one slightly larger. So the others step back at
-     the same time, and the gap between them is what does the work.
+     The card under the cursor leaves the row and comes to the middle of the
+     screen, large, while the rest blur behind it.
 
-     The track scrolls horizontally, which means overflow-y resolves to auto as
-     well and would slice the top and bottom off a card that grows. The padding
-     below gives it room to grow into; the negative margins take that room back
-     out of the layout so nothing else moves. */
-  .blog-track{
-    /* Headroom for the hovered card, measured rather than guessed: it lifts
-       16px and gains about 13px above its own top at 1.07, so 24px was six
-       short and clipped it. The negative margins take the room back out of the
-       layout, so nothing around the row moves. */
-    padding-top:38px; padding-bottom:34px;
-    margin-top:-38px; margin-bottom:-24px;
-  }
-  .blog-track .blog-card{
-    position:relative; z-index:1;
-    transition:transform .42s var(--ease), box-shadow .42s var(--ease),
-               border-color .42s var(--ease), opacity .42s var(--ease),
-               filter .42s var(--ease);
-  }
+     WHY THE INNER WRAPPER. The obvious version -- position:fixed on the card
+     itself -- breaks twice. The row is a flex track, so a card leaving the
+     flow collapses the row and shifts every other card sideways; and once the
+     card has flown to the centre the pointer is no longer over it, :hover
+     drops, it flies back, the pointer is over it again, and it oscillates.
 
-  /* Pointer devices only. On touch there is no hover to leave, so the dimming
-     would latch on the last card tapped and stay there. */
+     So the <article> never moves. It keeps its box in the row, which keeps the
+     layout still and keeps the pointer inside it, and therefore keeps :hover.
+     Only .blog-inner travels. Checked first that no ancestor sets transform,
+     filter, perspective or contain -- any of those would make "fixed" resolve
+     against that ancestor and the card would be clipped back inside the track
+     rather than centring on the screen. */
+  .blog-inner{ display:block; }
+
   @media (hover:hover) and (pointer:fine){
-    .blog-track:hover .blog-card{ opacity:.42; filter:saturate(.65); }
-    .blog-track .blog-card:hover{
-      opacity:1; filter:none; z-index:3;
-      transform:translateY(-16px) scale(1.07);
-      box-shadow:0 42px 72px -30px rgba(38,23,11,.48);
-      border-color:var(--zt-primary);
+    /* Everything else recedes. :not(:hover) rather than dimming all and then
+       undoing it on the hovered one, so the hovered card never carries a
+       filter even mid-transition -- a filter on it would create a containing
+       block and snap its fixed child back into the row. */
+    .blog-track:hover .blog-card:not(:hover){
+      opacity:.45; filter:blur(2.5px) saturate(.7);
     }
+    .blog-track .blog-card{
+      transition:opacity .35s var(--ease), filter .35s var(--ease);
+    }
+
+    /* The empty slot left behind, so the row still reads as six cards and the
+       eye can see where the enlarged one came from. */
+    .blog-track .blog-card:hover{
+      background:transparent;
+      border-style:dashed;
+      border-color:rgba(178,70,0,.35);
+      box-shadow:none;
+      transform:none;          /* must stay none: see the note above */
+      /* And neither may this one. .blog-card carries a backdrop-filter it
+         inherits from the shared card preset, which renders nothing here --
+         the card paints an opaque background over it -- but a backdrop-filter
+         creates a containing block for fixed descendants just as a transform
+         does. With it on, "fixed" resolved against the card instead of the
+         viewport and the enlarged copy centred itself inside its own 286px
+         slot rather than on the screen. */
+      -webkit-backdrop-filter:none; backdrop-filter:none;
+    }
+    .blog-track .blog-card:hover > .blog-inner{
+      position:fixed; left:50%; top:50%; z-index:60;
+      width:min(560px, 92vw);
+      transform:translate(-50%,-50%);
+      border-radius:var(--radius); overflow:hidden;
+      border:1px solid var(--zt-primary);
+      background:var(--zt-card);
+      box-shadow:0 60px 120px -38px rgba(20,14,8,.55),
+                 0 10px 28px -12px rgba(20,14,8,.28);
+      animation:blog-pop .32s var(--ease);
+    }
+    /* The artwork gets the room its new size deserves. */
+    .blog-track .blog-card:hover > .blog-inner .blog-thumb{ height:290px; }
+    .blog-track .blog-card:hover > .blog-inner .blog-body{ padding:28px 30px 32px; }
+    .blog-track .blog-card:hover > .blog-inner h3{ font-size:24px; }
+    .blog-track .blog-card:hover > .blog-inner p{ font-size:15.5px; }
+  }
+  @keyframes blog-pop{
+    from{ opacity:0; transform:translate(-50%,-50%) scale(.94); }
+    to  { opacity:1; transform:translate(-50%,-50%) scale(1); }
   }
 
-  /* The lift is the point; the scale is the flourish. Reduced motion keeps the
-     card distinguishable without moving it. */
+  /* Touch has no hover to leave -- the dimming would latch on the last card
+     tapped -- and reduced motion should not have a card fly across the screen.
+     Both fall back to the row behaving normally. */
   @media (prefers-reduced-motion: reduce){
-    .blog-track .blog-card{ transition:opacity .2s linear; }
-    .blog-track .blog-card:hover{ transform:none; }
+    .blog-track .blog-card:hover > .blog-inner{ animation:none; }
   }
 
   .blog-thumb{
@@ -8579,6 +8610,7 @@
                  did nothing. Kept as a summary card until the posts exist; the
                  "Read article" affordance below went with it. -->
             <article class="blog-card" v-for="b in blogPosts" :key="b.title">
+              <div class="blog-inner">
               <div class="blog-thumb">
                 <div class="blog-card-3d" aria-hidden="true">
                   <span class="hero-shape bc1"></span>
@@ -8592,6 +8624,7 @@
                 <span class="blog-date">{{ b.date }}</span>
                 <h3>{{ b.title }}</h3>
                 <p>{{ b.excerpt }}</p>
+              </div>
               </div>
             </article>
           </div>
