@@ -687,32 +687,18 @@
     width:min(620px, 100%);
   }
 
-  /* --- the window runs to the right edge -----------------------------------
-     The card was a framed box with cream on all four sides, which reads as a
-     picture placed on the page rather than a screen the page is looking at. It
-     now widens past the wrap's right padding so its right edge lands on the
-     viewport edge and its right corners leave the canvas.
+  /* --- the visual column ----------------------------------------------------
+     An earlier pass let the card run past the wrap and sit flush against the
+     viewport edge. It read as pinned to the side of the screen rather than
+     placed on the page, so the bleed is gone: the card keeps the page's own
+     right margin like everything else, and all four corners stay rounded.
 
-     Safe because html and body already carry overflow-x:clip. Desktop only --
-     below 920px the hero stacks and this should be a contained card again. */
+     The column is still given more of the row than it started with, so the
+     card is wide without having to leave the page to get there. */
   @media (min-width:921px){
-    /* One value drives both halves: how far the card runs past the wrap, and
-       how far its contents must stay clear of the cut. */
-    .hero{ --card-bleed:clamp(20px, 4vw, 64px); grid-template-columns:1fr 1.14fr; }
-    .hero-visual{ max-width:none; margin-right:calc(-1 * var(--card-bleed)); }
-    .hero .holo .dash-card{
-      width:100%;
-      box-shadow:-18px 40px 80px -46px rgba(38,23,11,.34),
-                 0 2px 8px -3px rgba(38,23,11,.05);
-      /* Rounding a corner that sits exactly on the boundary leaves crescents
-         of page showing through the curve -- the opposite of merging with it. */
-      border-top-right-radius:0;
-      border-bottom-right-radius:0;
-      border-right:none;
-    }
-    /* The edge must cut through empty card, never through content. */
-    .hero .holo .dash-top{ padding-right:calc(20px + var(--card-bleed)); }
-    .hero .holo .dash-main{ padding-right:calc(20px + var(--card-bleed)); }
+    .hero{ grid-template-columns:1fr 1.06fr; }
+    .hero-visual{ max-width:none; }
+    .hero .holo .dash-card{ width:100%; }
   }
 
   .hero .holo .dash-top{
