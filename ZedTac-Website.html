@@ -697,6 +697,17 @@
   .dash-bars i:nth-child(6){ animation-delay:.75s; }
   @keyframes rise{ from{ transform:scaleY(.55); } to{ transform:scaleY(1); } }
 
+  /* The card ran short beside the copy column, so the hero's copy of it is
+     given a little more height. Most of it goes to the chart -- a taller plot
+     is worth more than deeper padding -- with a few pixels around the edges so
+     the extra does not all land in one place.
+
+     Scoped to the hero rather than edited into the .dash-card and .dash-bars
+     rules above: those are shared, and this is only wanted here. */
+  .hero .holo .dash-card{ padding:38px; }
+  .hero .holo .dash-grid{ margin-bottom:26px; }
+  .hero .holo .dash-bars{ height:186px; }
+
   .dash-float{
     position:absolute; bottom:-22px; left:-22px;
     background:var(--zt-white); border:1px solid var(--zt-line);
