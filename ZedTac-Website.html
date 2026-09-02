@@ -665,132 +665,174 @@
      .hero-pillars instead of an empty trust row. */
 
   /* ==========================================================================
-     HERO PRODUCT WINDOW
-     A dark screen sitting on a cream hero. The card used to be transparent and
-     borderless with a peach tint, which on this ground had almost no edge and
-     read as an unfinished placeholder -- the one thing a hero visual cannot
-     afford, since it is the first evidence a visitor has that real software
-     exists behind the copy. #0b0b0d is the same surface the Eight Sectors and
-     Three Layers cards already use, so it belongs to the system rather than
-     being a new invention.
+     HERO PRODUCT WINDOW — light
+     A screen sitting on the page, in the page's own palette rather than a dark
+     slab dropped onto a cream hero. White ground, the warm --zt-line hairline,
+     ink type. Bigger than it was: it now carries enough height that the visual
+     column no longer has a large empty band above and below it.
 
-     Scoped .hero .holo .dash-* deliberately: three later blocks in this
-     stylesheet also style .dash-card at one and two classes, and three classes
-     clears all of them regardless of source order.
+     Scoped .hero .holo .dash-* at three classes on purpose -- three later
+     blocks in this stylesheet also style .dash-card at one and two classes,
+     and three clears all of them regardless of source order.
      ========================================================================== */
   .hero .holo .dash-card{
-    background:#0b0b0d;
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:var(--r-lg);
-    box-shadow:0 44px 90px -50px rgba(38,23,11,.55);
+    background:var(--zt-white);
+    border:1px solid var(--zt-line);
+    border-radius:var(--r-xl);
+    box-shadow:0 40px 80px -44px rgba(38,23,11,.30),
+               0 2px 8px -3px rgba(38,23,11,.06);
     padding:0; overflow:hidden;
-    color:rgba(255,255,255,.82);
+    color:var(--zt-ink);
     position:relative; z-index:1;
-    width:min(560px, 100%);
+    width:min(620px, 100%);
   }
 
-  /* Window chrome. One dot carries the brand, so the bar is not a generic
-     macOS impression. */
   .hero .holo .dash-top{
     display:flex; align-items:center; gap:12px;
-    margin:0; padding:13px 16px;
-    border-bottom:1px solid rgba(255,255,255,.09);
-    background:rgba(255,255,255,.03);
+    margin:0; padding:15px 20px;
+    border-bottom:1px solid var(--zt-line);
+    background:var(--zt-cream);
   }
-  .hero .holo .dash-dots{ display:flex; gap:6px; }
-  .hero .holo .dash-dots span{ width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.16); }
-  .hero .holo .dash-dots span:first-child{ background:rgba(255,148,71,.8); }
+  .hero .holo .dash-dots{ display:flex; gap:7px; }
+  .hero .holo .dash-dots span{ width:10px; height:10px; border-radius:50%; background:rgba(38,23,11,.14); }
+  .hero .holo .dash-dots span:first-child{ background:var(--zt-primary); }
   .hero .holo .dash-tag{
-    margin-left:auto;
-    font-size:11px; padding:0; background:none; border-radius:0;
-    color:rgba(255,255,255,.4);
+    margin-left:auto; font-size:11.5px; padding:0; background:none; border-radius:0;
+    color:var(--zt-ink-soft);
   }
 
-  /* The one moving thing in the window, and the only one that carries meaning.
-     Opacity only, so it composites; and the hero sits inside a block the
-     off-screen idle module parks, so it stops when nobody is looking. */
+  /* Live session indicator. The dot is the only thing that moves on its own;
+     the figures and the feed are driven by the module in the closing script. */
   .hero .holo .dash-live{
-    display:inline-flex; align-items:center; gap:6px; margin-left:8px;
-    font-family:'JetBrains Mono',monospace; font-size:10px;
+    display:inline-flex; align-items:center; gap:7px; margin-left:10px;
+    font-family:'JetBrains Mono',monospace; font-size:10.5px;
     letter-spacing:.09em; text-transform:uppercase;
-    color:rgba(123,224,168,.92);
+    color:#1B7A4B;
   }
   .hero .holo .dash-live i{
-    width:6px; height:6px; border-radius:50%; background:#7BE0A8;
+    width:7px; height:7px; border-radius:50%; background:#22A05F;
     animation:dash-live 2.2s ease-in-out infinite;
   }
-  @keyframes dash-live{ 0%,100%{ opacity:1; } 50%{ opacity:.22; } }
-  @media (prefers-reduced-motion: reduce){ .hero .holo .dash-live i{ animation:none; } }
+  @keyframes dash-live{ 0%,100%{ opacity:1; } 50%{ opacity:.2; } }
 
-  .hero .holo .dash-body{ display:grid; grid-template-columns:142px 1fr; }
+  .hero .holo .dash-body{ display:grid; grid-template-columns:164px 1fr; }
 
   .hero .holo .dash-rail{
-    display:flex; flex-direction:column; gap:1px;
-    padding:12px 9px;
-    border-right:1px solid rgba(255,255,255,.09);
+    display:flex; flex-direction:column; gap:2px;
+    padding:16px 11px;
+    border-right:1px solid var(--zt-line);
+    background:linear-gradient(180deg, rgba(255,249,244,.7), transparent 60%);
   }
   .hero .holo .dash-rail-item{
     position:relative;
-    font-size:12px; line-height:1.25; white-space:nowrap;
-    padding:8px 10px; border-radius:8px;
-    color:rgba(255,255,255,.48);
+    font-size:13px; line-height:1.25; white-space:nowrap;
+    padding:9px 11px; border-radius:9px;
+    color:var(--zt-ink-soft);
   }
-  .hero .holo .dash-rail-item.is-on{ background:rgba(255,148,71,.14); color:#FFC79A; }
+  .hero .holo .dash-rail-item.is-on{
+    background:rgba(255,148,71,.16); color:var(--zt-orange-deep); font-weight:600;
+  }
   .hero .holo .dash-rail-item.has-dot::after{
-    content:''; position:absolute; right:9px; top:50%; margin-top:-3px;
-    width:6px; height:6px; border-radius:50%; background:#FF9447;
+    content:''; position:absolute; right:11px; top:50%; margin-top:-3.5px;
+    width:7px; height:7px; border-radius:50%; background:var(--zt-primary);
   }
 
-  .hero .holo .dash-main{ padding:16px; display:flex; flex-direction:column; gap:13px; }
+  .hero .holo .dash-main{ padding:20px; display:flex; flex-direction:column; gap:16px; }
 
-  .hero .holo .dash-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0; }
+  .hero .holo .dash-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0; }
   .hero .holo .dash-stat{
-    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-    border-radius:10px; padding:11px 12px;
+    background:var(--zt-cream); border:1px solid var(--zt-line);
+    border-radius:12px; padding:14px 15px;
   }
   .hero .holo .dash-stat span{
-    display:block; font-size:10px; letter-spacing:.05em; text-transform:uppercase;
-    color:rgba(255,255,255,.42);
+    display:block; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--zt-ink-soft);
   }
   .hero .holo .dash-stat strong{
     display:block; font-family:'Space Grotesk',sans-serif;
-    font-size:22px; margin-top:4px; color:#FFFFFF; letter-spacing:-.01em;
+    font-size:27px; margin-top:5px; color:var(--zt-ink); letter-spacing:-.015em;
+    font-variant-numeric:tabular-nums;
   }
-  .hero .holo .dash-delta{ font-style:normal; font-size:10.5px; color:#7BE0A8; }
+  /* The tile warms for a moment as the module writes a new value -- the whole
+     tile rather than the number alone, because it is the more visible surface
+     and it does not fight the type colour. */
+  .hero .holo .dash-stat{ transition:background-color .3s var(--ease), border-color .3s var(--ease); }
+  .hero .holo .dash-stat.is-tick{
+    background:rgba(255,148,71,.18);
+    border-color:rgba(255,148,71,.55);
+  }
+  .hero .holo .dash-delta{ font-style:normal; font-size:11px; color:#1B7A4B; }
 
   .hero .holo .dash-chart{
-    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
-    border-radius:10px; padding:10px 10px 8px;
+    background:var(--zt-cream); border:1px solid var(--zt-line);
+    border-radius:12px; padding:14px 14px 10px;
   }
   .hero .holo .dash-chart svg{ display:block; width:100%; height:auto; }
+  .hero .holo .dash-chart rect{ transition:y .55s var(--ease), height .55s var(--ease); }
 
-  .hero .holo .dash-feed{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
-  .hero .holo .dash-feed li{ display:flex; align-items:center; gap:9px; font-size:12px; color:rgba(255,255,255,.74); }
+  .hero .holo .dash-table{
+    width:100%; border-collapse:collapse;
+    font-size:12.5px; color:var(--zt-ink-soft);
+  }
+  .hero .holo .dash-table td{
+    padding:10px 8px; border-top:1px solid var(--zt-line); white-space:nowrap;
+  }
+  .hero .holo .dash-table tr:first-child td{ border-top:none; }
+  .hero .holo .dash-table td:first-child{
+    font-family:'JetBrains Mono',monospace; color:var(--zt-ink); padding-left:0;
+  }
+  .hero .holo .dash-table td.num{ text-align:right; font-variant-numeric:tabular-nums; color:var(--zt-ink); }
+  .hero .holo .dash-table td:last-child{ text-align:right; padding-right:0; }
+  .hero .holo .dash-table .pill{
+    display:inline-block; padding:3px 10px; border-radius:999px;
+    font-size:10.5px; letter-spacing:.03em;
+  }
+  .hero .holo .dash-table .pill.is-ok{ background:rgba(34,160,95,.14); color:#1B7A4B; }
+  .hero .holo .dash-table .pill.is-wait{ background:rgba(255,148,71,.20); color:var(--zt-orange-deep); }
+  @media (max-width:560px){
+    .hero .holo .dash-table td:nth-child(2){ display:none; }
+  }
+
+  .hero .holo .dash-feed{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+  .hero .holo .dash-feed li{
+    display:flex; align-items:center; gap:10px;
+    font-size:13px; color:var(--zt-ink);
+  }
+  /* A row the module has just inserted, sliding down into place. */
+  .hero .holo .dash-feed li.is-new{ animation:dash-row .45s var(--ease); }
+  @keyframes dash-row{ from{ opacity:0; transform:translateY(-7px); } to{ opacity:1; transform:none; } }
   .hero .holo .dash-feed em{
-    margin-left:auto; font-style:normal; font-size:10.5px;
-    font-family:'JetBrains Mono',monospace; color:rgba(255,255,255,.36);
+    margin-left:auto; font-style:normal; font-size:11px;
+    font-family:'JetBrains Mono',monospace; color:var(--zt-ink-soft);
   }
   .hero .holo .dash-tick{
-    flex:none; width:15px; height:15px; border-radius:50%;
-    background:rgba(123,224,168,.16);
+    flex:none; width:17px; height:17px; border-radius:50%;
+    background:rgba(34,160,95,.14);
     display:inline-flex; align-items:center; justify-content:center;
   }
   .hero .holo .dash-tick::before{
     content:''; width:6px; height:3px;
-    border-left:1.6px solid #7BE0A8; border-bottom:1.6px solid #7BE0A8;
+    border-left:1.8px solid #22A05F; border-bottom:1.8px solid #22A05F;
     transform:rotate(-45deg) translate(1px,-1px);
   }
 
-  /* Narrow: the rail lies down and keeps only the modules that carry the
-     story, rather than wrapping into two ragged lines. */
+  /* Nothing in the window moves on its own for a visitor who asked for that. */
+  @media (prefers-reduced-motion: reduce){
+    .hero .holo .dash-live i{ animation:none; }
+    .hero .holo .dash-feed li.is-new{ animation:none; }
+    .hero .holo .dash-chart rect{ transition:none; }
+  }
+
   @media (max-width:560px){
     .hero .holo .dash-body{ grid-template-columns:1fr; }
     .hero .holo .dash-rail{
-      flex-direction:row; gap:4px; padding:10px;
-      border-right:none; border-bottom:1px solid rgba(255,255,255,.09);
+      flex-direction:row; gap:4px; padding:11px;
+      border-right:none; border-bottom:1px solid var(--zt-line); background:none;
     }
     .hero .holo .dash-rail-item:nth-child(n+4){ display:none; }
     .hero .holo .dash-rail-item.has-dot::after{ display:none; }
+    .hero .holo .dash-main{ padding:15px; gap:13px; }
+    .hero .holo .dash-stat strong{ font-size:23px; }
   }
 
   .dash-float{
@@ -8359,6 +8401,16 @@
                     <div class="dash-stat"><span>Revenue growth</span><strong>+18.4%</strong><i class="dash-delta">QoQ</i></div>
                   </div>
                   <div class="dash-chart"><svg viewBox="0 0 260 80" role="img" aria-label="Twelve months of posted volume, trending up"><rect x="4" y="52" width="14" height="20" rx="3" fill="rgba(255,255,255,.14)"/><rect x="25" y="44" width="14" height="28" rx="3" fill="rgba(255,255,255,.14)"/><rect x="46" y="48" width="14" height="24" rx="3" fill="rgba(255,255,255,.14)"/><rect x="67" y="36" width="14" height="36" rx="3" fill="rgba(255,255,255,.14)"/><rect x="88" y="40" width="14" height="32" rx="3" fill="rgba(255,255,255,.14)"/><rect x="109" y="28" width="14" height="44" rx="3" fill="rgba(255,255,255,.14)"/><rect x="130" y="34" width="14" height="38" rx="3" fill="rgba(255,255,255,.14)"/><rect x="151" y="22" width="14" height="50" rx="3" fill="rgba(255,255,255,.14)"/><rect x="172" y="26" width="14" height="46" rx="3" fill="rgba(255,255,255,.14)"/><rect x="193" y="14" width="14" height="58" rx="3" fill="#FF9447"/><rect x="214" y="18" width="14" height="54" rx="3" fill="#FF9447"/><rect x="235" y="6" width="14" height="66" rx="3" fill="#FF9447"/><polyline points="11,52 32,44 53,48 74,36 95,40 116,28 137,34 158,22 179,26 200,14 221,18 242,6" fill="none" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><line x1="0" y1="76" x2="260" y2="76" stroke="#fff" stroke-opacity=".09" stroke-width="1"/></svg></div>
+                  <!-- A document table. Rows carrying an entity, an amount and
+                       a state are the fastest way to say "ledger", and it is
+                       the part of an ERP a buyer recognises on sight. -->
+                  <table class="dash-table">
+                    <tbody>
+                      <tr><td>INV-20481</td><td>Karachi Plant</td><td class="num">1,240,000</td><td><span class="pill is-ok">Posted</span></td></tr>
+                      <tr><td>PO-7734</td><td>Lahore Depot</td><td class="num">386,500</td><td><span class="pill is-wait">Approval</span></td></tr>
+                      <tr><td>GRN-1192</td><td>Multan Store</td><td class="num">94,200</td><td><span class="pill is-ok">Matched</span></td></tr>
+                    </tbody>
+                  </table>
                   <!-- The second pillar: runs that already happened. -->
                   <ul class="dash-feed">
                     <li><span class="dash-tick" aria-hidden="true"></span>214 invoices posted<em>09:12</em></li>
@@ -13065,6 +13117,156 @@ if (THREE) (function () {
     setTimeout(() => { queued = false; sync(); }, 0);
   }
 
+  new MutationObserver(queueSync).observe(document.body, { childList: true, subtree: true });
+  queueSync();
+})();
+
+/* ============================================================================
+   HERO WINDOW — LIVE
+   Pairs with the .hero .holo .dash-* rules in <style>.
+
+   WHY IT EXISTS. The card is the first evidence a visitor has that there is
+   working software behind the copy, and a still screenshot only ever half
+   makes that case. So the window runs: the order count climbs, a new
+   automation run drops into the feed, and the last month of the chart moves
+   with it. It is the product doing its job, in miniature.
+
+   HONESTY. The figures are illustrative, exactly as the static ones were --
+   this is a picture of a dashboard, not a connection to one. Nothing here
+   claims to be a reading from a real system.
+
+   WHAT IT COSTS. One setInterval at 2.8s. Not requestAnimationFrame: nothing
+   here needs to be resolved per frame, and a frame loop for something that
+   changes twice in six seconds would be waste. Every visible change is a
+   class or a text write picked up by a CSS transition, so the animation
+   itself runs on the compositor.
+
+   WHEN IT STOPS. An IntersectionObserver stops the timer the moment the hero
+   leaves the viewport, and it never starts under prefers-reduced-motion. The
+   tab going into the background stops it too, through visibilitychange --
+   otherwise the interval keeps firing into a page nobody is looking at.
+
+   LIFECYCLE. Vue's v-if rebuilds the home subtree on route changes, so the
+   same MutationObserver and debounced re-sync as the modules above rebinds to
+   whichever card currently exists.
+   ============================================================================ */
+(function(){
+  'use strict';
+
+  const TICK = 2800;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const RUNS = [
+    'Invoice batch posted',
+    'Reorder raised, 3 SKUs',
+    'Payroll run approved',
+    'GL closed, 4 entities',
+    'Stock count reconciled',
+    'PO matched to receipt',
+    'Credit note issued',
+    'Depreciation posted'
+  ];
+
+  function two(n){ return (n < 10 ? '0' : '') + n; }
+
+  function createCard(card){
+    const orders = card.querySelector('.dash-stat strong');
+    const feed = card.querySelector('.dash-feed');
+    const bars = [...card.querySelectorAll('.dash-chart rect')];
+    if (!orders || !feed || !bars.length) return null;
+
+    const last = bars[bars.length - 1];
+    const baseY = parseFloat(last.getAttribute('y'));
+    const baseH = parseFloat(last.getAttribute('height'));
+
+    let count = parseInt(orders.textContent.replace(/[^0-9]/g, ''), 10) || 3482;
+    let run = 0, timer = 0, live = false;
+    const clock = new Date();
+
+    function step(){
+      // the count climbs by a plausible handful, never jumps
+      count += 1 + Math.floor(Math.random() * 4);
+      orders.textContent = count.toLocaleString('en-US');
+      const tile = orders.closest('.dash-stat');
+      if (tile){
+        tile.classList.add('is-tick');
+        setTimeout(() => tile.classList.remove('is-tick'), 340);
+      }
+
+      // a fresh run at the top, the oldest one off the bottom
+      clock.setMinutes(clock.getMinutes() + 1 + Math.floor(Math.random() * 3));
+      const li = document.createElement('li');
+      li.className = 'is-new';
+      li.innerHTML = '<span class="dash-tick" aria-hidden="true"></span>' +
+        RUNS[run % RUNS.length].replace(/[<>&]/g, '') +
+        '<em>' + two(clock.getHours()) + ':' + two(clock.getMinutes()) + '</em>';
+      run++;
+      feed.insertBefore(li, feed.firstChild);
+      while (feed.children.length > 3) feed.removeChild(feed.lastChild);
+
+      // the current month breathes with the count
+      const h = baseH + (Math.random() * 8 - 3);
+      last.setAttribute('height', h.toFixed(1));
+      last.setAttribute('y', (baseY + baseH - h).toFixed(1));
+    }
+
+    function start(){
+      if (live || reduce.matches || document.hidden) return;
+      live = true; timer = setInterval(step, TICK);
+    }
+    function stop(){
+      if (!live) return;
+      live = false; clearInterval(timer); timer = 0;
+    }
+
+    let inView = false;
+
+    // Start eagerly if the card is already on screen at bind time, rather than
+    // waiting for the observer's first callback. On the hero that callback is
+    // the difference between a window that is running when the visitor arrives
+    // and one that sits still until they scroll -- and the hero is the one
+    // place on the page where the element is on screen before the observer
+    // has said anything at all.
+    function onScreen(){
+      const b = card.getBoundingClientRect();
+      return b.bottom > 0 && b.top < (window.innerHeight || 0);
+    }
+    if (onScreen()){ inView = true; start(); }
+
+    const io = new IntersectionObserver(entries => {
+      for (const e of entries){
+        inView = e.isIntersecting;
+        if (inView) start(); else stop();
+      }
+    }, { threshold: 0 });
+    io.observe(card);
+
+    // Coming back to the tab must not restart a card that has been scrolled
+    // past, so this checks both conditions rather than just the tab's.
+    function onVisibility(){
+      if (document.hidden) stop();
+      else if (inView) start();
+    }
+    document.addEventListener('visibilitychange', onVisibility);
+
+    return { el: card, dispose(){
+      stop(); io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
+    }};
+  }
+
+  let instance = null;
+  function sync(){
+    const el = document.querySelector('.hero .holo .dash-card');
+    if (instance && instance.el !== el){ instance.dispose(); instance = null; }
+    if (el && !instance) instance = createCard(el);
+  }
+  let queued = false;
+  function queueSync(){
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { queued = false; sync(); }, 0);
+  }
   new MutationObserver(queueSync).observe(document.body, { childList: true, subtree: true });
   queueSync();
 })();
