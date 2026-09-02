@@ -691,6 +691,18 @@
   @keyframes rise{ from{ transform:scaleY(.55); } to{ transform:scaleY(1); } }
   .dash-bars i{ transform-origin:bottom; }
 
+  /* The card ran short beside the copy column, so the hero's copy of it is
+     given a little more height. Most of it goes to the chart -- a taller plot
+     is worth more than deeper padding -- with a few pixels around the edges so
+     the extra does not all land in one place.
+
+     Scoped to the hero rather than edited into the .dash-card and .dash-bars
+     rules above: those are shared, and this is only wanted here. */
+  .hero .holo .dash-card{ padding:42px; }
+  .hero .holo .dash-grid{ margin-bottom:30px; }
+  .hero .holo .dash-stat{ padding:24px; }
+  .hero .holo .dash-bars{ height:268px; }
+
   .dash-float{
     position:absolute; bottom:-22px; left:-22px;
     background:var(--zt-white); border:1px solid var(--zt-line);
@@ -6282,6 +6294,37 @@
 
   /* An earlier rule lifts every child of .hero to z-index 1. The scene is the
      one child that has to stay underneath, and an id outranks that selector. */
+  /* ---- hero backdrop -------------------------------------------------------
+     The picture from the reference, served from this repo rather than hot
+     linked. The hero image is the first thing a visitor sees, and making the
+     first thing they see depend on a third-party host reachable at that moment
+     is a bad trade for 114 KB. It is an <img> and not a CSS background so the
+     browser can find it in the initial HTML scan; fetchpriority marks it as
+     the one image on the page worth loading first.
+
+     Empty alt on purpose: it is decoration, and describing an abstract texture
+     to a screen reader adds noise, not information.
+
+     The veil is what protects the copy. The photograph is already pale, but
+     the headline sits over its lightest corner and a cream wash keeps that
+     relationship fixed rather than depending on the image. */
+  .hero > div.hero-art{
+    position:absolute; inset:0; z-index:0;
+    pointer-events:none; overflow:hidden;
+  }
+  .hero-art img{
+    width:100%; height:100%;
+    object-fit:cover; object-position:center top;
+    display:block;
+  }
+  .hero-art::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,
+      rgba(253,247,242,.88) 0%,
+      rgba(255,244,236,.75) 50%,
+      rgba(255,235,220,.60) 100%);
+  }
+
   .hero > #hero-3d{ z-index:0; }
   .hero > .hero-content,
   .hero > .hero-visual{ position:relative; z-index:1; }
@@ -8058,6 +8101,15 @@
              packets moving between them. Purely decorative and inert to the
              keyboard and the accessibility tree; if WebGL or the CDN is
              unavailable the hero simply renders without it. -->
+        <!-- Hero backdrop. Vector, not a photograph: it scales to any screen
+             without a second asset, it costs no request, and its colours are
+             the page's own tokens rather than something sampled to match.
+             The subject is the product -- ledger sheets on one plane with
+             data moving between them -- and there are no people in it. -->
+        <div class="hero-art" aria-hidden="true">
+          <img src="images/hero-bg.jpg" alt="" width="1800" height="900"
+               decoding="async" fetchpriority="high">
+        </div>
         <div id="hero-3d" aria-hidden="true"></div>
 
         <div class="hero-content">
