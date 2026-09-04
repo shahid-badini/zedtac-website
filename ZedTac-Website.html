@@ -860,9 +860,22 @@
   }
   /* Settles the drawing into the card body instead of ending on a hard edge,
      and gives the category chip a ground dark enough to read on. */
+  /* The drawings are 16:9. The thumb was a fixed 170px, so at the card's width
+     the scene was scaled to cover and lost a slice off both sides; matching the
+     ratio instead means the whole drawing is shown and nothing is cropped.
+     !important because a media query further down sets this height again at
+     the same weight. */
+  #case-studies .portfolio-thumb{
+    height:auto !important;
+    aspect-ratio:16 / 9;
+  }
+  /* The veil started at 48% and reached .72, which put a heavy wash over the
+     lower half of every drawing -- the half most of them put their result in.
+     It now starts low and stays light: enough ground for the category chip,
+     not enough to swallow the picture. */
   #case-studies .portfolio-thumb .pf-veil{
     position:absolute; inset:0; z-index:0; pointer-events:none;
-    background:linear-gradient(180deg, rgba(8,8,10,0) 48%, rgba(8,8,10,.72) 100%);
+    background:linear-gradient(180deg, rgba(8,8,10,0) 68%, rgba(8,8,10,.46) 100%);
   }
   /* The sweep. Parked off the left edge and sent across on hover; a single
      transform, so it composites. */
