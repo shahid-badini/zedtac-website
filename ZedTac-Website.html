@@ -7956,6 +7956,66 @@
     }
   }
 
+
+  /* ==========================================================================
+     MOBILE RHYTHM
+     Measured at 390x844 before writing this: every section carried 118px of
+     padding above and 34px below. Padding that uneven is what makes a page
+     read as "spacing everywhere" -- each section opens with a gap the size of
+     an eighth of the screen and then runs straight into the next one. The
+     hero alone ran 1.7 screens and Three Layers 2, so the page was 10.7
+     screens of scrolling on a phone.
+
+     This sets one rhythm for small screens and lets every section share it.
+     It sits at the end of the stylesheet on purpose: roughly thirty media
+     queries above it size these same things, and the last equal-weight rule
+     wins. The selectors carry an id so they also clear the two-class rules
+     among them.
+     ========================================================================== */
+  @media (max-width:720px){
+    /* One vertical rhythm, the same above and below. Only the vertical sides
+       are set: the hero is deliberately full-bleed -- it carries a -50vw margin
+       either side so its background can span the viewport -- and insets its own
+       copy with horizontal padding. A blanket `padding: X 0` wipes that and the
+       headline runs off both edges. */
+    #main .wrap > section{ padding-top:56px !important; padding-bottom:56px !important; }
+
+    /* The heading block was reserving 52px under itself before any content. */
+    #main .sec-head{ margin-bottom:28px; }
+    #main .sec-head h2{ font-size:clamp(24px, 6.6vw, 30px); line-height:1.15; }
+    #main .sec-head p{ font-size:15.5px; line-height:1.55; margin-top:12px; }
+
+    /* Hero: the copy was filling more than a screen before the card came into
+       view, so the type steps down and the gaps between its parts close up. */
+    /* The top padding has to clear the bar, which is fixed over the hero and
+       about 76px tall here. A flat value put the first line of the headline
+       behind it. --nav-h is measured at runtime; the fallback covers the frame
+       before that measurement lands. */
+    /* Written at three classes on purpose: the hero is itself a section inside
+       a .wrap, so the rule above -- #main .wrap > section, at two classes and an
+       element -- outranks a plain .hero and was setting its top padding back to
+       the section value, leaving the first line of the headline behind the bar. */
+    #main .wrap > section.hero{
+      padding-top:calc(var(--nav-h, 84px) + 20px) !important;
+      padding-bottom:40px !important;
+    }
+    .hero h1{ font-size:clamp(30px, 8.6vw, 40px) !important; line-height:1.06; }
+    .hero .hero-sub{ font-size:15.5px; line-height:1.55; margin-top:16px; }
+    .hero .hero-cta{ margin-top:24px; gap:12px; }
+    .hero .hero-pillars{ margin-top:26px; padding-top:20px; }
+
+    /* Cards in the scrolling rows were sized for a tablet. */
+    .blog-section .blog-track .blog-card{ width:78vw !important; }
+    .portfolio-track .portfolio-card{ flex:0 0 82vw !important; }
+    .industry-slider-track .auto-card{ flex:0 0 82vw !important; }
+    .deployed-slider-track .industry-card{ flex:0 0 82vw !important; }
+  }
+
+  /* Small phones: the side gutter is the first thing to give. */
+  @media (max-width:400px){
+    .wrap{ padding:0 16px; }
+    #main .wrap > section{ padding-top:48px !important; padding-bottom:48px !important; }
+  }
 </style>
 </head>
 <body>
