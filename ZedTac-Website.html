@@ -8036,6 +8036,43 @@
     .wrap{ padding:0 16px; }
     #main .wrap > section{ padding-top:48px !important; padding-bottom:48px !important; }
   }
+
+  /* ==========================================================================
+     LABEL SCALE
+     The small uppercase labels -- category chips, tags, table keys, the mono
+     eyebrows -- were all written at a fixed 10 to 11px. Measured across the
+     range, that is the one part of the type that does not respond: identical
+     on a 390px phone and a 2560px monitor, where it reads as a rendering
+     mistake rather than a small label.
+
+     One clamp gives them the same behaviour as the rest of the type. The floor
+     is 11px rather than the 10 some carried, since 10px uppercase on a phone
+     is below what is comfortable to read; the ceiling stops them growing into
+     body copy on a large screen.
+
+     Scoped by class rather than by editing thirty declarations in place: those
+     sit in different blocks with different weights, and one rule here at the
+     end of the stylesheet reaches all of them without disturbing the rest.
+     ========================================================================== */
+  .hp-key, .dash-tag, .zt-rc-chip, .zt-rc-tag, .sb-label,
+  .industry-cat, .portfolio-cat, .blog-cat, .case-label,
+  .pricing-badge, .consult-tag, .d-keytitle, .ft-stores-note,
+  .dash-live, .blog-date, .dep-num{
+    font-size:clamp(11px, 0.74vw, 14px);
+  }
+
+  /* The reveal cards' chip and tag are set through an id-scoped selector, so a
+     plain class here loses to them and they stayed at 10 and 11px on a 2560
+     screen while everything around them scaled. Matched at the same weight. */
+  :is(#architecture, #carousel-industries) .zt-reveal-card :is(.zt-rc-chip, .zt-rc-tag){
+    font-size:clamp(11px, 0.74vw, 14px);
+  }
+
+  /* The comparison tables carry real content at label size. They get their own
+     step, a little larger, because this is copy a buyer actually reads. */
+  .cap-table td, .compare-table td, .compare-scroll td{
+    font-size:clamp(12.5px, 0.86vw, 15px);
+  }
 </style>
 </head>
 <body>
