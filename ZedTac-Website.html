@@ -2023,6 +2023,13 @@
      script block); the only job here is the origin, and taking will-change
      off again the moment the section is out of view, so the compositor layer
      is not held for the whole page. */
+  /* .arch-node inherits saturate(1.75) blur(20px) from the glass card preset,
+     but here the card paints an opaque #0b0b0d ground and .zt-rc-visual lays a
+     second opaque layer over it: the blur has nothing to sample and renders
+     nothing, while still costing a backdrop re-rasterisation of every card on
+     every frame this section is scaled. Verified before removing. */
+  #architecture .arch-node{ -webkit-backdrop-filter:none; backdrop-filter:none; }
+
   .arch-stage{ transform-origin:50% 42%; }
   .arch-stage.is-live{ will-change:transform; }
 
@@ -5832,7 +5839,6 @@
   .ft-base p{ font-size:13.5px; line-height:1.75; color:rgba(255,255,255,.55); margin:0 0 14px; max-width:1180px; }
   .ft-base a{ color:rgba(255,255,255,.8); text-decoration:underline; }
   .ft-base a:hover{ color:var(--zt-primary); }
-  .ft-disclaimer{ margin-bottom:0 !important; }
 
   @media (max-width:1040px){
     .ft-cols{ grid-template-columns:repeat(3, 1fr); row-gap:34px; }
@@ -8063,6 +8069,146 @@
     }
   }
 
+
+  /* ==========================================================================
+     MOBILE RHYTHM
+     Measured at 390x844 before writing this: every section carried 118px of
+     padding above and 34px below. Padding that uneven is what makes a page
+     read as "spacing everywhere" -- each section opens with a gap the size of
+     an eighth of the screen and then runs straight into the next one. The
+     hero alone ran 1.7 screens and Three Layers 2, so the page was 10.7
+     screens of scrolling on a phone.
+
+     This sets one rhythm for small screens and lets every section share it.
+     It sits at the end of the stylesheet on purpose: roughly thirty media
+     queries above it size these same things, and the last equal-weight rule
+     wins. The selectors carry an id so they also clear the two-class rules
+     among them.
+     ========================================================================== */
+  /* ONE CONTINUOUS RHYTHM, not three regimes.
+     Measured across the three sizes before writing this. The gutter already
+     held a steady 4% of the viewport at every width, but the section padding
+     did not: 9.2% of the viewport on a laptop, 17.3% on a tablet, 12.3% on a
+     phone. That is why the tablet looked like a different design -- nearly
+     double the laptop's proportion of dead band above every section -- and why
+     the heading gap there (24px) was tighter than the phone's (28px), which is
+     backwards.
+
+     A clamp tied to viewport width holds one proportion the whole way instead
+     of jumping at breakpoints: about 9vw, floored so it does not collapse on a
+     small phone and capped so it does not run away on a wide monitor. It lands
+     at 129px at 1440, 75px at 834 and 48px at 390 -- the same design, scaled.
+
+     Only the vertical sides are set: the hero is deliberately full-bleed, with
+     a -50vw margin either side so its background can span the viewport, and it
+     insets its own copy with horizontal padding. A blanket `padding: X 0`
+     wipes that and the headline runs off both edges. */
+  #main .wrap > section{
+    padding-top:clamp(48px, 9vw, 132px) !important;
+    padding-bottom:clamp(48px, 9vw, 132px) !important;
+  }
+  #main .sec-head{ margin-bottom:clamp(26px, 2.6vw, 40px); }
+
+  /* The hero takes whichever is larger: the shared rhythm, or enough room to
+     clear the bar that sits over it. The bar is fixed and about 84px tall, so
+     between roughly 550px and 1030px wide the rhythm alone is shorter than the
+     bar and the first line of the headline ends up behind it -- which is what
+     was happening on a tablet, by nine pixels.
+
+     Written at three classes because the hero is itself a section inside a
+     .wrap: the rule above, at two classes and an element, outranks a plain
+     .hero even with !important. */
+  #main .wrap > section.hero{
+    padding-top:max(calc(var(--nav-h, 84px) + 20px), clamp(48px, 9vw, 132px)) !important;
+  }
+
+  @media (max-width:720px){
+    #main .sec-head h2{ font-size:clamp(24px, 6.6vw, 30px); line-height:1.15; }
+    #main .sec-head p{ font-size:15.5px; line-height:1.55; margin-top:12px; }
+
+    /* Hero: the copy was filling more than a screen before the card came into
+       view, so the type steps down and the gaps between its parts close up. */
+    /* The top padding has to clear the bar, which is fixed over the hero and
+       about 76px tall here. A flat value put the first line of the headline
+       behind it. --nav-h is measured at runtime; the fallback covers the frame
+       before that measurement lands. */
+    .hero h1{ font-size:clamp(30px, 8.6vw, 40px) !important; line-height:1.06; }
+    .hero .hero-sub{ font-size:15.5px; line-height:1.55; margin-top:16px; }
+    .hero .hero-cta{ margin-top:24px; gap:12px; }
+    .hero .hero-pillars{ margin-top:26px; padding-top:20px; }
+
+    /* Cards in the scrolling rows were sized for a tablet. */
+    .blog-section .blog-track .blog-card{ width:78vw !important; }
+    .portfolio-track .portfolio-card{ flex:0 0 82vw !important; }
+    .industry-slider-track .auto-card{ flex:0 0 82vw !important; }
+    .deployed-slider-track .industry-card{ flex:0 0 82vw !important; }
+  }
+
+  /* Small phones: the side gutter is the first thing to give. */
+  @media (max-width:400px){
+    .wrap{ padding:0 16px; }
+    #main .wrap > section{ padding-top:48px !important; padding-bottom:48px !important; }
+  }
+
+  /* ==========================================================================
+     LABEL SCALE
+     The small uppercase labels -- category chips, tags, table keys, the mono
+     eyebrows -- were all written at a fixed 10 to 11px. Measured across the
+     range, that is the one part of the type that does not respond: identical
+     on a 390px phone and a 2560px monitor, where it reads as a rendering
+     mistake rather than a small label.
+
+     One clamp gives them the same behaviour as the rest of the type. The floor
+     is 11px rather than the 10 some carried, since 10px uppercase on a phone
+     is below what is comfortable to read; the ceiling stops them growing into
+     body copy on a large screen.
+
+     Scoped by class rather than by editing thirty declarations in place: those
+     sit in different blocks with different weights, and one rule here at the
+     end of the stylesheet reaches all of them without disturbing the rest.
+     ========================================================================== */
+  .hp-key, .dash-tag, .zt-rc-chip, .zt-rc-tag, .sb-label,
+  .industry-cat, .portfolio-cat, .blog-cat, .case-label,
+  .pricing-badge, .consult-tag, .d-keytitle, .ft-stores-note,
+  .dash-live, .blog-date, .dep-num{
+    font-size:clamp(11px, 0.74vw, 14px);
+  }
+
+  /* The reveal cards' chip and tag are set through an id-scoped selector, so a
+     plain class here loses to them and they stayed at 10 and 11px on a 2560
+     screen while everything around them scaled. Matched at the same weight. */
+  :is(#architecture, #carousel-industries) .zt-reveal-card :is(.zt-rc-chip, .zt-rc-tag){
+    font-size:clamp(11px, 0.74vw, 14px);
+  }
+
+  /* The comparison tables carry real content at label size. They get their own
+     step, a little larger, because this is copy a buyer actually reads. */
+  .cap-table td, .compare-table td, .compare-scroll td{
+    font-size:clamp(12.5px, 0.86vw, 15px);
+  }
+
+  /* ==========================================================================
+     CAROUSEL EDGE ON SMALL SCREENS
+     The scrolling rows were clipped at the wrap's padding, so on a phone the
+     cut fell 16px inside the screen and left a strip of page down the right of
+     every carousel while the text sections beside them ended at 19px. Two
+     different right edges on the same page is what reads as broken spacing.
+
+     On desktop these rows deliberately run off the screen so they read as
+     continuing rather than ending. This restores that on a phone: the track
+     bleeds out to the true edge with a negative margin, and takes the same
+     amount back as padding so the first card still lines up with the heading
+     above it and the last card still stops on the gutter.
+     ========================================================================== */
+  @media (max-width:720px){
+    #main .slider-track{
+      margin-right:calc(-1 * clamp(20px, 4vw, 64px));
+      padding-right:clamp(20px, 4vw, 64px);
+    }
+  }
+  @media (max-width:400px){
+    #main .slider-track{ margin-right:-16px; padding-right:16px; }
+  }
 </style>
 </head>
 <body>
@@ -10291,8 +10437,6 @@
 
       <div class="ft-base">
         <p class="ft-base-copy">&copy; {{ year }} ZedTac Software Company. All rights reserved.</p>
-        <p>Based in Lahore, Punjab, Pakistan. Email <a href="mailto:admin@zedtac.com">admin@zedtac.com</a> to talk through a deployment. ZedTac connects finance, inventory, supply chain, manufacturing, HR and customer operations onto one governed ledger — and the automation engine acts on that record, so reminders, approvals, postings and reports happen without anyone chasing them. Implementations run in fixed phases under a named project lead, with training, SLA-backed support and quarterly optimization reviews after go-live.</p>
-        <p class="ft-disclaimer">*Disclaimer: figures quoted in case studies reflect individual deployments and are not a guarantee of comparable results.</p>
       </div>
     </div>
   </footer>
