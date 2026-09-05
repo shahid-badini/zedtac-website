@@ -8073,6 +8073,29 @@
   .cap-table td, .compare-table td, .compare-scroll td{
     font-size:clamp(12.5px, 0.86vw, 15px);
   }
+
+  /* ==========================================================================
+     CAROUSEL EDGE ON SMALL SCREENS
+     The scrolling rows were clipped at the wrap's padding, so on a phone the
+     cut fell 16px inside the screen and left a strip of page down the right of
+     every carousel while the text sections beside them ended at 19px. Two
+     different right edges on the same page is what reads as broken spacing.
+
+     On desktop these rows deliberately run off the screen so they read as
+     continuing rather than ending. This restores that on a phone: the track
+     bleeds out to the true edge with a negative margin, and takes the same
+     amount back as padding so the first card still lines up with the heading
+     above it and the last card still stops on the gutter.
+     ========================================================================== */
+  @media (max-width:720px){
+    #main .slider-track{
+      margin-right:calc(-1 * clamp(20px, 4vw, 64px));
+      padding-right:clamp(20px, 4vw, 64px);
+    }
+  }
+  @media (max-width:400px){
+    #main .slider-track{ margin-right:-16px; padding-right:16px; }
+  }
 </style>
 </head>
 <body>
