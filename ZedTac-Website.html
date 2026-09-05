@@ -853,6 +853,76 @@
     box-shadow:0 34px 60px -24px rgba(38,23,11,0.32); border-color:transparent;
   }
   .portfolio-thumb{ height:170px; position:relative; overflow:hidden; }
+  /* ---- deployment artwork + this section's own hover ----------------------
+     The cards were introduced by the light case-study illustrations. Each
+     deployment already carries a dark drawing of its own story on the same
+     data entry -- three plants resolving onto one line, two sales channels
+     merging into a single stock bar, a nine-day billing gap closing to two --
+     drawn for the Eight Sectors row and never used here. They are used here
+     now, so the picture and the case beneath it are about the same thing.
+
+     The hover is deliberately not the one the insights row uses. There the
+     cards resize and the row redistributes; here nothing moves sideways.
+     The card tilts on its own axis, the drawing pushes in behind it, and a
+     light sweeps diagonally across the artwork -- a card being picked up and
+     turned to the light, rather than a row rearranging itself. */
+  #case-studies .portfolio-card{
+    transform-style:preserve-3d;
+    transition:transform .5s var(--ease), box-shadow .5s var(--ease),
+               border-color .5s var(--ease);
+  }
+  #case-studies .portfolio-thumb .pf-scene{ position:absolute; inset:0; z-index:0; }
+  #case-studies .portfolio-thumb .pf-scene svg{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    transition:transform .6s var(--ease);
+  }
+  /* Settles the drawing into the card body instead of ending on a hard edge,
+     and gives the category chip a ground dark enough to read on. */
+  /* The drawings are 16:9. The thumb was a fixed 170px, so at the card's width
+     the scene was scaled to cover and lost a slice off both sides; matching the
+     ratio instead means the whole drawing is shown and nothing is cropped.
+     !important because a media query further down sets this height again at
+     the same weight. */
+  #case-studies .portfolio-thumb{
+    height:auto !important;
+    aspect-ratio:16 / 9;
+  }
+  /* The veil started at 48% and reached .72, which put a heavy wash over the
+     lower half of every drawing -- the half most of them put their result in.
+     It now starts low and stays light: enough ground for the category chip,
+     not enough to swallow the picture. */
+  #case-studies .portfolio-thumb .pf-veil{
+    position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(8,8,10,0) 68%, rgba(8,8,10,.46) 100%);
+  }
+  /* The sweep. Parked off the left edge and sent across on hover; a single
+     transform, so it composites. */
+  #case-studies .portfolio-thumb .pf-sheen{
+    position:absolute; top:-40%; bottom:-40%; left:-70%; width:55%;
+    z-index:1; pointer-events:none;
+    background:linear-gradient(100deg, rgba(255,255,255,0), rgba(255,255,255,.16), rgba(255,255,255,0));
+    transform:translateX(0) skewX(-14deg);
+    transition:transform .85s var(--ease);
+  }
+
+  @media (hover:hover) and (pointer:fine){
+    #case-studies .portfolio-card{ perspective:1000px; }
+    #case-studies .portfolio-card:hover{
+      transform:translateY(-10px) rotateX(4deg) rotateY(-4deg);
+      box-shadow:0 38px 66px -30px rgba(38,23,11,.45);
+      border-color:var(--zt-primary);
+    }
+    #case-studies .portfolio-card:hover .pf-scene svg{ transform:scale(1.1); }
+    #case-studies .portfolio-card:hover .pf-sheen{ transform:translateX(320%) skewX(-14deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #case-studies .portfolio-card,
+    #case-studies .portfolio-thumb .pf-scene svg,
+    #case-studies .portfolio-thumb .pf-sheen{ transition:none; }
+    #case-studies .portfolio-card:hover{ transform:none; }
+  }
+
   .portfolio-thumb img{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
     transition:transform .5s cubic-bezier(.22,1,.36,1);
@@ -1032,6 +1102,54 @@
     transform:translateY(-6px) scale(1.015);
     box-shadow:var(--zt-shadow); border-color:var(--zt-orange-light);
   }
+  /* ---- this section's own hover ------------------------------------------
+     The cards are narrower than the site's other rows, and the one under the
+     cursor widens where it stands while its neighbours give up the room. The
+     card never leaves its place, so nothing jumps and the eye does not have to
+     find it again -- the row simply redistributes.
+
+     Width rather than transform: a scaled card would overlap its neighbours
+     instead of displacing them, and overlapping is what made the earlier
+     centre-stage version feel like a different component bolted on. Here the
+     row stays a row.
+
+     flex:0 0 auto with an explicit width, because width transitions cleanly in
+     a flex line where a flex-basis on a shorthand does not always. */
+  /* .blog-section prefixed, not just .blog-track: two later rules in this
+     stylesheet size these cards at the same two-class weight -- one at 20vw
+     and a wider one inside a media query -- so an equal selector here loses on
+     source order and the width silently stays theirs. Three classes clears
+     both wherever they sit. */
+  .blog-section .blog-track .blog-card{
+    flex:0 0 auto !important;
+    width:clamp(206px, 21vw, 262px);
+    transition:width .45s var(--ease), opacity .45s var(--ease),
+               border-color .45s var(--ease), box-shadow .45s var(--ease);
+  }
+
+  @media (hover:hover) and (pointer:fine){
+    /* The neighbours narrow and step back a little. Dimming through
+       :not(:hover) rather than dimming all and undoing it, so the hovered card
+       never carries the property at all. */
+    .blog-section .blog-track:hover .blog-card:not(:hover){
+      width:clamp(178px, 17vw, 220px);
+      opacity:.62;
+    }
+    .blog-section .blog-track .blog-card:hover{
+      width:clamp(320px, 33vw, 430px);
+      border-color:var(--zt-primary);
+      box-shadow:0 26px 54px -26px rgba(38,23,11,.42);
+    }
+    /* The artwork has more room to fill, so it gets a little more height. */
+    .blog-section .blog-track .blog-card:hover .blog-thumb{ height:196px; }
+  }
+
+  /* Touch has no hover to leave: the row would keep one card wide and five
+     narrow after a tap. Reduced motion keeps the widths, drops the easing. */
+  @media (prefers-reduced-motion: reduce){
+    .blog-section .blog-track .blog-card{ transition:none; }
+  }
+
   .blog-thumb{
     height:150px; background:var(--grad); position:relative;
     display:flex; align-items:flex-end; padding:14px; overflow:hidden;
@@ -1048,6 +1166,33 @@
     transition:transform .5s cubic-bezier(.22,1,.36,1);
   }
   .blog-card:hover .blog-thumb img{ transform:scale(1.09) rotate(0.5deg); }
+  /* ---- article artwork ----------------------------------------------------
+     Each card used to borrow one of the method illustrations -- the same six
+     light drawings that appear on the ERP services page -- so a piece on data
+     migration and a piece on user adoption were introduced by pictures that
+     belonged to neither. They are now drawn per article, dark, in the same
+     language as the Eight Sectors scenes: #0b0b0d ground, white hairlines and
+     one orange accent carrying whatever the piece is actually about.
+
+     Inline SVG on the post's own data entry rather than six more files: it
+     scales to any card width, costs no request, and keeps the drawing next to
+     the words it illustrates. */
+  .blog-thumb .blog-scene{ position:absolute; inset:0; z-index:0; }
+  .blog-thumb .blog-scene svg{
+    position:absolute; inset:0; width:100%; height:100%; display:block;
+    transition:transform .5s var(--ease);
+  }
+  /* Settles the drawing into the card body rather than ending it on a hard
+     edge, and gives the category chip a ground dark enough to read on. */
+  .blog-thumb .blog-veil{
+    position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(8,8,10,0) 46%, rgba(8,8,10,.72) 100%);
+  }
+  .blog-card:hover .blog-scene svg{ transform:scale(1.05); }
+  @media (prefers-reduced-motion: reduce){
+    .blog-thumb .blog-scene svg{ transition:none; }
+  }
+
   .blog-cat{
     font-family:'JetBrains Mono',monospace; font-size:11px; color:#fff;
     background:rgba(0,0,0,0.35); padding:5px 10px; border-radius:var(--r-pill); position:relative; z-index:1;
@@ -8769,7 +8914,9 @@
         >
           <article class="portfolio-card" v-for="p in caseStudies" :key="p.title">
             <div class="portfolio-thumb">
-              <img :src="p.image" :alt="p.title + ' — ERP case study'" width="480" height="300" loading="lazy" decoding="async">
+              <span class="pf-scene" v-html="p.scene"></span>
+              <span class="pf-veil"></span>
+              <span class="pf-sheen" aria-hidden="true"></span>
               <span class="portfolio-cat">{{ p.category }}</span>
             </div>
             <div class="portfolio-body">
@@ -8824,7 +8971,8 @@
                   <span class="hero-shape bc1"></span>
                   <span class="hero-shape bc2"></span>
                 </div>
-                <img :src="b.image" :alt="b.title" width="480" height="300" loading="lazy" decoding="async">
+                <span class="blog-scene" v-html="b.scene"></span>
+                <span class="blog-veil"></span>
                 <span class="blog-cat">{{ b.category }}</span>
               </div>
               <div class="blog-body">
@@ -11038,7 +11186,7 @@ createApp({
       // single stock bar, a nine-day billing gap closing to two, and so on.
       // `image` is unchanged -- the Case Studies slider below still uses it.
       caseStudies: [
-        { title:'Multi-Plant Production Control', category:'Manufacturing', image:'images/case-manufacturing.svg',
+        { title:'Multi-Plant Production Control', category:'Manufacturing',           image:'images/case-manufacturing.svg',
           // Three separate plant stacks resolving into one work-order line.
           scene:'<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztD1" cx="50%" cy="30%" r="72%"><stop offset="0" stop-color="#FF9447" stop-opacity=".18"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="180" fill="#0b0b0d"/><rect width="320" height="180" fill="url(#ztD1)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 45h320M0 90h320M0 135h320M40 0v180M80 0v180M120 0v180M160 0v180M200 0v180M240 0v180M280 0v180"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".18"><rect x="26" y="30" width="58" height="40" rx="5"/><rect x="131" y="30" width="58" height="40" rx="5"/><rect x="236" y="30" width="58" height="40" rx="5"/></g><g fill="#fff" fill-opacity=".14"><rect x="36" y="42" width="16" height="16" rx="2"/><rect x="56" y="48" width="16" height="10" rx="2"/><rect x="141" y="46" width="16" height="12" rx="2"/><rect x="161" y="40" width="16" height="18" rx="2"/><rect x="246" y="44" width="16" height="14" rx="2"/><rect x="266" y="50" width="16" height="8" rx="2"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M55 70v14q0 10 10 10h85M160 70v24M265 70v14q0 10-10 10h-85"/></g><rect x="112" y="96" width="96" height="26" rx="7" fill="#FF9447" fill-opacity=".16" stroke="#FF9447" stroke-opacity=".6"/><g fill="#FF9447" fill-opacity=".8"><rect x="124" y="105" width="30" height="4" rx="2"/><rect x="124" y="113" width="18" height="3" rx="1.5"/></g><g stroke="#FF9447" stroke-opacity=".35" stroke-width="1.4" fill="none"><path d="M160 122v14"/></g><rect x="40" y="136" width="240" height="14" rx="7" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".16"/><path d="M52 143h172" stroke="#FF9447" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/></svg>',
           challenge:'Three plants planned in separate spreadsheets, so shortages surfaced on the shop floor.',
@@ -11132,12 +11280,18 @@ createApp({
       ],
 
       blogPosts: [
-        { title:'ERP Implementation Failures: The 5 Root Causes We See Most', category:'Implementation', date:'July 2026', image:'images/method-discovery.svg', excerpt:'Most ERP programs do not fail on technology. Here is what actually derails them, and the checkpoints that catch each one early.' },
-        { title:'Cloud ERP vs On-Premise: A CFO Decision Framework', category:'Cloud ERP', date:'July 2026', image:'images/method-golive.svg', excerpt:'Total cost of ownership, data control, compliance and upgrade cadence — compared honestly, without the vendor spin.' },
-        { title:'How to Plan an ERP Data Migration That Actually Reconciles', category:'Data Migration', date:'June 2026', image:'images/method-migration.svg', excerpt:'Cleansing, mapping, dry runs and sign-off gates: the sequence that keeps opening balances accurate at cutover.' },
-        { title:'Business Process Automation: Where to Start Inside Your ERP', category:'Automation', date:'June 2026', image:'images/method-build.svg', excerpt:'Approval chains, three-way matching and exception alerts — the automations that pay for themselves first.' },
-        { title:'Choosing ERP Modules for a Manufacturing Business', category:'Manufacturing', date:'May 2026', image:'images/case-manufacturing.svg', excerpt:'BOMs, routings, MRP and shop-floor costing — which modules matter at each stage of production growth.' },
-        { title:'Driving ERP User Adoption After Go-Live', category:'Training', date:'May 2026', image:'images/method-training.svg', excerpt:'The system works. Getting two hundred people to use it consistently is a separate project — here is how we run it.' },
+        { title:'ERP Implementation Failures: The 5 Root Causes We See Most', category:'Implementation', date:'July 2026', scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztB1" cx="50%" cy="28%" r="74%"><stop offset="0" stop-color="#FF9447" stop-opacity=".20"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztB1)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h320M0 100h320M0 150h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><path d="M24 150 H296" stroke="#fff" stroke-opacity=".16" stroke-width="1.6"/><g stroke="#fff" stroke-opacity=".13" stroke-width="1.4" stroke-dasharray="4 5" fill="none"><path d="M62 150 L52 108"/><path d="M114 150 L106 96"/><path d="M166 150 L160 112"/><path d="M218 150 L214 88"/><path d="M270 150 L266 104"/></g><g fill="#0b0b0d" stroke="#FF9447" stroke-opacity=".85" stroke-width="2"><circle cx="62" cy="150" r="7"/><circle cx="114" cy="150" r="7"/><circle cx="166" cy="150" r="7"/><circle cx="218" cy="150" r="7"/><circle cx="270" cy="150" r="7"/></g><g stroke="#FF9447" stroke-opacity=".9" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M59 150l2.5 3 4-5M111 150l2.5 3 4-5M163 150l2.5 3 4-5M215 150l2.5 3 4-5M267 150l2.5 3 4-5"/></g><g fill="#fff" fill-opacity=".10"><rect x="44" y="96" width="18" height="6" rx="3"/><rect x="96" y="84" width="22" height="6" rx="3"/><rect x="150" y="100" width="20" height="6" rx="3"/><rect x="202" y="76" width="24" height="6" rx="3"/><rect x="256" y="92" width="20" height="6" rx="3"/></g><rect x="24" y="30" width="72" height="8" rx="4" fill="#fff" fill-opacity=".12"/></svg>',
+          image:'images/method-discovery.svg', excerpt:'Most ERP programs do not fail on technology. Here is what actually derails them, and the checkpoints that catch each one early.' },
+        { title:'Cloud ERP vs On-Premise: A CFO Decision Framework', category:'Cloud ERP', date:'July 2026', scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztB2" cx="50%" cy="28%" r="74%"><stop offset="0" stop-color="#FF9447" stop-opacity=".20"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztB2)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h320M0 100h320M0 150h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><path d="M44 74a20 20 0 0 1 38-9 24 24 0 0 1 44 12 18 18 0 0 1-4 35H60a20 20 0 0 1-16-38z" fill="#FF9447" fill-opacity=".16" stroke="#FF9447" stroke-opacity=".6" stroke-width="1.5"/><g fill="#fff" fill-opacity=".14"><rect x="196" y="52" width="72" height="16" rx="3"/><rect x="196" y="74" width="72" height="16" rx="3"/><rect x="196" y="96" width="72" height="16" rx="3"/></g><g fill="#FF9447" fill-opacity=".55"><circle cx="206" cy="60" r="3"/><circle cx="206" cy="82" r="3"/><circle cx="206" cy="104" r="3"/></g><path d="M160 40v92" stroke="#fff" stroke-opacity=".10" stroke-width="1" stroke-dasharray="4 5"/><rect x="40" y="150" width="100" height="14" rx="7" fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".14"/><rect x="40" y="150" width="66" height="14" rx="7" fill="#FF9447" fill-opacity=".6"/><rect x="180" y="150" width="100" height="14" rx="7" fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".14"/><rect x="180" y="150" width="88" height="14" rx="7" fill="#fff" fill-opacity=".20"/></svg>',
+          image:'images/method-golive.svg', excerpt:'Total cost of ownership, data control, compliance and upgrade cadence — compared honestly, without the vendor spin.' },
+        { title:'How to Plan an ERP Data Migration That Actually Reconciles', category:'Data Migration', date:'June 2026', scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztB3" cx="50%" cy="28%" r="74%"><stop offset="0" stop-color="#FF9447" stop-opacity=".20"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztB3)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h320M0 100h320M0 150h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".09" stroke="#fff" stroke-opacity=".16"><rect x="22" y="52" width="76" height="14" rx="3"/><rect x="22" y="74" width="76" height="14" rx="3"/><rect x="22" y="96" width="76" height="14" rx="3"/><rect x="22" y="118" width="76" height="14" rx="3"/></g><path d="M104 60 L146 88 L146 112 L104 140" fill="#FF9447" fill-opacity=".12" stroke="#FF9447" stroke-opacity=".5"/><g stroke="#FF9447" stroke-opacity=".45" stroke-width="1.3" fill="none" stroke-dasharray="4 4"><path d="M146 94 H196"/><path d="M146 106 H196"/></g><g fill="#fff" fill-opacity=".13" stroke="#fff" stroke-opacity=".2"><rect x="200" y="66" width="94" height="16" rx="3"/><rect x="200" y="90" width="94" height="16" rx="3"/><rect x="200" y="114" width="94" height="16" rx="3"/></g><g stroke="#FF9447" stroke-opacity=".9" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M276 72l3 4 6-8M276 96l3 4 6-8M276 120l3 4 6-8"/></g><rect x="200" y="152" width="60" height="8" rx="4" fill="#FF9447" fill-opacity=".5"/></svg>',
+          image:'images/method-migration.svg', excerpt:'Cleansing, mapping, dry runs and sign-off gates: the sequence that keeps opening balances accurate at cutover.' },
+        { title:'Business Process Automation: Where to Start Inside Your ERP', category:'Automation', date:'June 2026', scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztB4" cx="50%" cy="28%" r="74%"><stop offset="0" stop-color="#FF9447" stop-opacity=".20"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztB4)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h320M0 100h320M0 150h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".18"><rect x="26" y="40" width="52" height="34" rx="4"/><rect x="26" y="82" width="52" height="34" rx="4"/><rect x="26" y="124" width="52" height="34" rx="4"/></g><g fill="#fff" fill-opacity=".14"><rect x="34" y="50" width="28" height="4" rx="2"/><rect x="34" y="92" width="28" height="4" rx="2"/><rect x="34" y="134" width="28" height="4" rx="2"/></g><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M78 57 H104 q10 0 10 10 v22"/><path d="M78 99 H114"/><path d="M78 141 H104 q10 0 10-10 v-22"/></g><circle cx="132" cy="99" r="18" fill="#FF9447" fill-opacity=".16" stroke="#FF9447" stroke-opacity=".7"/><path d="M125 99l5 5 9-11" fill="none" stroke="#FF9447" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M150 99 H180"/><path d="M212 99 H242"/></g><g fill="#0b0b0d" stroke="#fff" stroke-opacity=".3" stroke-width="1.6"><circle cx="196" cy="99" r="14"/><circle cx="258" cy="99" r="14"/></g><g fill="#FF9447" fill-opacity=".75"><circle cx="196" cy="99" r="5"/></g><path d="M252 99h12M258 93v12" stroke="#fff" stroke-opacity=".35" stroke-width="1.6" stroke-linecap="round"/><rect x="286" y="86" width="10" height="26" rx="5" fill="#FF9447" fill-opacity=".5"/></svg>',
+          image:'images/method-build.svg', excerpt:'Approval chains, three-way matching and exception alerts — the automations that pay for themselves first.' },
+        { title:'Choosing ERP Modules for a Manufacturing Business', category:'Manufacturing', date:'May 2026', scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztB5" cx="50%" cy="28%" r="74%"><stop offset="0" stop-color="#FF9447" stop-opacity=".20"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztB5)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h320M0 100h320M0 150h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><rect x="132" y="30" width="56" height="24" rx="5" fill="#fff" fill-opacity=".12" stroke="#fff" stroke-opacity=".2"/><g stroke="#fff" stroke-opacity=".16" stroke-width="1.3" fill="none"><path d="M160 54 v14 H84 v12"/><path d="M160 68 H236 v12"/><path d="M160 54 v26"/></g><g fill="#fff" fill-opacity=".08" stroke="#fff" stroke-opacity=".16"><rect x="58" y="80" width="52" height="22" rx="4"/><rect x="134" y="80" width="52" height="22" rx="4"/><rect x="210" y="80" width="52" height="22" rx="4"/></g><g stroke="#FF9447" stroke-opacity=".5" stroke-width="1.5" fill="none" stroke-dasharray="5 4"><path d="M84 102 v16 H236 v-16"/></g><g fill="#fff" fill-opacity=".07" stroke="#fff" stroke-opacity=".16"><rect x="40" y="124" width="34" height="20" rx="4"/><rect x="88" y="124" width="34" height="20" rx="4"/><rect x="136" y="124" width="34" height="20" rx="4"/><rect x="184" y="124" width="34" height="20" rx="4"/><rect x="232" y="124" width="34" height="20" rx="4"/></g><rect x="40" y="160" width="226" height="12" rx="6" fill="#fff" fill-opacity=".06" stroke="#fff" stroke-opacity=".14"/><rect x="40" y="160" width="150" height="12" rx="6" fill="#FF9447" fill-opacity=".6"/></svg>',
+          image:'images/case-manufacturing.svg', excerpt:'BOMs, routings, MRP and shop-floor costing — which modules matter at each stage of production growth.' },
+        { title:'Driving ERP User Adoption After Go-Live', category:'Training', date:'May 2026', scene:'<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ztB6" cx="50%" cy="28%" r="74%"><stop offset="0" stop-color="#FF9447" stop-opacity=".20"/><stop offset="1" stop-color="#FF9447" stop-opacity="0"/></radialGradient></defs><rect width="320" height="200" fill="#0b0b0d"/><rect width="320" height="200" fill="url(#ztB6)"/><g stroke="#fff" stroke-opacity=".05"><path d="M0 50h320M0 100h320M0 150h320M40 0v200M80 0v200M120 0v200M160 0v200M200 0v200M240 0v200M280 0v200"/></g><rect x="26" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="50" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="74" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="98" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="122" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="146" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="170" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="194" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="218" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="242" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="266" y="40" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="26" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="50" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="74" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="98" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="122" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="146" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="170" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="194" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="218" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="242" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="266" y="60" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="26" y="80" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="50" y="80" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="74" y="80" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="98" y="80" width="16" height="12" rx="3" fill="#FF9447" fill-opacity=".55"/><rect x="122" y="80" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="146" y="80" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="170" y="80" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="194" y="80" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="218" y="80" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="242" y="80" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="266" y="80" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="26" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="50" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="74" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="98" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="122" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="146" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="170" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="194" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="218" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="242" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><rect x="266" y="100" width="16" height="12" rx="3" fill="#fff" fill-opacity=".08"/><path d="M26 156 Q90 150 132 138 T226 112 T294 96" fill="none" stroke="#FF9447" stroke-opacity=".8" stroke-width="2.2" stroke-linecap="round"/><circle cx="294" cy="96" r="4.5" fill="#FF9447"/><path d="M26 168 H294" stroke="#fff" stroke-opacity=".10" stroke-width="1"/></svg>',
+          image:'images/method-training.svg', excerpt:'The system works. Getting two hundred people to use it consistently is a separate project — here is how we run it.' },
       ],
 
       // FAQ tabs. The section's eyebrow/heading/sub above the accordion are
