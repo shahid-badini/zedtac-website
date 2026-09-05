@@ -1935,6 +1935,52 @@
   #architecture .arch-node-points li{ color:rgba(255,255,255,.6); }
   #architecture .arch-rail-line{ opacity:.75; }
 
+  /* ==========================================================================
+     PERFORMANCE -- paint that cannot show, and work done off screen
+     Measured on the live page with getComputedStyle, not guessed. Numbers in
+     the comments are what was counted on 2026-08-31.
+     ========================================================================== */
+
+  /* 26 backdrop-filters that render nothing. Each of these elements paints an
+     opaque background over its own blur, so the browser sampled and blurred a
+     backdrop for every one of them and then covered it completely. Checked per
+     element: EVERY instance of these classes is opaque, not merely some, which
+     is why this can be a flat list. The .zt-rc-chip and .zt-rc-wash blurs are
+     genuinely visible and are deliberately not in it.
+     !important because these blurs come from shared card presets that several
+     id-scoped rules also touch; a plain class selector loses to them. */
+  .portfolio-card, .auto-card, .blog-card, .btn,
+  .dash-card, .solution-split, .cookie-banner{
+    -webkit-backdrop-filter:none !important; backdrop-filter:none !important;
+  }
+
+  /* NO content-visibility on the footer. It was tried here -- the footer is
+     3563px tall and runs 24 infinite animations -- and it made the footer
+     content hide and reappear while scrolling. The footer subtree gets
+     skipped and unskipped as it nears the viewport, its layout is thrown away
+     and rebuilt each time, and contain-intrinsic-size can only ever be a
+     guess at a height that changes with the route, so the reserved space and
+     the real space disagree and the block jumps.
+
+     It is not worth it, because the win it was bought for is already had
+     elsewhere: .zt-idle below parks those same 24 animations when the footer
+     is off screen, and does it by touching animation-play-state only, which
+     drives neither layout nor paint and so cannot make anything disappear. */
+
+  /* Decorative motion outside the viewport is work nobody can see. A small
+     module marks off-screen blocks with .zt-idle and everything animating
+     inside them parks until it returns. Only animation-play-state is touched:
+     no layout, no paint, and each animation resumes where it stopped instead
+     of restarting.
+     NOT content-visibility for these, unlike the footer: several of these
+     blocks paint a full-bleed ::before band wider than their own box, and the
+     paint containment content-visibility implies would clip it. */
+  .zt-idle, .zt-idle *,
+  .zt-idle::before, .zt-idle::after,
+  .zt-idle *::before, .zt-idle *::after{
+    animation-play-state:paused !important;
+  }
+
   /* ---------- THREE LAYERS -- scroll-linked lift -------------------------
      The only thing this adds to the section is movement, driven by scroll
      position alone -- there is no hover or cursor behaviour here or in the
@@ -1959,6 +2005,13 @@
      script block); the only job here is the origin, and taking will-change
      off again the moment the section is out of view, so the compositor layer
      is not held for the whole page. */
+  /* .arch-node inherits saturate(1.75) blur(20px) from the glass card preset,
+     but here the card paints an opaque #0b0b0d ground and .zt-rc-visual lays a
+     second opaque layer over it: the blur has nothing to sample and renders
+     nothing, while still costing a backdrop re-rasterisation of every card on
+     every frame this section is scaled. Verified before removing. */
+  #architecture .arch-node{ -webkit-backdrop-filter:none; backdrop-filter:none; }
+
   .arch-stage{ transform-origin:50% 42%; }
   .arch-stage.is-live{ will-change:transform; }
   /* The effect is motion and nothing else, so reduced-motion drops it wholly.
@@ -12568,7 +12621,8 @@ if (THREE) (function () {
   const ENTER_LIFT  = 52;     // px it rises through on the way in
   const ENTER_END   = 0.30;   // progress at which it has arrived
   const EXIT_START  = 0.84;   // progress at which it starts settling back
-  const EASE = 0.20;          // per-frame approach to the target
+  const EASE = 0.20;          // approach to the target, per 60Hz frame
+  const FRAME = 1000 / 60;    // the cadence EASE is expressed against
 
   const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -12576,11 +12630,39 @@ if (THREE) (function () {
   function createStage(stage){
     let raf = 0, running = false;
     let curS = 1, curY = 0;
+    let last = 0;
+    let refTop = 0, refH = 0;
 
-    function frame(){
-      const r = stage.getBoundingClientRect();          // read
+    const ref = stage.parentElement || stage;
+
+    /* NO getBoundingClientRect IN THE LOOP.
+       Reading a rect forces the browser to flush any pending style and layout
+       first. The loop also wrote a transform at the end of every frame, so
+       each frame's read had to settle the previous frame's write: a forced
+       synchronous layout, sixty times a second, which is what the remaining
+       stutter actually was.
+
+       The geometry the curve needs -- where the section sits in the document,
+       and how tall it is -- does not change while scrolling. So it is measured
+       once and re-measured only when it can genuinely differ: when the loop
+       starts, when the window resizes, and when the section's own height
+       changes. Per frame the only reading is window.scrollY, which is a value
+       the browser already has and does not have to lay anything out to give.  */
+    function measure(){
+      const r = ref.getBoundingClientRect();
+      refTop = r.top + (window.scrollY || window.pageYOffset || 0);
+      refH = r.height;
+    }
+
+    const ro = typeof ResizeObserver === 'function'
+      ? new ResizeObserver(measure) : null;
+    if (ro) ro.observe(ref);
+    window.addEventListener('resize', measure, { passive: true });
+
+    function frame(now){
       const vh = window.innerHeight || 1;
-      const p = clamp((vh - r.top) / (vh + r.height), 0, 1);
+      const top = refTop - (window.scrollY || window.pageYOffset || 0);
+      const p = clamp((vh - top) / (vh + refH), 0, 1);
 
       let s, y;
       if (p < ENTER_END){
@@ -12594,8 +12676,13 @@ if (THREE) (function () {
         y = 0;
       }
 
-      curS += (s - curS) * EASE;
-      curY += (y - curY) * EASE;
+      // Time-corrected: a fixed per-frame fraction converges twice as fast on
+      // a 120Hz panel as on 60Hz, and lurches after a dropped frame.
+      const dt = last ? Math.min(64, now - last) : FRAME;
+      last = now;
+      const k = 1 - Math.pow(1 - EASE, dt / FRAME);
+      curS += (s - curS) * k;
+      curY += (y - curY) * k;
 
       stage.style.transform =                            // write
         'translate3d(0,' + curY.toFixed(2) + 'px,0) scale(' + curS.toFixed(4) + ')';
@@ -12606,6 +12693,8 @@ if (THREE) (function () {
     function start(){
       if (running || reduceMQ.matches) return;
       running = true;
+      last = 0;
+      measure();                    // it may have moved while away
       stage.classList.add('is-live');
       raf = requestAnimationFrame(frame);
     }
@@ -12640,6 +12729,8 @@ if (THREE) (function () {
       dispose(){
         stop();
         io.disconnect();
+        if (ro) ro.disconnect();
+        window.removeEventListener('resize', measure);
         if (reduceMQ.removeEventListener) reduceMQ.removeEventListener('change', onReduceChange);
         else if (reduceMQ.removeListener) reduceMQ.removeListener(onReduceChange);
       }
@@ -12666,6 +12757,82 @@ if (THREE) (function () {
 
   new MutationObserver(queueSync).observe(document.body, { childList: true, subtree: true });
 
+  queueSync();
+})();
+
+/* ============================================================================
+   OFF-SCREEN IDLE -- park decorative animation nobody can see
+   Pairs with the .zt-idle rules in <style>.
+
+   WHY. The page is roughly 14,400px tall and runs 46 infinite CSS animations,
+   all of them all of the time -- including the footer's 24 while the visitor
+   is still on the hero, 10,872px above it. None of that is visible, and it is
+   the difference between an idle compositor and a busy one during a scroll.
+
+   WHAT IT DOES. One IntersectionObserver over the top-level blocks. A block
+   that leaves the viewport (plus half a screen of margin either side) gets
+   .zt-idle, which parks every animation inside it through
+   animation-play-state. Coming back removes it and they resume from where
+   they stopped: paused, not cancelled, so nothing restarts or jumps.
+
+   WHY NOT content-visibility ANYWHERE. Two separate reasons. Most of these
+   blocks paint a full-bleed ::before band wider than their own box, and the
+   paint containment it implies would clip that. The footer has no such band
+   and did use it for a while, but skipping and unskipping a 3563px block
+   while scrolling made its content visibly hide and return, so it came back
+   out. Pausing animations achieves the same saving without touching whether
+   anything renders.
+
+   COST. animation-play-state drives neither layout nor paint, so a toggle is
+   a style recalc on that subtree and nothing else. The observer is passive:
+   no scroll handler, no rAF loop, nothing per frame.
+
+   REDUCED MOTION. Nothing to do. The animations are already suppressed
+   elsewhere and pausing a stopped animation is a no-op.
+
+   LIFECYCLE. Vue's v-if swaps the page subtree on route changes, so this uses
+   the same MutationObserver and debounced re-sync as the modules above and
+   picks up whatever blocks currently exist. A WeakSet keeps each block from
+   being observed twice and lets detached ones be collected.
+   ============================================================================ */
+(function(){
+  // Grandchildren of #main, not children: #main holds one wrapper per route
+  // (.zt-home and friends) and the actual sections are inside it. Observing
+  // the children would mean one 10,872px block that is always intersecting,
+  // so nothing would ever park. The grandchildren are the .wrap sections --
+  // eight of them, 944px to 2874px, against a viewport around 900px.
+  const BLOCKS = '#main > * > *, footer';
+
+  let io = null;
+  const seen = new WeakSet();
+
+  function observer(){
+    if (io) return io;
+    io = new IntersectionObserver(entries => {
+      for (const entry of entries){
+        entry.target.classList.toggle('zt-idle', !entry.isIntersecting);
+      }
+    }, { rootMargin: '50% 0px 50% 0px', threshold: 0 });
+    return io;
+  }
+
+  function sync(){
+    const obs = observer();
+    for (const block of document.querySelectorAll(BLOCKS)){
+      if (seen.has(block)) continue;
+      seen.add(block);
+      obs.observe(block);
+    }
+  }
+
+  let queued = false;
+  function queueSync(){
+    if (queued) return;
+    queued = true;
+    setTimeout(() => { queued = false; sync(); }, 0);
+  }
+
+  new MutationObserver(queueSync).observe(document.body, { childList: true, subtree: true });
   queueSync();
 })();
 </script>
