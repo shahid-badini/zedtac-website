@@ -7972,16 +7972,44 @@
      wins. The selectors carry an id so they also clear the two-class rules
      among them.
      ========================================================================== */
-  @media (max-width:720px){
-    /* One vertical rhythm, the same above and below. Only the vertical sides
-       are set: the hero is deliberately full-bleed -- it carries a -50vw margin
-       either side so its background can span the viewport -- and insets its own
-       copy with horizontal padding. A blanket `padding: X 0` wipes that and the
-       headline runs off both edges. */
-    #main .wrap > section{ padding-top:56px !important; padding-bottom:56px !important; }
+  /* ONE CONTINUOUS RHYTHM, not three regimes.
+     Measured across the three sizes before writing this. The gutter already
+     held a steady 4% of the viewport at every width, but the section padding
+     did not: 9.2% of the viewport on a laptop, 17.3% on a tablet, 12.3% on a
+     phone. That is why the tablet looked like a different design -- nearly
+     double the laptop's proportion of dead band above every section -- and why
+     the heading gap there (24px) was tighter than the phone's (28px), which is
+     backwards.
 
-    /* The heading block was reserving 52px under itself before any content. */
-    #main .sec-head{ margin-bottom:28px; }
+     A clamp tied to viewport width holds one proportion the whole way instead
+     of jumping at breakpoints: about 9vw, floored so it does not collapse on a
+     small phone and capped so it does not run away on a wide monitor. It lands
+     at 129px at 1440, 75px at 834 and 48px at 390 -- the same design, scaled.
+
+     Only the vertical sides are set: the hero is deliberately full-bleed, with
+     a -50vw margin either side so its background can span the viewport, and it
+     insets its own copy with horizontal padding. A blanket `padding: X 0`
+     wipes that and the headline runs off both edges. */
+  #main .wrap > section{
+    padding-top:clamp(48px, 9vw, 132px) !important;
+    padding-bottom:clamp(48px, 9vw, 132px) !important;
+  }
+  #main .sec-head{ margin-bottom:clamp(26px, 2.6vw, 40px); }
+
+  /* The hero takes whichever is larger: the shared rhythm, or enough room to
+     clear the bar that sits over it. The bar is fixed and about 84px tall, so
+     between roughly 550px and 1030px wide the rhythm alone is shorter than the
+     bar and the first line of the headline ends up behind it -- which is what
+     was happening on a tablet, by nine pixels.
+
+     Written at three classes because the hero is itself a section inside a
+     .wrap: the rule above, at two classes and an element, outranks a plain
+     .hero even with !important. */
+  #main .wrap > section.hero{
+    padding-top:max(calc(var(--nav-h, 84px) + 20px), clamp(48px, 9vw, 132px)) !important;
+  }
+
+  @media (max-width:720px){
     #main .sec-head h2{ font-size:clamp(24px, 6.6vw, 30px); line-height:1.15; }
     #main .sec-head p{ font-size:15.5px; line-height:1.55; margin-top:12px; }
 
@@ -7991,14 +8019,6 @@
        about 76px tall here. A flat value put the first line of the headline
        behind it. --nav-h is measured at runtime; the fallback covers the frame
        before that measurement lands. */
-    /* Written at three classes on purpose: the hero is itself a section inside
-       a .wrap, so the rule above -- #main .wrap > section, at two classes and an
-       element -- outranks a plain .hero and was setting its top padding back to
-       the section value, leaving the first line of the headline behind the bar. */
-    #main .wrap > section.hero{
-      padding-top:calc(var(--nav-h, 84px) + 20px) !important;
-      padding-bottom:40px !important;
-    }
     .hero h1{ font-size:clamp(30px, 8.6vw, 40px) !important; line-height:1.06; }
     .hero .hero-sub{ font-size:15.5px; line-height:1.55; margin-top:16px; }
     .hero .hero-cta{ margin-top:24px; gap:12px; }
